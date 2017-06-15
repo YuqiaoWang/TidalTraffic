@@ -9,7 +9,7 @@ public class Vertex {
     public String[] portId;
 
     public Vertex(String nodeId) {
-        this(nodeId,1);
+        this(nodeId,3);//默认3个端口
     }
 
     public Vertex(String nodeId, int portNumber) {

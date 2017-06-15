@@ -1,0 +1,12 @@
+{
+  "Graph": {
+    "edge": {"nodeId": 1, "nodeId": 2},
+    "edge": {"nodeId": 2, "nodeId": 3},
+    "edge": {"nodeId": 1, "nodeId": 3},
+    "edge": {"nodeId": 3, "nodeId": 4},
+    "edge": {"nodeId": 4, "nodeId": 5},
+    "edge": {"nodeId": 5, "nodeId": 6},
+    "edge": {"nodeId": 2, "nodeId": 6},
+    "edge": {"nodeId": 6, "nodeId": 7}
+  }
+}
