@@ -17,7 +17,7 @@ import java.util.List;
  * Created by yuqia on 2017/6/15.
  */
 public class SimpleGraph {
-    public SimpleWeightedGraph<Vertex, SimpleEdge> graph= new SimpleWeightedGraph(SimpleEdge.class);
+    public SimpleWeightedGraph<Vertex, SimpleEdge> graph= new SimpleWeightedGraph<Vertex, SimpleEdge>(SimpleEdge.class);
     public HashMap<String, Vertex> vertexHashMap = new HashMap<String, Vertex>();
 
     public SimpleWeightedGraph<Vertex,SimpleEdge> parseJsonToGraph() {
@@ -38,6 +38,8 @@ public class SimpleGraph {
                 Vertex desNode = new Vertex(desId);
                 vertexHashMap.put(srcId, srcNode);
                 vertexHashMap.put(desId, desNode);
+                graph.addVertex(srcNode);
+                graph.addVertex(desNode);
                 graph.addEdge(srcNode, desNode);
 
             }
@@ -48,6 +50,7 @@ public class SimpleGraph {
 
         return this.graph;
     }
+
 
     public static void main(String[] args) {
         SimpleGraph mysimpleGraph = new SimpleGraph();

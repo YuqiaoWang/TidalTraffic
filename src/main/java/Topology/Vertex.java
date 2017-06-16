@@ -17,7 +17,22 @@ public class Vertex {
         this.portNumber =portNumber;
         this.portId = new String[portNumber];
         for(int i = 0; i < portNumber; i++) {
-            portId[i] = Integer.toString(portNumber);
+            portId[i] = Integer.toString(i);
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        Vertex x = (Vertex) obj;
+        if(x.hashCode() == this.hashCode()) {
+            return true;
+        }else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.parseInt(this.nodeId);
     }
 }
