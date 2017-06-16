@@ -68,7 +68,7 @@ class GenerationThread extends Thread {
             if(b >= c) {
                 x++;
             }
-        }while (b >= c );
+        }while (b >= c);
 
         return x;
     }

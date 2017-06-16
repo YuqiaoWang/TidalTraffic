@@ -1,12 +1,23 @@
 {
   "Graph": {
-    "edge": {"nodeId": 1, "nodeId": 2},
-    "edge": {"nodeId": 2, "nodeId": 3},
-    "edge": {"nodeId": 1, "nodeId": 3},
-    "edge": {"nodeId": 3, "nodeId": 4},
-    "edge": {"nodeId": 4, "nodeId": 5},
-    "edge": {"nodeId": 5, "nodeId": 6},
-    "edge": {"nodeId": 2, "nodeId": 6},
-    "edge": {"nodeId": 6, "nodeId": 7}
+    "vertex" :[
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "edge": [
+      {"srcId": 1, "desId": 2},
+      {"srcId": 2, "desId": 3},
+      {"srcId": 1, "desId": 3},
+      {"srcId": 3, "desId": 4},
+      {"srcId": 4, "desId": 5},
+      {"srcId": 5, "desId": 6},
+      {"srcId": 2, "desId": 6},
+      {"srcId": 6, "desId": 7}
+    ]
   }
 }

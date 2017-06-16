@@ -16,5 +16,8 @@ public class Vertex {
         this.nodeId = nodeId;
         this.portNumber =portNumber;
         this.portId = new String[portNumber];
+        for(int i = 0; i < portNumber; i++) {
+            portId[i] = Integer.toString(portNumber);
+        }
     }
 }
