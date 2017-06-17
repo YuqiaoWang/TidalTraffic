@@ -34,16 +34,16 @@ public class SimpleGraph {
                 JsonObject edgeObject = (JsonObject)edgeIterator.next();
                 String srcId = edgeObject.get("srcId").toString();
                 String desId = edgeObject.get("desId").toString();
+                double metric = Double.valueOf(edgeObject.get("metric").toString());
                 Vertex srcNode = new Vertex(srcId);
                 Vertex desNode = new Vertex(desId);
                 vertexHashMap.put(srcId, srcNode);
                 vertexHashMap.put(desId, desNode);
                 graph.addVertex(srcNode);
                 graph.addVertex(desNode);
-                graph.addEdge(srcNode, desNode);
-
+                SimpleEdge edge = graph.addEdge(srcNode, desNode);
+                graph.setEdgeWeight(edge, metric);
             }
-            int i = 1;
         }catch (Exception e) {
             e.printStackTrace();
         }
@@ -52,8 +52,9 @@ public class SimpleGraph {
     }
 
 
+    /*
     public static void main(String[] args) {
         SimpleGraph mysimpleGraph = new SimpleGraph();
         mysimpleGraph.parseJsonToGraph();
-    }
+    }*/
 }

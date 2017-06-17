@@ -9,6 +9,7 @@ public class SimpleEdge extends DefaultWeightedEdge {
     Vertex srcVertex;
     Vertex desVertex;
     double capacity;
+    double metric;
     int numberOfWavelenth;
     public SimpleEdge() {
 
@@ -23,6 +24,27 @@ public class SimpleEdge extends DefaultWeightedEdge {
         this.desVertex = desVertex;
         this.capacity = capacity;
         this.numberOfWavelenth = numberOfWavelenth;
+    }
+
+    @Override
+    public int hashCode() {
+        int x = srcVertex.hashCode();
+        int y = desVertex.hashCode();
+        return x * y + x + y;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        SimpleEdge x = (SimpleEdge)obj;
+        if(x.srcVertex.nodeId.equals(this.srcVertex.nodeId) &&
+                x.desVertex.nodeId.equals(this.desVertex.nodeId)) {
+            return true;
+        }else if(x.srcVertex.nodeId.equals(this.desVertex.nodeId) || x.desVertex.nodeId.equals(this.srcVertex.nodeId)) {
+            return true;
+        }else {
+            return false;
+        }
+
     }
 
 }
