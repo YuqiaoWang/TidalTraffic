@@ -32,6 +32,7 @@ public class PoissionStream extends Thread {
                 System.out.println("desNodeId: " + service.desNode.nodeId);
                 System.out.printf("bandwidth: %.2f \n" , service.bandwidth);
                 System.out.println("serviceTime: " + service.serviceTime);
+                service.setServiceId(String.format("%4d", i).replace(" ", "0"));
                 listOfServices.add(service);
             }catch (Exception e) {
                 e.printStackTrace();

@@ -6,6 +6,7 @@ import Topology.Vertex;
  * Created by yuqia_000 on 2017/6/15.
  */
 public class Service {
+    String serviceId;
     Vertex srcNode;     //源节点
     Vertex desNode;     //宿节点
     double bandwidth;   //带宽
@@ -24,5 +25,26 @@ public class Service {
 
     public boolean isPathComputed(){
         return isComputed;
+    }
+
+    public void setServiceId(String s) {
+        serviceId = s;
+    }
+
+    @Override
+    public int hashCode() {
+        int x = srcNode.hashCode();
+        int y = desNode.hashCode();
+        return (x * y + x + y) * (int)bandwidth;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        Service x = (Service)obj;
+        if(x.hashCode() == this.hashCode()) {
+            return true;
+        }else {
+            return false;
+        }
     }
 }
