@@ -5,6 +5,7 @@ import Topology.Vertex;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * Created by yuqia on 2017/6/14.
@@ -12,6 +13,14 @@ import java.util.Random;
 public class PoissionStream extends Thread {
     public double lambda = 4;
     public List<Service> listOfServices = new ArrayList<Service>();
+    public BlockingQueue<Service> serviceBlockingQueue;
+
+    public PoissionStream() {
+
+    }
+    public PoissionStream(BlockingQueue<Service> bq) {
+        this.serviceBlockingQueue = bq;
+    }
 
     @Override
     public void run() {
@@ -27,12 +36,13 @@ public class PoissionStream extends Thread {
             }
             try{
                 this.sleep(time);     //用线程休眠来模拟泊松流到达过程
-                System.out.println("业务到来，距上次 " + time/1000 + " 秒");
+                service.setServiceId(String.format("%4d", i).replace(" ", "0"));
+                System.out.println("业务 " + service.serviceId + " 到来，距上次 " + time/1000 + " 秒");
                 System.out.println("srcNodeId: " + service.srcNode.nodeId);
                 System.out.println("desNodeId: " + service.desNode.nodeId);
                 System.out.printf("bandwidth: %.2f \n" , service.bandwidth);
                 System.out.println("serviceTime: " + service.serviceTime);
-                service.setServiceId(String.format("%4d", i).replace(" ", "0"));
+                serviceBlockingQueue.put(service);
                 listOfServices.add(service);
             }catch (Exception e) {
                 e.printStackTrace();

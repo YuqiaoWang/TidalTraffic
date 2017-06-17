@@ -26,12 +26,13 @@ public class SimpleEdge extends DefaultWeightedEdge {
         this.numberOfWavelenth = numberOfWavelenth;
     }
 
+    /*
     @Override
     public int hashCode() {
         int x = srcVertex.hashCode();
         int y = desVertex.hashCode();
-        return x * y + x + y;
-    }
+        return (x * y + x + y);
+    }*/
 
     @Override
     public boolean equals(Object obj) {

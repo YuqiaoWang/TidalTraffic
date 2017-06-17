@@ -33,6 +33,6 @@ public class Vertex {
 
     @Override
     public int hashCode() {
-        return Integer.parseInt(this.nodeId);
+        return Integer.valueOf(this.nodeId);
     }
 }

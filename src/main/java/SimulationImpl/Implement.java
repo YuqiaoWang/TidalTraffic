@@ -1,7 +1,10 @@
 package SimulationImpl;
-import Service.Service;
-import Service.PoissionStream;
+import Service.*;
 import Topology.*;
+
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+
 /**
  * Created by yuqia_000 on 2017/6/17.
  */
@@ -11,11 +14,15 @@ public class Implement {
         SimpleGraph simpleGraph = new SimpleGraph();
         simpleGraph.parseJsonToGraph();
 
-        //业务发生
-        PoissionStream poissionStream = new PoissionStream();
-        poissionStream.start();
+        //业务发生 与 初步算路
+        BlockingQueue<Service> servicesToComputePath = new ArrayBlockingQueue<Service>(10);
+        PoissionStream poissionStreamThread = new PoissionStream(servicesToComputePath);
+        ComputePath computePathThread = new ComputePath(servicesToComputePath, simpleGraph.graph);
 
-        //初步算路
+        poissionStreamThread.start();
+        computePathThread.start();
+
+
 
     }
 }
