@@ -6,11 +6,13 @@ import org.jgrapht.graph.DefaultWeightedEdge;
  * Created by yuqia on 2017/6/15.
  */
 public class SimpleEdge extends DefaultWeightedEdge {
-    Vertex srcVertex;
-    Vertex desVertex;
-    double capacity;
-    double metric;
-    int numberOfWavelenth;
+    public Vertex srcVertex;
+    public Vertex desVertex;
+    public double capacity;
+    public double unitWavelength = 6.25;  //每个波长的固定带宽
+    public double metric;
+    public int numberOfWavelenth;
+    public boolean[] wavelenthOccupation;
     public SimpleEdge() {
 
     }
@@ -24,6 +26,10 @@ public class SimpleEdge extends DefaultWeightedEdge {
         this.desVertex = desVertex;
         this.capacity = capacity;
         this.numberOfWavelenth = numberOfWavelenth;
+        this.wavelenthOccupation = new boolean[numberOfWavelenth];
+        for(int i = 0; i < numberOfWavelenth; i++) {
+            wavelenthOccupation[i] = false;
+        }
     }
 
     /*

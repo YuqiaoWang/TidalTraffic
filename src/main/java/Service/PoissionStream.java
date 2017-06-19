@@ -71,15 +71,17 @@ public class PoissionStream extends Thread {
 
     /**随机产生业务*/
     public Service generateService() {
+        double unitWavelenth = 6.25;
         Random rand = new Random();
         String srcNodeId = Integer.toString(rand.nextInt(7) + 1);
         String desNodeId = Integer.toString(rand.nextInt(7) + 1);
         Vertex srcNode = new Vertex(srcNodeId);
         Vertex desNode = new Vertex(desNodeId);
-        double bandwidth = Math.random()*10;
-        double wavelenth = 192 + Math.random();
+        int numberOfwavelength = rand.nextInt(5) + 1;
+        //double bandwidth = unitWavelenth * numberOfwavelength;
+        //double wavelenth = 192 + Math.random();
         int serviceTime = rand.nextInt(100);
-        Service randomService = new Service(srcNode, desNode, bandwidth, wavelenth, serviceTime);
+        Service randomService = new Service(srcNode, desNode, numberOfwavelength, serviceTime);
         return randomService;
     }
 }

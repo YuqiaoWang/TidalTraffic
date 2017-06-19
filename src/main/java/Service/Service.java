@@ -9,16 +9,18 @@ public class Service {
     String serviceId;
     Vertex srcNode;     //源节点
     Vertex desNode;     //宿节点
+    double unitbandwidth = 6.25;
     double bandwidth;   //带宽
     double wavelenth;   //占用的波长
+    int numberOfWavelenthes;
     int serviceTime;    //请求服务时间
     boolean isComputed; //是否已算路
 
-    public Service(Vertex srcNode, Vertex desNode, double bandwidth, double wavelenth, int serviceTime) {
+    public Service(Vertex srcNode, Vertex desNode, int numberOfWavelenthes, int serviceTime) {
         this.srcNode = srcNode;
         this.desNode = desNode;
-        this.bandwidth = bandwidth;
-        this.wavelenth = wavelenth;
+        this.bandwidth = unitbandwidth * numberOfWavelenthes;
+        this.numberOfWavelenthes = numberOfWavelenthes;
         this.serviceTime = serviceTime;
         this.isComputed = false;
     }
