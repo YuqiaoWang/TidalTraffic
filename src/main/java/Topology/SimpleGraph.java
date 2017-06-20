@@ -41,8 +41,10 @@ public class SimpleGraph {
                 vertexHashMap.put(desId, desNode);
                 graph.addVertex(srcNode);
                 graph.addVertex(desNode);
-                SimpleEdge edge = graph.addEdge(srcNode, desNode);
-                graph.setEdgeWeight(edge, metric);
+                SimpleEdge simpleEdge = new SimpleEdge(srcNode, desNode);
+                //SimpleEdge edge =
+                graph.addEdge(srcNode, desNode, simpleEdge);
+                graph.setEdgeWeight(simpleEdge, metric);
             }
         }catch (Exception e) {
             e.printStackTrace();

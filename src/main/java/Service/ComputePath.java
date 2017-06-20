@@ -40,20 +40,43 @@ public class ComputePath extends Thread {
         try {
             GraphPath servicePath = serviceGraphPathHashMap.get(service);
             List<SimpleEdge> edgeList = servicePath.getEdgeList();
-            Iterator<SimpleEdge> edgeIterator = edgeList.iterator();
             int n = service.numberOfWavelenthes;
-            //分配波长(满足波长一致性)
-            int i = 0; //第i个Set
-            HashSet<Integer>[] wavelenthSet = new HashSet[n]; //每个set存放这条边的未被占用的波长
-            while (edgeIterator.hasNext()) {// 对每条边
-                SimpleEdge currentEdge = edgeIterator.next();
-                for(int j = 0; j < currentEdge.wavelenthOccupation.length; j++) {
-                    if(currentEdge.wavelenthOccupation[j] == false) {
-                        wavelenthSet[i].add(Integer.valueOf(j));
+            /** 分配波长(满足波长一致性) */
+            int count = 0;  //记录各边都满足的连续波长数
+            List<Integer> freeWavelenthesNumber = new ArrayList<Integer>(); // 统计空闲波长号用
+            //资源统计
+            for(int i = 0; i < SimpleEdge.DEFAULTNUMBEROFWAVELENTHES; i ++) {    //对于每个波长号，统计各个边的该波长号是否都空闲
+                int edgeCount = 0;
+                Iterator<SimpleEdge> edgeIterator = edgeList.iterator();
+                while (edgeIterator.hasNext()) {
+                    SimpleEdge currentEdge = edgeIterator.next();
+                    if(currentEdge.wavelenthOccupation[i] == false) {
+                        edgeCount++;
                     }
                 }
+                if(edgeCount == edgeList.size()) {
+                    count++;
+                    freeWavelenthesNumber.add(Integer.valueOf(i));
+                }
             }
-            //找波长序号相同的各个边的连续波长序号
+            //分配资源
+            if(count >= n) {
+                System.out.printf("分配的波长资源：");
+                for(int i = 0; i < n; i++) {
+                    int currentWavelenthNumber = freeWavelenthesNumber.get(i).intValue();
+                    Iterator<SimpleEdge> edgeIterator = edgeList.iterator();
+                    while (edgeIterator.hasNext()) {
+                        SimpleEdge currentEdge = edgeIterator.next();
+                        currentEdge.wavelenthOccupation[currentWavelenthNumber] = true;
+                    }
+                    System.out.print("[" + currentWavelenthNumber + "]");
+                }
+                System.out.printf("\n");
+                service.isAllocated = true;
+
+            }else {
+                System.out.println("没有足够资源分配给业务 " + service.serviceId + " 。");
+            }
 
 
 
@@ -84,6 +107,7 @@ public class ComputePath extends Thread {
                 }
 
                 //资源分配
+                allocateResource(service);
 
 
             }catch (Exception e) {

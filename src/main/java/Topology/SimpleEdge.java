@@ -13,12 +13,13 @@ public class SimpleEdge extends DefaultWeightedEdge {
     public double metric;
     public int numberOfWavelenth;
     public boolean[] wavelenthOccupation;
+    public static int DEFAULTNUMBEROFWAVELENTHES = 16;
     public SimpleEdge() {
 
     }
 
     public SimpleEdge(Vertex srcVertex, Vertex desVertex) {
-        this(srcVertex, desVertex, 100, 16);//默认链路带宽容量和波长数
+        this(srcVertex, desVertex, 100, DEFAULTNUMBEROFWAVELENTHES);//默认链路带宽容量和波长数
     }
 
     public SimpleEdge(Vertex srcVertex, Vertex desVertex, double capacity, int numberOfWavelenth) {

@@ -15,6 +15,8 @@ public class Service {
     int numberOfWavelenthes;
     int serviceTime;    //请求服务时间
     boolean isComputed; //是否已算路
+    boolean isAllocated;
+
 
     public Service(Vertex srcNode, Vertex desNode, int numberOfWavelenthes, int serviceTime) {
         this.srcNode = srcNode;
@@ -27,6 +29,10 @@ public class Service {
 
     public boolean isPathComputed(){
         return isComputed;
+    }
+
+    public boolean isResourceAllocated() {
+        return isAllocated;
     }
 
     public void setServiceId(String s) {
