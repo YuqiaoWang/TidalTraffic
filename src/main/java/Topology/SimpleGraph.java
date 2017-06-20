@@ -8,10 +8,7 @@ import com.google.gson.JsonParser;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by yuqia on 2017/6/15.
@@ -28,6 +25,10 @@ public class SimpleGraph {
                     new FileReader("src/main/java/Topology/DefaultTopology.json"));
             JsonObject jsonGraph = jsonObject.getAsJsonObject("Graph");
             JsonArray vertexArray = jsonGraph.getAsJsonArray("vertex");
+            /*List<String> nodeIdList = new ArrayList<String>();
+            for(int i = 0; i < vertexArray.size(); i++) {
+                nodeIdList.add(vertexArray.)
+            }*/
             JsonArray jsonEdge = jsonGraph.getAsJsonArray("edge");
             Iterator edgeIterator = jsonEdge.iterator();
             while (edgeIterator.hasNext()) {
@@ -46,6 +47,13 @@ public class SimpleGraph {
                 graph.addEdge(srcNode, desNode, simpleEdge);
                 graph.setEdgeWeight(simpleEdge, metric);
             }
+            /*
+            Iterator<JsonElement> vertexIterator = vertexArray.iterator();
+            while (vertexIterator.hasNext()) {
+                JsonElement vertexElement = vertexIterator.next();
+                vertexElement.get()
+            }*/
+
         }catch (Exception e) {
             e.printStackTrace();
         }

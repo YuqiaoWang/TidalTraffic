@@ -1,13 +1,13 @@
 {
   "Graph": {
     "vertex" :[
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7
+      {"nodeId": 1, "areaId": 2},
+      {"nodeId": 2, "areaId": 2},
+      {"nodeId": 3, "areaId": 2},
+      {"nodeId": 4, "areaId": 1},
+      {"nodeId": 5, "areaId": 1},
+      {"nodeId": 6, "areaId": 3},
+      {"nodeId": 7, "areaId": 3}
     ],
     "edge": [
       {"srcId": 1, "desId": 2, "metric": 3},

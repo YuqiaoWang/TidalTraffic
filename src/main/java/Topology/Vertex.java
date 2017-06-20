@@ -4,6 +4,7 @@ package Topology;
  * Created by yuqia_000 on 2017/6/15.
  */
 public class Vertex {
+    public String areaId;
     public String nodeId;
     public int portNumber;
     public String[] portId;
