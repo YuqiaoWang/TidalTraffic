@@ -13,7 +13,7 @@ public class SimpleEdge extends DefaultWeightedEdge {
     public double metric;
     public int numberOfWavelenth;
     public boolean[] wavelenthOccupation;
-    public static int DEFAULTNUMBEROFWAVELENTHES = 16;
+    public static int DEFAULTNUMBEROFWAVELENTHES = 40;
     public SimpleEdge() {
 
     }

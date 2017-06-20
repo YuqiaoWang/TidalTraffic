@@ -63,7 +63,8 @@ public class ComputePath extends Thread {
             if(count >= n) {
                 System.out.printf("分配的波长资源：");
                 for(int i = 0; i < n; i++) {
-                    int currentWavelenthNumber = freeWavelenthesNumber.get(i).intValue();
+                    int currentWavelenthNumber = freeWavelenthesNumber.get(i).intValue();   //取出波长号
+                    service.wavelengthesNumber.add(Integer.valueOf(currentWavelenthNumber));//将波长号放入servce对象中
                     Iterator<SimpleEdge> edgeIterator = edgeList.iterator();
                     while (edgeIterator.hasNext()) {
                         SimpleEdge currentEdge = edgeIterator.next();
@@ -75,6 +76,8 @@ public class ComputePath extends Thread {
                 service.isAllocated = true;
 
             }else {
+                service.isBlocked = true;
+                service.wavelengthesNumber.clear(); //如果分配资源不成功，就释放service对象占用的波长号
                 System.out.println("没有足够资源分配给业务 " + service.serviceId + " 。");
             }
 
@@ -90,10 +93,12 @@ public class ComputePath extends Thread {
     public void run() {
         while (true) {
             try {
+                /**算路*/
                 Service service = serviceBlockingQueue.take();
                 GraphPath graphPath = findShortestPath(service, this.graph);
                 serviceGraphPathHashMap.put(service, graphPath);
                 service.isComputed = true;
+                service.setGraphPath(graphPath);
                 System.out.printf("业务 " + service.serviceId + " 已算路: ");
                 List<Vertex> vertexList = graphPath.getVertexList();
                 Iterator<Vertex> iterator = vertexList.iterator();
@@ -106,8 +111,15 @@ public class ComputePath extends Thread {
                     }
                 }
 
-                //资源分配
+                /**资源分配*/
                 allocateResource(service);
+
+                /**业务离去*/
+                if(service.isResourceAllocated() == true) {     //如果分配了资源
+                    Timer leavingTimer = new Timer();
+                    ServiceLeavingTask serviceLeavingTask = new ServiceLeavingTask(service);
+                    leavingTimer.schedule(serviceLeavingTask, service.serviceTime * 1000);  //业务时间结束后离去
+                }
 
 
             }catch (Exception e) {

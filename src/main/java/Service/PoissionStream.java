@@ -11,7 +11,7 @@ import java.util.concurrent.BlockingQueue;
  * Created by yuqia on 2017/6/14.
  */
 public class PoissionStream extends Thread {
-    public double lambda = 4;
+    public double lambda = 5;
     public List<Service> listOfServices = new ArrayList<Service>();
     public BlockingQueue<Service> serviceBlockingQueue;
 
@@ -26,7 +26,7 @@ public class PoissionStream extends Thread {
     public void run() {
         double x;
 
-        for(int i = 0; i < 10; i++) {
+        for(int i = 0; i < 50; i++) {
             x = poissionNumber();
             int time = (int) x * 1000;
             Service service = generateService();
@@ -37,7 +37,7 @@ public class PoissionStream extends Thread {
             try{
                 this.sleep(time);     //用线程休眠来模拟泊松流到达过程
                 service.setServiceId(String.format("%4d", i).replace(" ", "0"));
-                System.out.println("业务 " + service.serviceId + " 到来，距上次 " + time/1000 + " 秒");
+                System.out.println("--------业务 " + service.serviceId + " 到来，距上次 " + time/1000 + " 秒--------");
                 System.out.println("srcNodeId: " + service.srcNode.nodeId);
                 System.out.println("desNodeId: " + service.desNode.nodeId);
                 System.out.printf("bandwidth: %.2f \n" , service.bandwidth);
@@ -80,7 +80,7 @@ public class PoissionStream extends Thread {
         int numberOfwavelength = rand.nextInt(5) + 1;
         //double bandwidth = unitWavelenth * numberOfwavelength;
         //double wavelenth = 192 + Math.random();
-        int serviceTime = rand.nextInt(100);
+        int serviceTime = rand.nextInt(20) + 1;
         Service randomService = new Service(srcNode, desNode, numberOfwavelength, serviceTime);
         return randomService;
     }

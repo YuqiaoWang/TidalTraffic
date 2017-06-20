@@ -1,21 +1,30 @@
 package Service;
 
+import Topology.SimpleEdge;
 import Topology.Vertex;
+import org.jgrapht.GraphPath;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by yuqia_000 on 2017/6/15.
  */
 public class Service {
     String serviceId;
-    Vertex srcNode;     //源节点
-    Vertex desNode;     //宿节点
+    Vertex srcNode;                             //源节点
+    Vertex desNode;                             //宿节点
     double unitbandwidth = 6.25;
-    double bandwidth;   //带宽
-    double wavelenth;   //占用的波长
+    double bandwidth;                           //带宽
+    double wavelenth;                           //占用的波长
     int numberOfWavelenthes;
-    int serviceTime;    //请求服务时间
-    boolean isComputed; //是否已算路
-    boolean isAllocated;
+    int serviceTime;                            //请求服务时间
+    GraphPath<Vertex, SimpleEdge> graphPath;    //算出来的路
+    List<Integer> wavelengthesNumber;           //占用的波长号
+    boolean isComputed;                         //是否已算路
+    boolean isAllocated;                        //是否分配资源
+    boolean isBlocked;                          //是否已阻塞
+    boolean isOutOfTime;                        //是否已离去
 
 
     public Service(Vertex srcNode, Vertex desNode, int numberOfWavelenthes, int serviceTime) {
@@ -24,7 +33,11 @@ public class Service {
         this.bandwidth = unitbandwidth * numberOfWavelenthes;
         this.numberOfWavelenthes = numberOfWavelenthes;
         this.serviceTime = serviceTime;
+        this.wavelengthesNumber = new ArrayList<Integer>();
         this.isComputed = false;
+        this.isAllocated = false;
+        this.isBlocked = false;
+        this.isOutOfTime = false;
     }
 
     public boolean isPathComputed(){
@@ -35,8 +48,16 @@ public class Service {
         return isAllocated;
     }
 
+    public boolean isServiceBlocked() {
+        return isBlocked;
+    }
+
     public void setServiceId(String s) {
         serviceId = s;
+    }
+
+    public void setGraphPath(GraphPath<Vertex, SimpleEdge> graphPath) {
+        this.graphPath = graphPath;
     }
 
     @Override
