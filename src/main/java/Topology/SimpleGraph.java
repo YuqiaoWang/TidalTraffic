@@ -47,12 +47,14 @@ public class SimpleGraph {
                 graph.addEdge(srcNode, desNode, simpleEdge);
                 graph.setEdgeWeight(simpleEdge, metric);
             }
-            /*
+
             Iterator<JsonElement> vertexIterator = vertexArray.iterator();
             while (vertexIterator.hasNext()) {
-                JsonElement vertexElement = vertexIterator.next();
-                vertexElement.get()
-            }*/
+                JsonObject vertexObj = (JsonObject) vertexIterator.next();
+                String nodeId = vertexObj.get("nodeId").toString();
+                Vertex currentNode = vertexHashMap.get(nodeId);
+                currentNode.areaId = vertexObj.get("areaId").toString();
+            }
 
         }catch (Exception e) {
             e.printStackTrace();

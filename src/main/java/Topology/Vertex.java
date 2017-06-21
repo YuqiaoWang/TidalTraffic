@@ -22,6 +22,14 @@ public class Vertex {
         }
     }
 
+    public String getAreaId() {
+        return this.areaId;
+    }
+
+    public String getNodeId() {
+        return this.nodeId;
+    }
+
     @Override
     public boolean equals(Object obj) {
         Vertex x = (Vertex) obj;
