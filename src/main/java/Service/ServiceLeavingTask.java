@@ -23,6 +23,7 @@ public class ServiceLeavingTask extends TimerTask {
             while (edgeIterator.hasNext()) {
                 SimpleEdge currentEdge = edgeIterator.next();
                 currentEdge.wavelenthOccupation[currentWavelenthNumber] = false;
+                currentEdge.numberOfOccupatedWavelength-=1;
             }
 
         }

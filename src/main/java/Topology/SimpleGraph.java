@@ -16,6 +16,7 @@ import java.util.*;
 public class SimpleGraph {
     public SimpleWeightedGraph<Vertex, SimpleEdge> graph= new SimpleWeightedGraph<Vertex, SimpleEdge>(SimpleEdge.class);
     public HashMap<String, Vertex> vertexHashMap = new HashMap<String, Vertex>();
+    public HashMap<String, Area> areaHashMap = new HashMap<String, Area>();
 
     public SimpleWeightedGraph<Vertex,SimpleEdge> parseJsonToGraph() {
 
@@ -29,6 +30,26 @@ public class SimpleGraph {
             for(int i = 0; i < vertexArray.size(); i++) {
                 nodeIdList.add(vertexArray.)
             }*/
+
+            /** 加点*/
+            Iterator<JsonElement> vertexIterator = vertexArray.iterator();
+            while (vertexIterator.hasNext()) {
+                JsonObject vertexObj = (JsonObject) vertexIterator.next();
+                String nodeId = vertexObj.get("nodeId").toString();
+                //Vertex currentNode = vertexHashMap.get(nodeId);
+                Vertex currentNode = new Vertex(nodeId);
+                currentNode.areaId = vertexObj.get("areaId").toString();
+                graph.addVertex(currentNode);
+                vertexHashMap.put(currentNode.nodeId, currentNode);
+
+                //下面的信息没有传过去
+                if(!areaHashMap.containsKey(currentNode.areaId)) {
+                    Area area = new Area(currentNode.areaId);
+                    areaHashMap.put(currentNode.areaId, area);
+                }
+            }
+
+            /**加边*/
             JsonArray jsonEdge = jsonGraph.getAsJsonArray("edge");
             Iterator edgeIterator = jsonEdge.iterator();
             while (edgeIterator.hasNext()) {
@@ -36,26 +57,19 @@ public class SimpleGraph {
                 String srcId = edgeObject.get("srcId").toString();
                 String desId = edgeObject.get("desId").toString();
                 double metric = Double.valueOf(edgeObject.get("metric").toString());
-                Vertex srcNode = new Vertex(srcId);
-                Vertex desNode = new Vertex(desId);
-                vertexHashMap.put(srcId, srcNode);
-                vertexHashMap.put(desId, desNode);
-                graph.addVertex(srcNode);
-                graph.addVertex(desNode);
+                //Vertex srcNode = new Vertex(srcId);
+                //Vertex desNode = new Vertex(desId);
+                Vertex srcNode = vertexHashMap.get(srcId);
+                Vertex desNode = vertexHashMap.get(desId);
+                //vertexHashMap.put(srcId, srcNode);
+                //vertexHashMap.put(desId, desNode);
+                //graph.addVertex(srcNode);
+                //graph.addVertex(desNode);
                 SimpleEdge simpleEdge = new SimpleEdge(srcNode, desNode);
                 //SimpleEdge edge =
                 graph.addEdge(srcNode, desNode, simpleEdge);
                 graph.setEdgeWeight(simpleEdge, metric);
             }
-
-            Iterator<JsonElement> vertexIterator = vertexArray.iterator();
-            while (vertexIterator.hasNext()) {
-                JsonObject vertexObj = (JsonObject) vertexIterator.next();
-                String nodeId = vertexObj.get("nodeId").toString();
-                Vertex currentNode = vertexHashMap.get(nodeId);
-                currentNode.areaId = vertexObj.get("areaId").toString();
-            }
-
         }catch (Exception e) {
             e.printStackTrace();
         }

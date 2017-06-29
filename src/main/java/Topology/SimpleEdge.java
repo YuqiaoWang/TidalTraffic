@@ -13,7 +13,8 @@ public class SimpleEdge extends DefaultWeightedEdge {
     public double metric;
     public int numberOfWavelenth;
     public boolean[] wavelenthOccupation;
-    public static int DEFAULTNUMBEROFWAVELENTHES = 40;
+    public int numberOfOccupatedWavelength;
+    public static int DEFAULTNUMBEROFWAVELENTHES = 30;
     public SimpleEdge() {
 
     }
@@ -28,6 +29,7 @@ public class SimpleEdge extends DefaultWeightedEdge {
         this.capacity = capacity;
         this.numberOfWavelenth = numberOfWavelenth;
         this.wavelenthOccupation = new boolean[numberOfWavelenth];
+        this.numberOfOccupatedWavelength = 0;
         for(int i = 0; i < numberOfWavelenth; i++) {
             wavelenthOccupation[i] = false;
         }

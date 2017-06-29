@@ -1,5 +1,6 @@
 package Service;
 
+import Topology.Area;
 import Topology.SimpleEdge;
 import Topology.Vertex;
 import jdk.nashorn.internal.ir.BlockLexicalContext;
@@ -18,6 +19,7 @@ public class ComputePath extends Thread {
     public HashMap<Service, GraphPath> serviceGraphPathHashMap = new HashMap<Service, GraphPath>();
     public BlockingQueue<Service> serviceBlockingQueue;
     public SimpleWeightedGraph<Vertex, SimpleEdge> graph;
+    public HashMap<String, Area> areaHashMap = new HashMap<String, Area>();
 
     public ComputePath() {
 
@@ -26,6 +28,30 @@ public class ComputePath extends Thread {
     public ComputePath(BlockingQueue<Service> bq, SimpleWeightedGraph graph) {
         this.serviceBlockingQueue = bq;
         this.graph = graph;
+
+        //确定每个area有多少点
+        Iterator<Vertex> vertexIterator = this.graph.vertexSet().iterator();
+        while (vertexIterator.hasNext()) {
+            Vertex currentVertex = vertexIterator.next();
+            if(!areaHashMap.containsKey(currentVertex.areaId)) {
+                Area area = new Area(currentVertex.areaId);
+                areaHashMap.put(currentVertex.areaId, area);
+            }
+
+        }
+
+        Iterator<SimpleEdge> simpleEdgeIterator = this.graph.edgeSet().iterator();
+        while (simpleEdgeIterator.hasNext()) {
+            SimpleEdge currentEdge = simpleEdgeIterator.next();
+            if(currentEdge.srcVertex.areaId.equals(currentEdge.desVertex.areaId)) {
+                areaHashMap.get(currentEdge.srcVertex.areaId).addNumverOfEdges();
+            }else {
+                areaHashMap.get(currentEdge.srcVertex.areaId).addNumverOfEdges();
+                areaHashMap.get(currentEdge.desVertex.areaId).addNumverOfEdges();
+            }
+        }
+
+
     }
 
     public GraphPath findShortestPath(Service service, SimpleWeightedGraph graph) {
@@ -69,6 +95,7 @@ public class ComputePath extends Thread {
                     while (edgeIterator.hasNext()) {
                         SimpleEdge currentEdge = edgeIterator.next();
                         currentEdge.wavelenthOccupation[currentWavelenthNumber] = true;
+                        currentEdge.numberOfOccupatedWavelength +=1;
                     }
                     System.out.print("[" + currentWavelenthNumber + "]");
                 }
@@ -93,8 +120,49 @@ public class ComputePath extends Thread {
     public void run() {
         while (true) {
             try {
-                /**算路*/
+                /**业务到来*/
                 Service service = serviceBlockingQueue.take();
+
+                /**峰谷状态更新*/
+                //各域负载初始化
+                Iterator areaMapIterator = this.areaHashMap.entrySet().iterator();
+                while (areaMapIterator.hasNext()) {
+                    Map.Entry entry = (Map.Entry) areaMapIterator.next();
+                    Area areaToInit = (Area) entry.getValue();
+                    areaToInit.initialLoad();
+                }
+
+                //计算各域负载
+                Iterator<SimpleEdge> edgeIterator = this.graph.edgeSet().iterator();
+                while (edgeIterator.hasNext()) {
+                    SimpleEdge currentEdge = edgeIterator.next();
+                    //域内部边
+                    if(currentEdge.srcVertex.areaId == currentEdge.desVertex.areaId) {
+                        Area currentArea = this.areaHashMap.get(currentEdge.srcVertex.areaId);
+                        currentArea.load += currentEdge.numberOfOccupatedWavelength;
+                    }
+                    //域间边
+                    else {
+                        Area srcArea = this.areaHashMap.get(currentEdge.srcVertex.areaId);
+                        Area desArea = this.areaHashMap.get(currentEdge.desVertex.areaId);
+                        srcArea.load += currentEdge.numberOfOccupatedWavelength;
+                        desArea.load += currentEdge.numberOfOccupatedWavelength;
+                    }
+                }
+
+                //各域状态判断
+                areaMapIterator = this.areaHashMap.entrySet().iterator();
+                while (areaMapIterator.hasNext()) {
+                    Map.Entry entry = (Map.Entry) areaMapIterator.next();
+                    Area currentArea = (Area) entry.getValue();
+                    if(currentArea.load / currentArea.totalCapacity >= currentArea.threshold) {
+                        System.out.println("[area " + currentArea.areaId + "] 当前处于潮峰区");
+                    }else {
+                        System.out.println("[area " + currentArea.areaId + "] 当前处于潮谷区");
+                    }
+                }
+
+                /**算路*/
                 GraphPath graphPath = findShortestPath(service, this.graph);
                 serviceGraphPathHashMap.put(service, graphPath);
                 service.isComputed = true;

@@ -11,7 +11,7 @@ import java.util.concurrent.BlockingQueue;
  * Created by yuqia on 2017/6/14.
  */
 public class PoissionStream extends Thread {
-    public double lambda = 5;
+    public double lambda = 2 ;
     public List<Service> listOfServices = new ArrayList<Service>();
     public BlockingQueue<Service> serviceBlockingQueue;
 
@@ -26,7 +26,7 @@ public class PoissionStream extends Thread {
     public void run() {
         double x;
 
-        for(int i = 0; i < 50; i++) {
+        for(int i = 0; i < 100; i++) {
             x = poissionNumber();
             int time = (int) x * 1000;
             Service service = generateService();
@@ -77,10 +77,10 @@ public class PoissionStream extends Thread {
         String desNodeId = Integer.toString(rand.nextInt(7) + 1);
         Vertex srcNode = new Vertex(srcNodeId);
         Vertex desNode = new Vertex(desNodeId);
-        int numberOfwavelength = rand.nextInt(5) + 1;
+        int numberOfwavelength = rand.nextInt(8) + 1;
         //double bandwidth = unitWavelenth * numberOfwavelength;
         //double wavelenth = 192 + Math.random();
-        int serviceTime = rand.nextInt(20) + 1;
+        int serviceTime = rand.nextInt(50) + 1;
         Service randomService = new Service(srcNode, desNode, numberOfwavelength, serviceTime);
         return randomService;
     }
