@@ -62,6 +62,16 @@ public class ComputePath extends Thread {
         return shortestPath;
     }
 
+    public void reAllocateWeight() {
+        Iterator<SimpleEdge> edgeIterator = this.graph.edgeSet().iterator();
+        while (edgeIterator.hasNext()) {
+            SimpleEdge currentedge = edgeIterator.next();
+            if(this.graph.containsEdge(currentedge)) {
+                this.graph.setEdgeWeight(currentedge, currentedge.numberOfOccupatedWavelength);
+            }
+        }
+    }
+
     public void allocateResource(Service service) {
         try {
             GraphPath servicePath = serviceGraphPathHashMap.get(service);
@@ -163,6 +173,11 @@ public class ComputePath extends Thread {
                 }
 
                 /**算路*/
+                //重新赋边权(以负载为边权)
+                //如果在对照组分支上，将这部分注释掉
+                reAllocateWeight();
+
+                //D算法算路
                 GraphPath graphPath = findShortestPath(service, this.graph);
                 serviceGraphPathHashMap.put(service, graphPath);
                 service.isComputed = true;

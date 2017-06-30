@@ -73,8 +73,10 @@ public class PoissionStream extends Thread {
     public Service generateService() {
         double unitWavelenth = 6.25;
         Random rand = new Random();
-        String srcNodeId = Integer.toString(rand.nextInt(7) + 1);
-        String desNodeId = Integer.toString(rand.nextInt(7) + 1);
+        //String srcNodeId = Integer.toString(rand.nextInt(7) + 1);
+        String srcNodeId = srcNuniformNode();
+        //String desNodeId = Integer.toString(rand.nextInt(7) + 1);
+        String desNodeId = desNuniformNode();
         Vertex srcNode = new Vertex(srcNodeId);
         Vertex desNode = new Vertex(desNodeId);
         int numberOfwavelength = rand.nextInt(8) + 1;
@@ -84,5 +86,50 @@ public class PoissionStream extends Thread {
         Service randomService = new Service(srcNode, desNode, numberOfwavelength, serviceTime);
         return randomService;
     }
+
+    /**节点不均匀随机分布*/
+    public String srcNuniformNode() {
+        Random rand = new Random();
+        int i = rand.nextInt(10) + 1;
+        switch (i) {
+            case 10 :
+                i = 1;
+                break;
+            case 9 :
+                i = 2;
+                break;
+            case 8 :
+                i = 3;
+                break;
+            default:
+                break;
+        }
+        return Integer.toString(i);
+    }
+    public String desNuniformNode() {
+        Random rand = new Random();
+        int i = rand.nextInt(12) + 1;
+        switch (i) {
+            case 12 :
+                i = 6;
+                break;
+            case 11 :
+                i = 7;
+                break;
+            case 10 :
+                i = 1;
+                break;
+            case 9 :
+                i = 2;
+                break;
+            case 8 :
+                i = 3;
+                break;
+            default:
+                break;
+        }
+        return Integer.toString(i);
+    }
+
 }
 
