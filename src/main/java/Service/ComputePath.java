@@ -156,9 +156,9 @@ public class ComputePath extends Thread {
                     Map.Entry entry = (Map.Entry) areaMapIterator.next();
                     Area currentArea = (Area) entry.getValue();
                     if(currentArea.load / currentArea.totalCapacity >= currentArea.threshold) {
-                        System.out.println("[area " + currentArea.areaId + "] 当前处于潮峰区");
+                        System.out.println("[area " + currentArea.areaId + "] 当前处于潮峰区,load:" + currentArea.load + "/"+ currentArea.totalCapacity);
                     }else {
-                        System.out.println("[area " + currentArea.areaId + "] 当前处于潮谷区");
+                        System.out.println("[area " + currentArea.areaId + "] 当前处于潮谷区,load:" + currentArea.load + "/"+ currentArea.totalCapacity);
                     }
                 }
 
