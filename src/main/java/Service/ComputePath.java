@@ -9,6 +9,8 @@ import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 
@@ -20,6 +22,7 @@ public class ComputePath extends Thread {
     public BlockingQueue<Service> serviceBlockingQueue;
     public SimpleWeightedGraph<Vertex, SimpleEdge> graph;
     public HashMap<String, Area> areaHashMap = new HashMap<String, Area>();
+
 
     public ComputePath() {
 
@@ -116,6 +119,11 @@ public class ComputePath extends Thread {
                 service.isBlocked = true;
                 service.wavelengthesNumber.clear(); //如果分配资源不成功，就释放service对象占用的波长号
                 System.out.println("没有足够资源分配给业务 " + service.serviceId + " 。");
+                //FileWriter fileWriter = new FileWriter("src/main/java/Service/blockedNumber.txt");
+                //BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+                //bufferedWriter.write();
+
+
             }
 
 
@@ -175,7 +183,7 @@ public class ComputePath extends Thread {
                 /**算路*/
                 //重新赋边权(以负载为边权)
                 //如果在对照组分支上，将这部分注释掉
-                reAllocateWeight();
+                //reAllocateWeight();
 
                 //D算法算路
                 GraphPath graphPath = findShortestPath(service, this.graph);
