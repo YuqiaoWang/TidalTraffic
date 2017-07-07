@@ -1,0 +1,44 @@
+{
+  "Graph": {
+    "vertex" :[
+      {"nodeId": 1, "areaId": 1},
+      {"nodeId": 2, "areaId": 1},
+      {"nodeId": 3, "areaId": 1},
+      {"nodeId": 4, "areaId": 1},
+      {"nodeId": 5, "areaId": 2},
+      {"nodeId": 6, "areaId": 2},
+      {"nodeId": 7, "areaId": 2},
+      {"nodeId": 8, "areaId": 2},
+      {"nodeId": 9, "areaId": 2},
+      {"nodeId": 10, "areaId": 3},
+      {"nodeId": 11, "areaId": 3},
+      {"nodeId": 12, "areaId": 3},
+      {"nodeId": 13, "areaId": 3},
+      {"nodeId": 14, "areaId": 3}
+    ],
+    "edge": [
+      {"srcId": 1, "desId": 2, "metric": 1050},
+      {"srcId": 2, "desId": 3, "metric": 600},
+      {"srcId": 1, "desId": 3, "metric": 600},
+      {"srcId": 3, "desId": 5, "metric": 1500},
+      {"srcId": 2, "desId": 4, "metric": 600},
+      {"srcId": 4, "desId": 6, "metric": 600},
+      {"srcId": 5, "desId": 6, "metric": 1300},
+      {"srcId": 6, "desId": 7, "metric": 600},
+      {"srcId": 1, "desId": 8, "metric": 1800},
+      {"srcId": 5, "desId": 9, "metric": 1050},
+      {"srcId": 7, "desId": 8, "metric": 750},
+      {"srcId": 7, "desId": 9, "metric": 1350},
+      {"srcId": 4, "desId": 10, "metric": 1500},
+      {"srcId": 8, "desId": 12, "metric": 750},
+      {"srcId": 9, "desId": 12, "metric": 800},
+      {"srcId": 10, "desId": 11, "metric": 500},
+      {"srcId": 11, "desId": 12, "metric": 300},
+      {"srcId": 10, "desId": 13, "metric": 750},
+      {"srcId": 12, "desId": 13, "metric": 300},
+      {"srcId": 13, "desId": 14, "metric": 300},
+      {"srcId": 11, "desId": 14, "metric": 800},
+      {"srcId": 5, "desId": 14, "metric": 1500}
+    ]
+  }
+}

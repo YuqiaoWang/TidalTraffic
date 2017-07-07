@@ -1,5 +1,6 @@
 package Topology;
 
+import SimulationImpl.Tools;
 import org.jgrapht.graph.DefaultWeightedEdge;
 
 /**
@@ -14,13 +15,12 @@ public class SimpleEdge extends DefaultWeightedEdge {
     public int numberOfWavelenth;
     public boolean[] wavelenthOccupation;
     public int numberOfOccupatedWavelength;
-    public static int DEFAULTNUMBEROFWAVELENTHES = 30;
     public SimpleEdge() {
 
     }
 
     public SimpleEdge(Vertex srcVertex, Vertex desVertex) {
-        this(srcVertex, desVertex, 100, DEFAULTNUMBEROFWAVELENTHES);//默认链路带宽容量和波长数
+        this(srcVertex, desVertex, 100, Tools.DEFAULTNUMBEROFWAVELENTHES);//默认链路带宽容量和波长数
     }
 
     public SimpleEdge(Vertex srcVertex, Vertex desVertex, double capacity, int numberOfWavelenth) {

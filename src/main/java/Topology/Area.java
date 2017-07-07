@@ -1,5 +1,7 @@
 package Topology;
 
+import SimulationImpl.Tools;
+
 import java.util.List;
 
 /**
@@ -11,14 +13,14 @@ public class Area {
     public double load;
     public double totalCapacity;
     public int numberOfEdges;
-    public static double DEFAULTTHRESHOLD = 0.7;
+    //public static double DEFAULTTHRESHOLD = 0.7;
     List<Vertex> exportVertexList;
 
     public Area(String areaId) {
         this.areaId = areaId;
         this.load = 0;
         this.numberOfEdges = 0;
-        this.threshold = DEFAULTTHRESHOLD;
+        this.threshold = Tools.DEFAULTTHRESHOLD;
         this.totalCapacity = 0;
     }
 
@@ -32,7 +34,7 @@ public class Area {
 
     public void addNumverOfEdges() {
         this.numberOfEdges +=1;
-        this.totalCapacity = numberOfEdges * SimpleEdge.DEFAULTNUMBEROFWAVELENTHES;
+        this.totalCapacity = numberOfEdges * Tools.DEFAULTNUMBEROFWAVELENTHES;
     }
 
 

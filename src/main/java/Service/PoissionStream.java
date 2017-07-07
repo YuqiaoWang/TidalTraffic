@@ -1,5 +1,6 @@
 package Service;
 
+import SimulationImpl.Tools;
 import Topology.Vertex;
 
 import java.util.ArrayList;
@@ -12,21 +13,23 @@ import java.util.concurrent.BlockingQueue;
  */
 public class PoissionStream extends Thread {
     public double lambda = 2 ;
+    public long programStartTime;
     public List<Service> listOfServices = new ArrayList<Service>();
     public BlockingQueue<Service> serviceBlockingQueue;
 
     public PoissionStream() {
 
     }
-    public PoissionStream(BlockingQueue<Service> bq) {
+    public PoissionStream(BlockingQueue<Service> bq, long startTime) {
         this.serviceBlockingQueue = bq;
+        this.programStartTime = startTime;
     }
 
     @Override
     public void run() {
         double x;
 
-        for(int i = 0; i < 100; i++) {
+        for(int i = 0; i < Tools.DEFAULTSERVICENUMBER; i++) {
             x = poissionNumber();
             int time = (int) x * 1000;
             Service service = generateService();
@@ -87,47 +90,86 @@ public class PoissionStream extends Thread {
         return randomService;
     }
 
-    /**节点不均匀随机分布*/
+    /**节点不均匀随机分布(与运行时间有关)*/
     public String srcNuniformNode() {
         Random rand = new Random();
-        int i = rand.nextInt(10) + 1;
-        switch (i) {
-            case 10 :
-                i = 1;
-                break;
-            case 9 :
-                i = 2;
-                break;
-            case 8 :
-                i = 3;
-                break;
-            default:
-                break;
+        int i;
+        if(System.currentTimeMillis() - this.programStartTime < Tools.DEFAULTWORKINGTIME) {
+            i = rand.nextInt(10) + 1;
+            switch (i) {
+                case 10 :
+                    i = 1;
+                    break;
+                case 9 :
+                    i = 2;
+                    break;
+                case 8 :
+                    i = 3;
+                    break;
+                default:
+                    break;
+            }
+        }else {
+            i = rand.nextInt(9) + 1;
+            switch (i) {
+                case 9 :
+                    i = 4;
+                    break;
+                case 8 :
+                    i = 5;
+                    break;
+                default:
+                    break;
+            }
+
         }
+
         return Integer.toString(i);
     }
     public String desNuniformNode() {
         Random rand = new Random();
-        int i = rand.nextInt(12) + 1;
-        switch (i) {
-            case 12 :
-                i = 6;
-                break;
-            case 11 :
-                i = 7;
-                break;
-            case 10 :
-                i = 1;
-                break;
-            case 9 :
-                i = 2;
-                break;
-            case 8 :
-                i = 3;
-                break;
-            default:
-                break;
+        int i ;
+        if(System.currentTimeMillis() - this.programStartTime < (Tools.DEFAULTWORKINGTIME*1000)) {
+            i = rand.nextInt(12) + 1;
+            switch (i) {
+                case 12 :
+                    i = 6;
+                    break;
+                case 11 :
+                    i = 7;
+                    break;
+                case 10 :
+                    i = 1;
+                    break;
+                case 9 :
+                    i = 2;
+                    break;
+                case 8 :
+                    i = 3;
+                    break;
+                default:
+                    break;
+            }
+        }else {
+            i = rand.nextInt(11) + 1;
+            switch (i) {
+                case 11 :
+                    i = 4;
+                    break;
+                case 10 :
+                    i = 5;
+                    break;
+                case 9 :
+                    i = 6;
+                    break;
+                case 8 :
+                    i = 7;
+                    break;
+                default:
+                    break;
+            }
         }
+
         return Integer.toString(i);
     }
 
