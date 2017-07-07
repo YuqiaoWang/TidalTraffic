@@ -31,7 +31,7 @@ public class PoissionStream extends Thread {
 
         for(int i = 0; i < Tools.DEFAULTSERVICENUMBER; i++) {
             x = poissionNumber();
-            int time = (int) x * 1000;
+            int time = (int) x * 100;
             Service service = generateService();
             if(service.srcNode.nodeId.equals(service.desNode.nodeId)) {
                 i = i - 1;
@@ -82,10 +82,10 @@ public class PoissionStream extends Thread {
         String desNodeId = desNuniformNode();
         Vertex srcNode = new Vertex(srcNodeId);
         Vertex desNode = new Vertex(desNodeId);
-        int numberOfwavelength = rand.nextInt(8) + 1;
+        int numberOfwavelength = rand.nextInt(4) + 1;
         //double bandwidth = unitWavelenth * numberOfwavelength;
         //double wavelenth = 192 + Math.random();
-        int serviceTime = rand.nextInt(50) + 1;
+        int serviceTime = rand.nextInt(10) + 1;
         Service randomService = new Service(srcNode, desNode, numberOfwavelength, serviceTime);
         return randomService;
     }
@@ -95,8 +95,17 @@ public class PoissionStream extends Thread {
         Random rand = new Random();
         int i;
         if(System.currentTimeMillis() - this.programStartTime < Tools.DEFAULTWORKINGTIME) {
-            i = rand.nextInt(10) + 1;
+            i = rand.nextInt(13) + 1;
             switch (i) {
+                case 13 :
+                    i = 1;
+                    break;
+                case 12 :
+                    i = 2;
+                    break;
+                case 11 :
+                    i = 3;
+                    break;
                 case 10 :
                     i = 1;
                     break;
@@ -110,8 +119,14 @@ public class PoissionStream extends Thread {
                     break;
             }
         }else {
-            i = rand.nextInt(9) + 1;
+            i = rand.nextInt(11) + 1;
             switch (i) {
+                case 11 :
+                    i = 4;
+                    break;
+                case 10 :
+                    i = 5;
+                    break;
                 case 9 :
                     i = 4;
                     break;

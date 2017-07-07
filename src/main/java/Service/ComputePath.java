@@ -68,6 +68,7 @@ public class ComputePath extends Thread {
         return shortestPath;
     }
 
+    /**用于用负载表征边权*/
     public void reAllocateWeight() {
         Iterator<SimpleEdge> edgeIterator = this.graph.edgeSet().iterator();
         while (edgeIterator.hasNext()) {
@@ -78,6 +79,7 @@ public class ComputePath extends Thread {
         }
     }
 
+    /**分配资源*/
     public void allocateResource(Service service) {
         try {
             GraphPath servicePath = serviceGraphPathHashMap.get(service);
