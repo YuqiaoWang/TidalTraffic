@@ -18,4 +18,7 @@ public class Tools {
 
     //业务最大持续时间
     public static int DEFAULTMAXSERVICETIME = 10;
+
+    //单个业务占用最大带宽数
+    public static int DEFAULTMAXNUMBEROFWAVELENGTH = 4;
 }

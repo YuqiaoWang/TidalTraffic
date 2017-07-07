@@ -82,10 +82,10 @@ public class PoissionStream extends Thread {
         String desNodeId = desNuniformNode();
         Vertex srcNode = new Vertex(srcNodeId);
         Vertex desNode = new Vertex(desNodeId);
-        int numberOfwavelength = rand.nextInt(4) + 1;
+        int numberOfwavelength = rand.nextInt(Tools.DEFAULTMAXNUMBEROFWAVELENGTH) + 1;
         //double bandwidth = unitWavelenth * numberOfwavelength;
         //double wavelenth = 192 + Math.random();
-        int serviceTime = rand.nextInt(10) + 1;
+        int serviceTime = rand.nextInt(Tools.DEFAULTMAXSERVICETIME) + 1;
         Service randomService = new Service(srcNode, desNode, numberOfwavelength, serviceTime);
         return randomService;
     }
