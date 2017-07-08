@@ -19,6 +19,7 @@ import java.util.concurrent.BlockingQueue;
  * Created by yuqia_000 on 2017/6/17.
  */
 public class ComputePath extends Thread {
+    public long programStartTime;
     public HashMap<Service, GraphPath> serviceGraphPathHashMap = new HashMap<Service, GraphPath>();
     public BlockingQueue<Service> serviceBlockingQueue;
     public SimpleWeightedGraph<Vertex, SimpleEdge> graph;
@@ -30,10 +31,11 @@ public class ComputePath extends Thread {
 
     }
 
-    public ComputePath(BlockingQueue<Service> bq, SimpleWeightedGraph graph) {
+    public ComputePath(BlockingQueue<Service> bq, SimpleWeightedGraph graph, long startTime) {
         this.serviceBlockingQueue = bq;
         this.graph = graph;
         this.blockedTimes = 0;
+        this.programStartTime = startTime;
 
         //确定每个area有多少点
         Iterator<Vertex> vertexIterator = this.graph.vertexSet().iterator();
@@ -87,7 +89,7 @@ public class ComputePath extends Thread {
             int count = 0;  //记录各边都满足的连续波长数
             List<Integer> freeWavelenthesNumber = new ArrayList<Integer>(); // 统计空闲波长号用
             //资源统计
-            for(int i = 0; i < SimpleEdge.DEFAULTNUMBEROFWAVELENTHES; i ++) {    //对于每个波长号，统计各个边的该波长号是否都空闲
+            for(int i = 0; i < Tools.DEFAULTNUMBEROFWAVELENTHES; i ++) {    //对于每个波长号，统计各个边的该波长号是否都空闲
                 int edgeCount = 0;
                 Iterator<SimpleEdge> edgeIterator = edgeList.iterator();
                 while (edgeIterator.hasNext()) {
@@ -130,11 +132,7 @@ public class ComputePath extends Thread {
 
             }
 
-        int num = Integer.valueOf(service.serviceId);
-        if(num == Tools.DEFAULTSERVICENUMBER - 1) {
-            System.out.println("被阻塞的业务个数为:" + this.blockedTimes);
-            System.out.println("程序结束");
-        }
+
 
         }catch (Exception e) {
             e.printStackTrace();
@@ -216,9 +214,17 @@ public class ComputePath extends Thread {
                 if(service.isResourceAllocated() == true) {     //如果分配了资源
                     Timer leavingTimer = new Timer();
                     ServiceLeavingTask serviceLeavingTask = new ServiceLeavingTask(service);
-                    leavingTimer.schedule(serviceLeavingTask, service.serviceTime * 1000);  //业务时间结束后离去
+                    leavingTimer.schedule(serviceLeavingTask, service.serviceTime * Tools.TIMESCALE);  //业务时间结束后离去
                 }
 
+                int num = Integer.valueOf(service.serviceId);
+                if(num == Tools.DEFAULTSERVICENUMBER - 1) {
+                    FileWriter fw = new FileWriter("target/generated-sources/blockedTimes.txt");
+                    fw.write(Integer.toString(this.blockedTimes));
+                    System.out.println("被阻塞的业务个数为:" + this.blockedTimes);
+                    System.out.println("程序结束");
+                    fw.close();
+                }
 
 
 

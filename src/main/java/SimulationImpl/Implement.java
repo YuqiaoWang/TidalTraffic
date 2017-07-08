@@ -14,10 +14,13 @@ public class Implement {
         SimpleGraph simpleGraph = new SimpleGraph();
         simpleGraph.parseJsonToGraph();
 
+        //初始时间
+        long startTime = System.currentTimeMillis();
+
         //业务发生 与 初步算路
         BlockingQueue<Service> servicesToComputePath = new ArrayBlockingQueue<Service>(10);
-        PoissionStream poissionStreamThread = new PoissionStream(servicesToComputePath);
-        ComputePath computePathThread = new ComputePath(servicesToComputePath, simpleGraph.graph);
+        PoissionStream poissionStreamThread = new PoissionStream(servicesToComputePath, startTime);
+        ComputePath computePathThread = new ComputePath(servicesToComputePath, simpleGraph.graph, startTime);
 
         poissionStreamThread.start();
         computePathThread.start();

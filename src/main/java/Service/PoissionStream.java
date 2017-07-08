@@ -1,5 +1,6 @@
 package Service;
 
+import SimulationImpl.Tools;
 import Topology.Vertex;
 
 import java.util.ArrayList;
@@ -11,24 +12,26 @@ import java.util.concurrent.BlockingQueue;
  * Created by yuqia on 2017/6/14.
  */
 public class PoissionStream extends Thread {
-    public double lambda = 2 ;
+    public double lambda = Tools.DEFAULTLAMBDA;
     public List<Service> listOfServices = new ArrayList<Service>();
     public BlockingQueue<Service> serviceBlockingQueue;
+    public long programStartTime;
 
     public PoissionStream() {
 
     }
-    public PoissionStream(BlockingQueue<Service> bq) {
+    public PoissionStream(BlockingQueue<Service> bq, long startTime) {
         this.serviceBlockingQueue = bq;
+        this.programStartTime = startTime;
     }
 
     @Override
     public void run() {
         double x;
 
-        for(int i = 0; i < 100; i++) {
-            x = poissionNumber();
-            int time = (int) x * 1000;
+        for(int i = 0; i < Tools.DEFAULTSERVICENUMBER; i++) {
+            x = poissionNumber(Tools.DEFAULTLAMBDA);
+            int time = (int) x * Tools.TIMESCALE;
             Service service = generateService();
             if(service.srcNode.nodeId.equals(service.desNode.nodeId)) {
                 i = i - 1;
@@ -52,10 +55,10 @@ public class PoissionStream extends Thread {
     }
 
     /**产生满足泊松分布的随机数*/
-    public double poissionNumber() {
+    public double poissionNumber(double lambda) {
         double x = 0;
         double b = 1;
-        double c = Math.exp(-this.lambda);
+        double c = Math.exp(-lambda);
         double u;
 
         do {
@@ -79,10 +82,11 @@ public class PoissionStream extends Thread {
         String desNodeId = desNuniformNode();
         Vertex srcNode = new Vertex(srcNodeId);
         Vertex desNode = new Vertex(desNodeId);
-        int numberOfwavelength = rand.nextInt(8) + 1;
+        int numberOfwavelength = rand.nextInt(Tools.DEFAULTMAXNUMBEROFWAVELENGTH) + 1;
         //double bandwidth = unitWavelenth * numberOfwavelength;
         //double wavelenth = 192 + Math.random();
-        int serviceTime = rand.nextInt(50) + 1;
+        //int serviceTime = rand.nextInt(Tools.DEFAULTMAXSERVICETIME) + 1;
+        int serviceTime = (int) poissionNumber(Tools.DEFAULTAVERAGESERVICETIME);
         Service randomService = new Service(srcNode, desNode, numberOfwavelength, serviceTime);
         return randomService;
     }
@@ -90,43 +94,94 @@ public class PoissionStream extends Thread {
     /**节点不均匀随机分布*/
     public String srcNuniformNode() {
         Random rand = new Random();
-        int i = rand.nextInt(10) + 1;
-        switch (i) {
-            case 10 :
-                i = 1;
-                break;
-            case 9 :
-                i = 2;
-                break;
-            case 8 :
-                i = 3;
-                break;
-            default:
-                break;
+        int i;
+        if (System.currentTimeMillis() - this.programStartTime < Tools.DEFAULTWORKINGTIME) {
+            i = rand.nextInt(13) + 1;
+            switch (i) {
+                case 13:
+                    i = 1;
+                    break;
+                case 12:
+                    i = 2;
+                    break;
+                case 11:
+                    i = 3;
+                    break;
+                case 10:
+                    i = 1;
+                    break;
+                case 9:
+                    i = 2;
+                    break;
+                case 8:
+                    i = 3;
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            i = rand.nextInt(11) + 1;
+            switch (i) {
+                case 11:
+                    i = 4;
+                    break;
+                case 10:
+                    i = 5;
+                    break;
+                case 9:
+                    i = 4;
+                    break;
+                case 8:
+                    i = 5;
+                    break;
+                default:
+                    break;
+            }
         }
         return Integer.toString(i);
     }
     public String desNuniformNode() {
         Random rand = new Random();
-        int i = rand.nextInt(12) + 1;
-        switch (i) {
-            case 12 :
-                i = 6;
-                break;
-            case 11 :
-                i = 7;
-                break;
-            case 10 :
-                i = 1;
-                break;
-            case 9 :
-                i = 2;
-                break;
-            case 8 :
-                i = 3;
-                break;
-            default:
-                break;
+        int i ;
+        if(System.currentTimeMillis() - this.programStartTime < (Tools.DEFAULTWORKINGTIME*1000)) {
+            i = rand.nextInt(12) + 1;
+            switch (i) {
+                case 12 :
+                    i = 6;
+                    break;
+                case 11 :
+                    i = 7;
+                    break;
+                case 10 :
+                    i = 1;
+                    break;
+                case 9 :
+                    i = 2;
+                    break;
+                case 8 :
+                    i = 3;
+                    break;
+                default:
+                    break;
+            }
+        }else {
+            i = rand.nextInt(11) + 1;
+            switch (i) {
+                case 11 :
+                    i = 4;
+                    break;
+                case 10 :
+                    i = 5;
+                    break;
+                case 9 :
+                    i = 6;
+                    break;
+                case 8 :
+                    i = 7;
+                    break;
+                default:
+                    break;
+            }
         }
         return Integer.toString(i);
     }
