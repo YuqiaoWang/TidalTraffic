@@ -171,9 +171,36 @@ public class ComputePath extends Thread {
 
                 //各域状态判断
                 areaMapIterator = this.areaHashMap.entrySet().iterator();
+                //把负载值写入文件
+                FileWriter areaOneLoadFileWriter, areaTwoLoadFileWriter, areaThreeLoadFileWriter;
+
+                if(Integer.valueOf(service.serviceId) == 0) {
+                    areaOneLoadFileWriter = new FileWriter("target/generated-sources/area1.txt", false);
+                    areaTwoLoadFileWriter = new FileWriter("target/generated-sources/area2.txt", false);
+                    areaThreeLoadFileWriter = new FileWriter("target/generated-sources/area3.txt", false);
+                }else {
+                    areaOneLoadFileWriter = new FileWriter("target/generated-sources/area1.txt", true);
+                    areaTwoLoadFileWriter = new FileWriter("target/generated-sources/area2.txt", true);
+                    areaThreeLoadFileWriter = new FileWriter("target/generated-sources/area3.txt", true);
+                }
+
                 while (areaMapIterator.hasNext()) {
                     Map.Entry entry = (Map.Entry) areaMapIterator.next();
                     Area currentArea = (Area) entry.getValue();
+
+                    switch (Integer.valueOf(currentArea.areaId)) {
+                        case 1 :
+                            areaOneLoadFileWriter.write(currentArea.load + "\n");
+                            areaOneLoadFileWriter.close();
+                            break;
+                        case 2 :
+                            areaTwoLoadFileWriter.write(currentArea.load + "\n");
+                            areaTwoLoadFileWriter.close();
+                            break;
+                        case 3 :
+                            areaThreeLoadFileWriter.write(currentArea.load + "\n");
+                            areaThreeLoadFileWriter.close();
+                    }
                     if(currentArea.load / currentArea.totalCapacity >= currentArea.threshold) {
                         System.out.println("[area " + currentArea.areaId + "] 当前处于潮峰区,load:" + currentArea.load + "/"+ currentArea.totalCapacity);
                     }else {
@@ -210,7 +237,7 @@ public class ComputePath extends Thread {
                 if(service.isResourceAllocated() == true) {     //如果分配了资源
                     Timer leavingTimer = new Timer();
                     ServiceLeavingTask serviceLeavingTask = new ServiceLeavingTask(service);
-                    leavingTimer.schedule(serviceLeavingTask, service.serviceTime * 1000);  //业务时间结束后离去
+                    leavingTimer.schedule(serviceLeavingTask, service.serviceTime * Tools.TIMESCALE);  //业务时间结束后离去
                 }
 
                 int num = Integer.valueOf(service.serviceId);

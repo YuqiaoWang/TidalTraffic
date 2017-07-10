@@ -12,7 +12,7 @@ import java.util.concurrent.BlockingQueue;
  * Created by yuqia on 2017/6/14.
  */
 public class PoissionStream extends Thread {
-    public double lambda = 2 ;
+    public double lambda = Tools.DEFAULTLAMBDA ;
     public long programStartTime;
     public List<Service> listOfServices = new ArrayList<Service>();
     public BlockingQueue<Service> serviceBlockingQueue;
@@ -30,8 +30,8 @@ public class PoissionStream extends Thread {
         double x;
 
         for(int i = 0; i < Tools.DEFAULTSERVICENUMBER; i++) {
-            x = poissionNumber();
-            int time = (int) x * 100;
+            x = poissionNumber(Tools.DEFAULTLAMBDA);
+            int time = (int) x * Tools.TIMESCALE;
             Service service = generateService();
             if(service.srcNode.nodeId.equals(service.desNode.nodeId)) {
                 i = i - 1;
@@ -55,10 +55,10 @@ public class PoissionStream extends Thread {
     }
 
     /**产生满足泊松分布的随机数*/
-    public double poissionNumber() {
+    public double poissionNumber(double lambda) {
         double x = 0;
         double b = 1;
-        double c = Math.exp(-this.lambda);
+        double c = Math.exp(-lambda);
         double u;
 
         do {
@@ -85,7 +85,8 @@ public class PoissionStream extends Thread {
         int numberOfwavelength = rand.nextInt(Tools.DEFAULTMAXNUMBEROFWAVELENGTH) + 1;
         //double bandwidth = unitWavelenth * numberOfwavelength;
         //double wavelenth = 192 + Math.random();
-        int serviceTime = rand.nextInt(Tools.DEFAULTMAXSERVICETIME) + 1;
+        //int serviceTime = rand.nextInt(Tools.DEFAULTMAXSERVICETIME) + 1;
+        int serviceTime = (int) poissionNumber(Tools.DEFAULTAVERAGESERVICETIME);
         Service randomService = new Service(srcNode, desNode, numberOfwavelength, serviceTime);
         return randomService;
     }
@@ -94,9 +95,18 @@ public class PoissionStream extends Thread {
     public String srcNuniformNode() {
         Random rand = new Random();
         int i;
-        if(System.currentTimeMillis() - this.programStartTime < Tools.DEFAULTWORKINGTIME) {
-            i = rand.nextInt(13) + 1;
+        if(System.currentTimeMillis() - this.programStartTime < Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE) {
+            i = rand.nextInt(16) + 1;
             switch (i) {
+                case 16 :
+                    i = 1;
+                    break;
+                case 15 :
+                    i = 2;
+                    break;
+                case 14 :
+                    i = 3;
+                    break;
                 case 13 :
                     i = 1;
                     break;
@@ -119,8 +129,14 @@ public class PoissionStream extends Thread {
                     break;
             }
         }else {
-            i = rand.nextInt(11) + 1;
+            i = rand.nextInt(13) + 1;
             switch (i) {
+                case 13 :
+                    i = 4;
+                    break;
+                case 12 :
+                    i = 5;
+                    break;
                 case 11 :
                     i = 4;
                     break;
@@ -144,9 +160,21 @@ public class PoissionStream extends Thread {
     public String desNuniformNode() {
         Random rand = new Random();
         int i ;
-        if(System.currentTimeMillis() - this.programStartTime < (Tools.DEFAULTWORKINGTIME*1000)) {
-            i = rand.nextInt(12) + 1;
+        if(System.currentTimeMillis() - this.programStartTime < (Tools.DEFAULTWORKINGTIME*Tools.TIMESCALE)) {
+            i = rand.nextInt(16) + 1;
             switch (i) {
+                case 16 :
+                    i = 6;
+                    break;
+                case 15 :
+                    i = 5;
+                    break;
+                case 14 :
+                    i = 1;
+                    break;
+                case 13 :
+                    i = 2;
+                    break;
                 case 12 :
                     i = 6;
                     break;
@@ -166,8 +194,20 @@ public class PoissionStream extends Thread {
                     break;
             }
         }else {
-            i = rand.nextInt(11) + 1;
+            i = rand.nextInt(15) + 1;
             switch (i) {
+                case 15 :
+                    i = 4;
+                    break;
+                case 14 :
+                    i = 5;
+                    break;
+                case 13 :
+                    i = 6;
+                    break;
+                case 12 :
+                    i = 7;
+                    break;
                 case 11 :
                     i = 4;
                     break;
