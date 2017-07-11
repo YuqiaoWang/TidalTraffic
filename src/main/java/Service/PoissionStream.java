@@ -92,46 +92,64 @@ public class PoissionStream extends Thread {
     }
 
     /**节点不均匀随机分布*/
+    /*
     public String srcNuniformNode() {
         Random rand = new Random();
         int i;
-        if (System.currentTimeMillis() - this.programStartTime < Tools.DEFAULTWORKINGTIME) {
-            i = rand.nextInt(13) + 1;
+        if(System.currentTimeMillis() - this.programStartTime < Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE) {
+            i = rand.nextInt(16) + 1;
             switch (i) {
-                case 13:
+                case 16 :
                     i = 1;
                     break;
-                case 12:
+                case 15 :
                     i = 2;
                     break;
-                case 11:
+                case 14 :
                     i = 3;
                     break;
-                case 10:
+                case 13 :
                     i = 1;
                     break;
-                case 9:
+                case 12 :
                     i = 2;
                     break;
-                case 8:
+                case 11 :
+                    i = 3;
+                    break;
+                case 10 :
+                    i = 1;
+                    break;
+                case 9 :
+                    i = 2;
+                    break;
+                case 8 :
                     i = 3;
                     break;
                 default:
                     break;
             }
-        } else {
-            i = rand.nextInt(11) + 1;
+        }else {
+
+            i = rand.nextInt(13) + 1;
+
             switch (i) {
-                case 11:
+                case 13 :
                     i = 4;
                     break;
-                case 10:
+                case 12 :
                     i = 5;
                     break;
-                case 9:
+                case 11 :
                     i = 4;
                     break;
-                case 8:
+                case 10 :
+                    i = 5;
+                    break;
+                case 9 :
+                    i = 4;
+                    break;
+                case 8 :
                     i = 5;
                     break;
                 default:
@@ -139,13 +157,42 @@ public class PoissionStream extends Thread {
             }
         }
         return Integer.toString(i);
+    }*/
+    public String srcNuniformNode() {
+        Random rand = new Random();
+        int i;
+        if(System.currentTimeMillis() - this.programStartTime < Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE) {
+            i = rand.nextInt(50) + 1;
+            if(i > 14) {
+                i = (i - 14) % 9 + 1;
+            }
+        }else {
+            i = rand.nextInt(54) + 1;
+            if(i > 14) {
+                i = (i - 14) % 10 + 5;
+            }
+        }
+        return Integer.toString(i);
     }
+    /*
     public String desNuniformNode() {
         Random rand = new Random();
         int i ;
-        if(System.currentTimeMillis() - this.programStartTime < (Tools.DEFAULTWORKINGTIME*1000)) {
-            i = rand.nextInt(12) + 1;
+        if(System.currentTimeMillis() - this.programStartTime < (Tools.DEFAULTWORKINGTIME*Tools.TIMESCALE)) {
+            i = rand.nextInt(16) + 1;
             switch (i) {
+                case 16 :
+                    i = 6;
+                    break;
+                case 15 :
+                    i = 5;
+                    break;
+                case 14 :
+                    i = 1;
+                    break;
+                case 13 :
+                    i = 2;
+                    break;
                 case 12 :
                     i = 6;
                     break;
@@ -165,8 +212,20 @@ public class PoissionStream extends Thread {
                     break;
             }
         }else {
-            i = rand.nextInt(11) + 1;
+            i = rand.nextInt(15) + 1;
             switch (i) {
+                case 15 :
+                    i = 4;
+                    break;
+                case 14 :
+                    i = 5;
+                    break;
+                case 13 :
+                    i = 6;
+                    break;
+                case 12 :
+                    i = 7;
+                    break;
                 case 11 :
                     i = 4;
                     break;
@@ -184,7 +243,23 @@ public class PoissionStream extends Thread {
             }
         }
         return Integer.toString(i);
-    }
+    }*/
 
+    public String desNuniformNode() {
+        Random rand = new Random();
+        int i;
+        if(System.currentTimeMillis() - this.programStartTime < Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE) {
+            i = rand.nextInt(32) + 1;
+            if(i > 14) {
+                i = (i - 14) % 9 + 1;
+            }
+        }else {
+            i = rand.nextInt(34) + 1;
+            if(i > 14) {
+                i = (i - 14) % 10 + 5;
+            }
+        }
+        return Integer.toString(i);
+    }
 }
 

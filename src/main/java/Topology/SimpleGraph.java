@@ -23,7 +23,8 @@ public class SimpleGraph {
         try{
             JsonParser parser = new JsonParser();
             JsonObject jsonObject = (JsonObject) parser.parse(
-                    new FileReader("src/main/java/Topology/DefaultTopology.json"));
+                    //new FileReader("src/main/java/Topology/DefaultTopology.json"));
+                    new FileReader("src/main/java/Topology/NsfnetTopology.json"));
             JsonObject jsonGraph = jsonObject.getAsJsonObject("Graph");
             JsonArray vertexArray = jsonGraph.getAsJsonArray("vertex");
             /*List<String> nodeIdList = new ArrayList<String>();
