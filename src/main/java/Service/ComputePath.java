@@ -9,7 +9,6 @@ import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 import org.jgrapht.graph.SimpleWeightedGraph;
-
 import java.io.FileWriter;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
@@ -20,10 +19,12 @@ import java.util.concurrent.BlockingQueue;
 public class ComputePath extends Thread {
     public long programStartTime;
     public HashMap<Service, GraphPath> serviceGraphPathHashMap = new HashMap<Service, GraphPath>();
+    public Set backupEdgeSet = new HashSet<SimpleEdge>();
     public BlockingQueue<Service> serviceBlockingQueue;
     public SimpleWeightedGraph<Vertex, SimpleEdge> graph;
     public HashMap<String, Area> areaHashMap = new HashMap<String, Area>();
     public int blockedTimes;
+
 
     public ComputePath() {
 
@@ -34,6 +35,7 @@ public class ComputePath extends Thread {
         this.graph = graph;
         this.programStartTime = startTime;
         this.blockedTimes = 0;
+        this.backupEdgeSet = graph.edgeSet();
 
         //确定每个area有多少点
         Iterator<Vertex> vertexIterator = this.graph.vertexSet().iterator();
@@ -75,6 +77,45 @@ public class ComputePath extends Thread {
             SimpleEdge currentedge = edgeIterator.next();
             if(this.graph.containsEdge(currentedge)) {
                 this.graph.setEdgeWeight(currentedge, currentedge.numberOfOccupatedWavelength);
+            }
+        }
+    }
+
+    /**路长当边权*/
+    public void allocatedWeightBack() {
+        Iterator<SimpleEdge> edgeIterator = this.graph.edgeSet().iterator();
+        while (edgeIterator.hasNext()) {
+            SimpleEdge currentedge = edgeIterator.next();
+            if(this.graph.containsEdge(currentedge)) {
+                edgeIterator = backupEdgeSet.iterator();
+                while (edgeIterator.hasNext()) {
+                    SimpleEdge backupEdge = edgeIterator.next();
+                    if(backupEdge.srcVertex.equals(currentedge.srcVertex) && backupEdge.desVertex.equals(currentedge.desVertex)) {
+                        this.graph.setEdgeWeight(currentedge, currentedge.numberOfOccupatedWavelength);
+                        break;
+                    }
+                }
+
+            }
+        }
+    }
+
+    public void normalPeriodComputingPath(Service service) {
+
+        //D算法算路
+        GraphPath graphPath = findShortestPath(service, this.graph);
+        serviceGraphPathHashMap.put(service, graphPath);
+        service.isComputed = true;
+        service.setGraphPath(graphPath);
+        System.out.printf("业务 " + service.serviceId + " 已算路: ");
+        List<Vertex> vertexList = graphPath.getVertexList();
+        Iterator<Vertex> iterator = vertexList.iterator();
+        while (iterator.hasNext()) {
+            Vertex vertex = iterator.next();
+            if(iterator.hasNext() == true) {
+                System.out.printf(vertex.nodeId + " -> ");
+            }else {
+                System.out.printf(vertex.nodeId + "\n");
             }
         }
     }
@@ -208,30 +249,77 @@ public class ComputePath extends Thread {
                     }
                 }
 
-                /**算路*/
-                //重新赋边权(以负载为边权)
-                //如果在对照组分支上，将这部分注释掉
-                reAllocateWeight();
+                /**潮汐迁移时段算路处理方案*/
+                long alreadyRunTime = System.currentTimeMillis() - this.programStartTime;
+                //判断是否处于迁移时段
+                if(alreadyRunTime > Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE &&
+                        alreadyRunTime < (Tools.DEFAULTWORKINGTIME + Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
+                    //判断业务是否为长连接
+                    if(service.serviceTime < 1.5 * Tools.DEFAULTWORKINGTIME) {
+                        //重新赋边权(以负载为边权)
+                        //如果在对照组分支上，将这部分注释掉
+                        reAllocateWeight();
+                        normalPeriodComputingPath(service);
+                        allocateResource(service);
+                    } else {
+                        //判断业务源宿节点是否在同一个域内
+                        if(service.srcNode.areaId == service.desNode.areaId) {
 
-                //D算法算路
-                GraphPath graphPath = findShortestPath(service, this.graph);
-                serviceGraphPathHashMap.put(service, graphPath);
-                service.isComputed = true;
-                service.setGraphPath(graphPath);
-                System.out.printf("业务 " + service.serviceId + " 已算路: ");
-                List<Vertex> vertexList = graphPath.getVertexList();
-                Iterator<Vertex> iterator = vertexList.iterator();
-                while (iterator.hasNext()) {
-                    Vertex vertex = iterator.next();
-                    if(iterator.hasNext() == true) {
-                        System.out.printf(vertex.nodeId + " -> ");
-                    }else {
-                        System.out.printf(vertex.nodeId + "\n");
+                            Area tempArea = this.areaHashMap.get(service.srcNode.areaId);
+                            //判断当前是否为潮谷
+                            if(tempArea.load / tempArea.totalCapacity < tempArea.threshold) {
+                                allocatedWeightBack();
+                                normalPeriodComputingPath(service);
+                                allocateResource(service);
+                            }else {
+                                //判断是否峰往谷迁移
+                                if(service.srcNode.areaId == "1") {
+                                    allocatedWeightBack();
+                                    normalPeriodComputingPath(service);
+                                    allocateResource(service);
+                                    //判断当前资源是否足够
+                                    if(service.isResourceAllocated() != true) {
+                                        reAllocateWeight();
+                                        normalPeriodComputingPath(service);
+                                        allocateResource(service);
+                                    }
+                                }else {
+                                    reAllocateWeight();
+                                    normalPeriodComputingPath(service);
+                                    allocateResource(service);
+                                }
+                            }
+                        }else {
+                            edgeIterator = this.graph.edgeSet().iterator();
+                            while (edgeIterator.hasNext()) {
+                                SimpleEdge currentedge = edgeIterator.next();
+                                if(this.graph.containsEdge(currentedge)) {
+                                    if(currentedge.srcVertex.areaId == "1" && currentedge.desVertex.areaId == "1") {
+                                        this.graph.setEdgeWeight(currentedge, currentedge.numberOfOccupatedWavelength * (1- Tools.LOADCHANGEPERCENT));
+                                    }else if (currentedge.srcVertex.areaId == "3" && currentedge.desVertex.areaId == "3") {
+                                        this.graph.setEdgeWeight(currentedge, currentedge.numberOfOccupatedWavelength * (1 + Tools.LOADCHANGEPERCENT));
+                                    }else {
+                                        this.graph.setEdgeWeight(currentedge, currentedge.numberOfOccupatedWavelength);
+                                    }
+
+                                }
+                            }
+                            normalPeriodComputingPath(service);
+                            allocateResource(service);
+                        }
                     }
+                }else {
+                    /**普通时段算路*/
+                    /**算路*/
+                    reAllocateWeight();
+                    normalPeriodComputingPath(service);
+                    allocateResource(service);
                 }
 
+
                 /**资源分配*/
-                allocateResource(service);
+                //考虑迁移时段处理的分支将此语句写在前面
+                //allocateResource(service);
 
                 /**业务离去*/
                 if(service.isResourceAllocated() == true) {     //如果分配了资源
