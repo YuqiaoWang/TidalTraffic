@@ -86,7 +86,13 @@ public class PoissionStream extends Thread {
         //double bandwidth = unitWavelenth * numberOfwavelength;
         //double wavelenth = 192 + Math.random();
         //int serviceTime = rand.nextInt(Tools.DEFAULTMAXSERVICETIME) + 1;
-        int serviceTime = (int) poissionNumber(Tools.DEFAULTAVERAGESERVICETIME);
+        Random randForServiceTime = new Random();
+        int serviceTime;
+        if(randForServiceTime.nextInt(50)>45) {
+            serviceTime = (int) poissionNumber(1.8 * Tools.DEFAULTAVERAGESERVICETIME);
+        }else {
+            serviceTime = (int) poissionNumber(Tools.DEFAULTAVERAGESERVICETIME);
+        }
         Service randomService = new Service(srcNode, desNode, numberOfwavelength, serviceTime);
         return randomService;
     }
