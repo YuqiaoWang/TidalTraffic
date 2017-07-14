@@ -18,7 +18,7 @@ public class Tools {
     //生成业务时，不同时间段产生的业务源宿点概率不同，用来区分时间
     public static int DEFAULTWORKINGTIME = 2600;
     //业务平均持续时间
-    public static int DEFAULTAVERAGESERVICETIME = 400;
+    public static int DEFAULTAVERAGESERVICETIME = 450;
     //单个业务占用最大带宽数
     public static int DEFAULTMAXNUMBEROFWAVELENGTH = 4;
     //为节约运算时间，调整下方参数可
