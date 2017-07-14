@@ -18,7 +18,7 @@ public class Implement {
         long startTime = System.currentTimeMillis();
         //业务发生 与 初步算路
         BlockingQueue<Service> servicesToComputePath = new ArrayBlockingQueue<Service>(20);
-        PoissionStream poissionStreamThread = new PoissionStream(servicesToComputePath, startTime);
+        PoissionStream poissionStreamThread = new PoissionStream(servicesToComputePath, simpleGraph.graph, startTime);
         ComputePath computePathThread = new ComputePath(servicesToComputePath, simpleGraph.graph, startTime);
 
         poissionStreamThread.start();

@@ -2,10 +2,9 @@ package Service;
 
 import SimulationImpl.Tools;
 import Topology.Vertex;
+import org.jgrapht.graph.SimpleWeightedGraph;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -16,13 +15,25 @@ public class PoissionStream extends Thread {
     public long programStartTime;
     public List<Service> listOfServices = new ArrayList<Service>();
     public BlockingQueue<Service> serviceBlockingQueue;
+    public SimpleWeightedGraph graph;
+    public HashMap<String, Vertex> vertexHashMap = new HashMap<String, Vertex>();
 
     public PoissionStream() {
 
     }
-    public PoissionStream(BlockingQueue<Service> bq, long startTime) {
+    public PoissionStream(BlockingQueue<Service> bq, SimpleWeightedGraph graph, long startTime) {
         this.serviceBlockingQueue = bq;
+        this.graph = graph;
         this.programStartTime = startTime;
+
+        Iterator<Vertex> iterator = this.graph.vertexSet().iterator();
+
+
+
+        while (iterator.hasNext()) {
+            Vertex currentVertex = iterator.next();
+            vertexHashMap.put(currentVertex.nodeId, currentVertex);
+        }
     }
 
     @Override
@@ -40,7 +51,7 @@ public class PoissionStream extends Thread {
             try{
                 this.sleep(time);     //用线程休眠来模拟泊松流到达过程
                 service.setServiceId(String.format("%4d", i).replace(" ", "0"));
-                System.out.println("--------业务 " + service.serviceId + " 到来，距上次 " + time/1000 + " 秒--------");
+                System.out.println("--------业务 " + service.serviceId + " 到来，距上次 " + time/Tools.TIMESCALE + " 秒--------");
                 System.out.println("srcNodeId: " + service.srcNode.nodeId);
                 System.out.println("desNodeId: " + service.desNode.nodeId);
                 System.out.printf("bandwidth: %.2f \n" , service.bandwidth);
@@ -80,18 +91,28 @@ public class PoissionStream extends Thread {
         String srcNodeId = srcNuniformNode();
         //String desNodeId = Integer.toString(rand.nextInt(7) + 1);
         String desNodeId = desNuniformNode();
-        Vertex srcNode = new Vertex(srcNodeId);
-        Vertex desNode = new Vertex(desNodeId);
+        //Vertex srcNode = new Vertex(srcNodeId);
+        Vertex srcNode = vertexHashMap.get(srcNodeId);
+        //Vertex desNode = new Vertex(desNodeId);
+        Vertex desNode = vertexHashMap.get(desNodeId);
         int numberOfwavelength = rand.nextInt(Tools.DEFAULTMAXNUMBEROFWAVELENGTH) + 1;
         //double bandwidth = unitWavelenth * numberOfwavelength;
         //double wavelenth = 192 + Math.random();
         //int serviceTime = rand.nextInt(Tools.DEFAULTMAXSERVICETIME) + 1;
-        int serviceTime = (int) poissionNumber(Tools.DEFAULTAVERAGESERVICETIME);
+        //int serviceTime = (int) poissionNumber(Tools.DEFAULTAVERAGESERVICETIME);
+        Random randForServiceTime = new Random();
+        int serviceTime;
+        if(randForServiceTime.nextInt(50)>45) {
+            serviceTime = (int) poissionNumber(1.6 * Tools.DEFAULTAVERAGESERVICETIME);
+        }else {
+            serviceTime = (int) poissionNumber(Tools.DEFAULTAVERAGESERVICETIME);
+        }
         Service randomService = new Service(srcNode, desNode, numberOfwavelength, serviceTime);
         return randomService;
     }
 
     /**节点不均匀随机分布(与运行时间有关)*/
+    /*
     public String srcNuniformNode() {
         Random rand = new Random();
         int i;
@@ -156,7 +177,24 @@ public class PoissionStream extends Thread {
         }
 
         return Integer.toString(i);
+    }*/
+    public String srcNuniformNode() {
+        Random rand = new Random();
+        int i;
+        if(System.currentTimeMillis() - this.programStartTime < Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE) {
+            i = rand.nextInt(50) + 1;
+            if(i > 14) {
+                i = (i - 14) % 9 + 1;
+            }
+        }else {
+            i = rand.nextInt(54) + 1;
+            if(i > 14) {
+                i = (i - 14) % 10 + 5;
+            }
+        }
+        return Integer.toString(i);
     }
+    /*
     public String desNuniformNode() {
         Random rand = new Random();
         int i ;
@@ -225,6 +263,22 @@ public class PoissionStream extends Thread {
             }
         }
 
+        return Integer.toString(i);
+    }*/
+    public String desNuniformNode() {
+        Random rand = new Random();
+        int i;
+        if(System.currentTimeMillis() - this.programStartTime < Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE) {
+            i = rand.nextInt(32) + 1;
+            if(i > 14) {
+                i = (i - 14) % 9 + 1;
+            }
+        }else {
+            i = rand.nextInt(34) + 1;
+            if(i > 14) {
+                i = (i - 14) % 10 + 5;
+            }
+        }
         return Integer.toString(i);
     }
 
