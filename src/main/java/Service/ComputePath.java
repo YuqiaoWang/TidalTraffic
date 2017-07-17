@@ -24,6 +24,8 @@ public class ComputePath extends Thread {
     public SimpleWeightedGraph<Vertex, SimpleEdge> graph;
     public HashMap<String, Area> areaHashMap = new HashMap<String, Area>();
     public int blockedTimes;
+    public int servicesNumberInTidalMigrationPeriod;
+    public int blockedTimesInTidalMigrationPeriod;
 
     public ComputePath() {
 
@@ -34,6 +36,8 @@ public class ComputePath extends Thread {
         this.graph = graph;
         this.programStartTime = startTime;
         this.blockedTimes = 0;
+        this.servicesNumberInTidalMigrationPeriod = 0;
+        this.blockedTimesInTidalMigrationPeriod = 0;
 
         //确定每个area有多少点
         Iterator<Vertex> vertexIterator = this.graph.vertexSet().iterator();
@@ -125,6 +129,10 @@ public class ComputePath extends Thread {
                 service.wavelengthesNumber.clear(); //如果分配资源不成功，就释放service对象占用的波长号
                 System.out.println("没有足够资源分配给业务 " + service.serviceId + " 。");
                 blockedTimes +=1;
+                if(System.currentTimeMillis() - this.programStartTime > Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE &&
+                        System.currentTimeMillis() - this.programStartTime < (Tools.DEFAULTWORKINGTIME + Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
+                    blockedTimesInTidalMigrationPeriod +=1;
+                }
             }
 
 
@@ -141,6 +149,10 @@ public class ComputePath extends Thread {
             try {
                 /**业务到来*/
                 Service service = serviceBlockingQueue.take();
+                if(System.currentTimeMillis() - programStartTime > Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE &&
+                        System.currentTimeMillis() - programStartTime < (Tools.DEFAULTWORKINGTIME + Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
+                    this.servicesNumberInTidalMigrationPeriod +=1;
+                }
 
                 /**峰谷状态更新*/
                 //各域负载初始化
@@ -247,7 +259,8 @@ public class ComputePath extends Thread {
                     FileWriter fw = new FileWriter("target/generated-sources/blockedTimes.txt");
                     fw.write(Integer.toString(this.blockedTimes));
                     System.out.println("被阻塞的业务个数为:" + this.blockedTimes);
-
+                    System.out.println("潮汐迁移时段被阻塞业务个数：" + this.blockedTimesInTidalMigrationPeriod);
+                    System.out.println("潮汐迁移时段业务个数：" + this.servicesNumberInTidalMigrationPeriod);
                     System.out.println("程序结束");
                     fw.close();
                 }
