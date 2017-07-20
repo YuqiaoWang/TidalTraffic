@@ -14,9 +14,9 @@ public class Tools {
     //用于设置生成业务个数
     public static int DEFAULTSERVICENUMBER = 1000;
     //平均业务到达率
-    public static double DEFAULTLAMBDA = 1;
+    public static double DEFAULTLAMBDA = 2;
     //生成业务时，不同时间段产生的业务源宿点概率不同，用来区分时间
-    public static int DEFAULTWORKINGTIME = 600;
+    public static int DEFAULTWORKINGTIME = 1200;
     //业务平均持续时间
     public static int DEFAULTAVERAGESERVICETIME = 200;
     //单个业务占用最大带宽数

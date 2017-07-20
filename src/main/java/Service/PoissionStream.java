@@ -103,7 +103,9 @@ public class PoissionStream extends Thread {
         Random randForServiceTime = new Random();
         int serviceTime;
         if(randForServiceTime.nextInt(50)>45) {
-            serviceTime = (int) poissionNumber(1.6 * Tools.DEFAULTAVERAGESERVICETIME);
+            serviceTime = (int) poissionNumber(Tools.DEFAULTAVERAGESERVICETIME) +
+                    (int) poissionNumber(Tools.DEFAULTAVERAGESERVICETIME) +
+                    (int) poissionNumber(Tools.DEFAULTAVERAGESERVICETIME);
         }else {
             serviceTime = (int) poissionNumber(Tools.DEFAULTAVERAGESERVICETIME);
         }
