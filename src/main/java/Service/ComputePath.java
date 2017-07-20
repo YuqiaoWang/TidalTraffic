@@ -131,7 +131,7 @@ public class ComputePath extends Thread {
                 System.out.println("没有足够资源分配给业务 " + service.serviceId + " 。");
                 blockedTimes +=1;
                 if(System.currentTimeMillis() - this.programStartTime > Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE &&
-                        System.currentTimeMillis() - this.programStartTime < (Tools.DEFAULTWORKINGTIME + Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
+                        System.currentTimeMillis() - this.programStartTime < (Tools.DEFAULTWORKINGTIME + 3 * Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
                     blockedTimesInTidalMigrationPeriod +=1;
                  }
                 //FileWriter fileWriter = new FileWriter("src/main/java/Service/blockedNumber.txt");
@@ -156,7 +156,7 @@ public class ComputePath extends Thread {
                 Service service = serviceBlockingQueue.take();
 
                 if(System.currentTimeMillis() - programStartTime > Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE &&
-                        System.currentTimeMillis() - programStartTime < (Tools.DEFAULTWORKINGTIME + Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
+                        System.currentTimeMillis() - programStartTime < (Tools.DEFAULTWORKINGTIME + 3 * Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
                     this.servicesNumberInTidalMigrationPeriod +=1;
                     lastServiceIDInTidalMigrationPeriod = service.serviceId;
                 }

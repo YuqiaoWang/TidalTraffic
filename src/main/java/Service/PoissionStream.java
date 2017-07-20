@@ -89,7 +89,10 @@ public class PoissionStream extends Thread {
         Random randForServiceTime = new Random();
         int serviceTime;
         if(randForServiceTime.nextInt(50)>45) {
-            serviceTime = (int) poissionNumber(1.8 * Tools.DEFAULTAVERAGESERVICETIME);
+            serviceTime = (int) poissionNumber(Tools.DEFAULTAVERAGESERVICETIME) +
+                    (int) poissionNumber(Tools.DEFAULTAVERAGESERVICETIME) +
+                    (int) poissionNumber(Tools.DEFAULTAVERAGESERVICETIME);
+
         }else {
             serviceTime = (int) poissionNumber(Tools.DEFAULTAVERAGESERVICETIME);
         }
@@ -167,11 +170,24 @@ public class PoissionStream extends Thread {
     public String srcNuniformNode() {
         Random rand = new Random();
         int i;
-        if(System.currentTimeMillis() - this.programStartTime < Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE) {
+        long nowTime = System.currentTimeMillis();
+        if(nowTime - this.programStartTime < Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE) {
             i = rand.nextInt(50) + 1;
             if(i > 14) {
                 i = (i - 14) % 9 + 1;
             }
+        }else if(nowTime - this.programStartTime > Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE &&
+                nowTime - this.programStartTime < (Tools.DEFAULTWORKINGTIME + Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
+            i = rand.nextInt(34) + 1;
+            if(i > 14) {
+                i = (i - 14) % 10 + 5;
+                }
+        }else if(nowTime - this.programStartTime > (Tools.DEFAULTWORKINGTIME + Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE &&
+                nowTime - this.programStartTime < (Tools.DEFAULTWORKINGTIME + 2 * Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
+            i = rand.nextInt(44) + 1;
+            if (i > 14) {
+                i = (i - 14) % 10 + 5;
+                }
         }else {
             i = rand.nextInt(54) + 1;
             if(i > 14) {
