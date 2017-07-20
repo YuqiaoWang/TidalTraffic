@@ -171,7 +171,7 @@ public class ComputePath extends Thread {
                 System.out.println("没有足够资源分配给业务 " + service.serviceId + " 。");
                 blockedTimes +=1;
                 if(System.currentTimeMillis() - this.programStartTime > Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE &&
-                        System.currentTimeMillis() - this.programStartTime < (Tools.DEFAULTWORKINGTIME + Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
+                        System.currentTimeMillis() - this.programStartTime < (Tools.DEFAULTWORKINGTIME + 3 * Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
                     blockedTimesInTidalMigrationPeriod +=1;
                 }
             }
@@ -191,7 +191,7 @@ public class ComputePath extends Thread {
                 /**业务到来*/
                 Service service = serviceBlockingQueue.take();
                 if(System.currentTimeMillis() - programStartTime > Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE &&
-                        System.currentTimeMillis() - programStartTime < (Tools.DEFAULTWORKINGTIME + Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
+                        System.currentTimeMillis() - programStartTime < (Tools.DEFAULTWORKINGTIME + 3 * Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
                     this.servicesNumberInTidalMigrationPeriod +=1;
                 }
 
@@ -265,9 +265,9 @@ public class ComputePath extends Thread {
                 long alreadyRunTime = System.currentTimeMillis() - this.programStartTime;
                 //判断是否处于迁移时段
                 if(alreadyRunTime > Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE &&
-                        alreadyRunTime < (Tools.DEFAULTWORKINGTIME + Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
+                        alreadyRunTime < (Tools.DEFAULTWORKINGTIME + 3 * Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
                     //判断业务是否为长连接
-                    if(service.serviceTime < 1.5 * Tools.DEFAULTWORKINGTIME) {
+                    if(service.serviceTime < 3 * Tools.DEFAULTWORKINGTIME) {
                         //重新赋边权(以负载为边权)
                         //如果在对照组分支上，将这部分注释掉
                         reAllocateWeight();
