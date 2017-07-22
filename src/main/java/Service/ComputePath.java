@@ -193,16 +193,21 @@ public class ComputePath extends Thread {
 
                 //把负载值写入文件
 
-                FileWriter areaOneLoadFileWriter, areaTwoLoadFileWriter, areaThreeLoadFileWriter;
+                FileWriter areaOneLoadFileWriter, areaTwoLoadFileWriter, areaThreeLoadFileWriter, totalLoadFileWriter,
+                        hopFileWriter;
                 if(Integer.valueOf(service.serviceId) == 0) {
                     areaOneLoadFileWriter = new FileWriter("target/generated-sources/area1.txt", false);
                     areaTwoLoadFileWriter = new FileWriter("target/generated-sources/area2.txt", false);
                     areaThreeLoadFileWriter = new FileWriter("target/generated-sources/area3.txt", false);
+                    totalLoadFileWriter = new FileWriter("target/generated-sources/total.txt", false);
+                    hopFileWriter = new FileWriter("target/generated-sources/hop.txt", false);
 
                 }else {
                     areaOneLoadFileWriter = new FileWriter("target/generated-sources/area1.txt", true);
                     areaTwoLoadFileWriter = new FileWriter("target/generated-sources/area2.txt", true);
                     areaThreeLoadFileWriter = new FileWriter("target/generated-sources/area3.txt", true);
+                    totalLoadFileWriter = new FileWriter("target/generated-sources/total.txt", true);
+                    hopFileWriter = new FileWriter("target/generated-sources/hop.txt", true);
 
                 }
 
@@ -244,7 +249,17 @@ public class ComputePath extends Thread {
                 service.setGraphPath(graphPath);
                 System.out.printf("业务 " + service.serviceId + " 已算路: ");
                 List<Vertex> vertexList = graphPath.getVertexList();
-                Iterator<Vertex> iterator = vertexList.iterator();
+
+                //统计跳数
+                long nowTime = System.currentTimeMillis();
+                if(nowTime - this.programStartTime > Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE &&
+                        nowTime - this.programStartTime < (Tools.DEFAULTWORKINGTIME + 3 * Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
+                    hopFileWriter.write(vertexList.size() - 1 + "\n");
+                    hopFileWriter.close();
+                }
+
+
+                        Iterator<Vertex> iterator = vertexList.iterator();
                 while (iterator.hasNext()) {
                     Vertex vertex = iterator.next();
                     if(iterator.hasNext() == true) {
