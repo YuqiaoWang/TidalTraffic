@@ -184,16 +184,18 @@ public class ComputePath extends Thread {
                 //各域状态判断
                 areaMapIterator = this.areaHashMap.entrySet().iterator();
                 //把负载值写入文件
-                FileWriter areaOneLoadFileWriter, areaTwoLoadFileWriter, areaThreeLoadFileWriter;
+                FileWriter areaOneLoadFileWriter, areaTwoLoadFileWriter, areaThreeLoadFileWriter, totalLoadFileWriter;
 
                 if(Integer.valueOf(service.serviceId) == 0) {
                     areaOneLoadFileWriter = new FileWriter("target/generated-sources/area1.txt", false);
                     areaTwoLoadFileWriter = new FileWriter("target/generated-sources/area2.txt", false);
                     areaThreeLoadFileWriter = new FileWriter("target/generated-sources/area3.txt", false);
+                    totalLoadFileWriter = new FileWriter("target/generated-sources/total.txt", false);
                 }else {
                     areaOneLoadFileWriter = new FileWriter("target/generated-sources/area1.txt", true);
                     areaTwoLoadFileWriter = new FileWriter("target/generated-sources/area2.txt", true);
                     areaThreeLoadFileWriter = new FileWriter("target/generated-sources/area3.txt", true);
+                    totalLoadFileWriter = new FileWriter("target/generated-sources/total.txt", true);
                 }
 
                 while (areaMapIterator.hasNext()) {
@@ -213,11 +215,26 @@ public class ComputePath extends Thread {
                             areaThreeLoadFileWriter.write(currentArea.load + "\n");
                             areaThreeLoadFileWriter.close();
                     }
+
                     if(currentArea.load / currentArea.totalCapacity >= currentArea.threshold) {
                         System.out.println("[area " + currentArea.areaId + "] 当前处于潮峰区,load:" + currentArea.load + "/"+ currentArea.totalCapacity);
                     }else {
                         System.out.println("[area " + currentArea.areaId + "] 当前处于潮谷区,load:" + currentArea.load + "/"+ currentArea.totalCapacity);
                     }
+                }
+                //为计算资源利用率做统计
+                long nowTime = System.currentTimeMillis();
+                if(nowTime - this.programStartTime > Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE &&
+                        nowTime - this.programStartTime < (Tools.DEFAULTWORKINGTIME + 3 * Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
+                    double totalload = 0;
+                    areaMapIterator = this.areaHashMap.entrySet().iterator();
+                    while (areaMapIterator.hasNext()) {
+                        Map.Entry entry = (Map.Entry) areaMapIterator.next();
+                        Area currentArea = (Area) entry.getValue();
+                        totalload += currentArea.load;
+                    }
+                    totalLoadFileWriter.write(totalload + "\n");
+                    totalLoadFileWriter.close();
                 }
 
                 /**算路*/
