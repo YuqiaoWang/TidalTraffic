@@ -124,6 +124,30 @@ public class ComputePath extends Thread {
         }
     }
 
+    public void normalPeriodComputingPath(Service service, FileWriter fileWriter) throws Exception{
+
+        //D算法算路
+        GraphPath graphPath = findShortestPath(service, this.graph);
+        serviceGraphPathHashMap.put(service, graphPath);
+        service.isComputed = true;
+        service.setGraphPath(graphPath);
+        System.out.printf("业务 " + service.serviceId + " 已算路: ");
+        List<Vertex> vertexList = graphPath.getVertexList();
+        //统计跳数
+        fileWriter.write(vertexList.size() - 1 + "\n");
+        fileWriter.close();
+
+        Iterator<Vertex> iterator = vertexList.iterator();
+        while (iterator.hasNext()) {
+            Vertex vertex = iterator.next();
+            if(iterator.hasNext() == true) {
+                System.out.printf(vertex.nodeId + " -> ");
+            }else {
+                System.out.printf(vertex.nodeId + "\n");
+            }
+        }
+    }
+
     /**分配资源*/
     public void allocateResource(Service service) {
         try {
@@ -225,16 +249,21 @@ public class ComputePath extends Thread {
                 //各域状态判断
                 areaMapIterator = this.areaHashMap.entrySet().iterator();
                 //把负载值写入文件
-                FileWriter areaOneLoadFileWriter, areaTwoLoadFileWriter, areaThreeLoadFileWriter;
+                FileWriter areaOneLoadFileWriter, areaTwoLoadFileWriter, areaThreeLoadFileWriter, totalLoadFileWriter,
+                        hopFileWriter;
 
                 if(Integer.valueOf(service.serviceId) == 0) {
                     areaOneLoadFileWriter = new FileWriter("target/generated-sources/area1.txt", false);
                     areaTwoLoadFileWriter = new FileWriter("target/generated-sources/area2.txt", false);
                     areaThreeLoadFileWriter = new FileWriter("target/generated-sources/area3.txt", false);
+                    totalLoadFileWriter = new FileWriter("target/generated-sources/total.txt", false);
+                    hopFileWriter = new FileWriter("target/generated-sources/hop.txt", false);
                 }else {
                     areaOneLoadFileWriter = new FileWriter("target/generated-sources/area1.txt", true);
                     areaTwoLoadFileWriter = new FileWriter("target/generated-sources/area2.txt", true);
                     areaThreeLoadFileWriter = new FileWriter("target/generated-sources/area3.txt", true);
+                    totalLoadFileWriter = new FileWriter("target/generated-sources/total.txt", true);
+                    hopFileWriter = new FileWriter("target/generated-sources/hop.txt", true);
                 }
 
                 while (areaMapIterator.hasNext()) {
@@ -260,6 +289,20 @@ public class ComputePath extends Thread {
                         System.out.println("[area " + currentArea.areaId + "] 当前处于潮谷区,load:" + currentArea.load + "/"+ currentArea.totalCapacity);
                     }
                 }
+                //为计算资源利用率做统计
+                long nowTime = System.currentTimeMillis();
+                if(nowTime - this.programStartTime > Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE &&
+                        nowTime - this.programStartTime < (Tools.DEFAULTWORKINGTIME + 3 * Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
+                    double totalload = 0;
+                    areaMapIterator = this.areaHashMap.entrySet().iterator();
+                    while (areaMapIterator.hasNext()) {
+                        Map.Entry entry = (Map.Entry) areaMapIterator.next();
+                        Area currentArea = (Area) entry.getValue();
+                        totalload += currentArea.load;
+                    }
+                    totalLoadFileWriter.write(totalload + "\n");
+                    totalLoadFileWriter.close();
+                    }
 
                 /**潮汐迁移时段算路处理方案*/
                 long alreadyRunTime = System.currentTimeMillis() - this.programStartTime;
@@ -271,7 +314,7 @@ public class ComputePath extends Thread {
                         //重新赋边权(以负载为边权)
                         //如果在对照组分支上，将这部分注释掉
                         reAllocateWeight();
-                        normalPeriodComputingPath(service);
+                        normalPeriodComputingPath(service, hopFileWriter);
                         allocateResource(service);
                     } else {
                         //判断业务源宿节点是否在同一个域内
@@ -281,23 +324,23 @@ public class ComputePath extends Thread {
                             //判断当前是否为潮谷
                             if(tempArea.load / tempArea.totalCapacity < tempArea.threshold) {
                                 allocatedWeightBack();
-                                normalPeriodComputingPath(service);
+                                normalPeriodComputingPath(service, hopFileWriter);
                                 allocateResource(service);
                             }else {
                                 //判断是否峰往谷迁移
                                 if(service.srcNode.areaId == "1") {
                                     allocatedWeightBack();
-                                    normalPeriodComputingPath(service);
+                                    normalPeriodComputingPath(service, hopFileWriter);
                                     allocateResource(service);
                                     //判断当前资源是否足够
                                     if(service.isResourceAllocated() != true) {
                                         reAllocateWeight();
-                                        normalPeriodComputingPath(service);
+                                        normalPeriodComputingPath(service, hopFileWriter);
                                         allocateResource(service);
                                     }
                                 }else {
                                     reAllocateWeight();
-                                    normalPeriodComputingPath(service);
+                                    normalPeriodComputingPath(service, hopFileWriter);
                                     allocateResource(service);
                                 }
                             }
@@ -316,7 +359,7 @@ public class ComputePath extends Thread {
 
                                 }
                             }
-                            normalPeriodComputingPath(service);
+                            normalPeriodComputingPath(service, hopFileWriter);
                             allocateResource(service);
                         }
                     }
