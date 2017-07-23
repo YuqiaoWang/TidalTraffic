@@ -6,17 +6,17 @@ package SimulationImpl;
 public class Tools {
     /**拓扑相关*/
     //用于设定每个area的负载门限
-    public static double DEFAULTTHRESHOLD = 0.7;
+    public static double DEFAULTTHRESHOLD = 0.6;
     //用于设定每条边的波长数
-    public static int DEFAULTNUMBEROFWAVELENTHES = 40;
+    public static int DEFAULTNUMBEROFWAVELENTHES = 80;
 
     /**业务发生相关*/
     //用于设置生成业务个数
     public static int DEFAULTSERVICENUMBER = 1000;
     //平均业务到达率
-    public static double DEFAULTLAMBDA = 1.538;
+    public static double DEFAULTLAMBDA = 1.17;
     //生成业务时，不同时间段产生的业务源宿点概率不同，用来区分时间
-    public static int DEFAULTWORKINGTIME = 960;
+    public static int DEFAULTWORKINGTIME = 720;
     //业务平均持续时间
     public static int DEFAULTAVERAGESERVICETIME = 200;
     //单个业务占用最大带宽数
