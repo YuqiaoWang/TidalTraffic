@@ -26,7 +26,10 @@ public class ComputePath extends Thread {
     public int blockedTimes;
     public int servicesNumberInTidalMigrationPeriod;
     public int blockedTimesInTidalMigrationPeriod;
-    public int longTimeServiceInTidalMigrationPeriod;
+    public int longTimeServiceInTidalMigrationPeriod;   //长连接
+    public int crossAreaLongTimeService;                //跨域长连接
+    public int blockedCrossAreaLongTimeService;         //被阻塞跨域长连接
+    public int blockedLongTimeService;                  //被阻塞长连接
 
 
     public ComputePath() {
@@ -42,6 +45,9 @@ public class ComputePath extends Thread {
         this.servicesNumberInTidalMigrationPeriod = 0;
         this.blockedTimesInTidalMigrationPeriod = 0;
         this.longTimeServiceInTidalMigrationPeriod = 0;
+        this.crossAreaLongTimeService = 0;
+        this.blockedCrossAreaLongTimeService = 0;
+        this.blockedLongTimeService = 0;
 
         //确定每个area有多少点
         Iterator<Vertex> vertexIterator = this.graph.vertexSet().iterator();
@@ -199,6 +205,12 @@ public class ComputePath extends Thread {
                 if(System.currentTimeMillis() - this.programStartTime > Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE &&
                         System.currentTimeMillis() - this.programStartTime < (Tools.DEFAULTWORKINGTIME + 3 * Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
                     blockedTimesInTidalMigrationPeriod +=1;
+                    if(service.isLongTimeService) {
+                        blockedLongTimeService += 1;
+                        if(service.srcNode.areaId != service.desNode.areaId) {
+                            blockedCrossAreaLongTimeService += 1;
+                        }
+                    }
                 }
             }
 
@@ -322,7 +334,7 @@ public class ComputePath extends Thread {
                     } else {
                         longTimeServiceInTidalMigrationPeriod += 1;
                         //判断业务源宿节点是否在同一个域内
-                        if(service.srcNode.areaId == service.desNode.areaId) {
+                        if(service.srcNode.areaId.equals(service.desNode.areaId)) {
 
                             Area tempArea = this.areaHashMap.get(service.srcNode.areaId);
                             //判断当前是否为潮谷
@@ -348,7 +360,8 @@ public class ComputePath extends Thread {
                                     allocateResource(service);
                                 }
                             }
-                        }else {
+                        }else {//源宿节点不在一个域内
+                            crossAreaLongTimeService += 1;  //统计跨域长连接个数
                             edgeIterator = this.graph.edgeSet().iterator();
                             while (edgeIterator.hasNext()) {
                                 SimpleEdge currentedge = edgeIterator.next();
@@ -393,12 +406,15 @@ public class ComputePath extends Thread {
 
                     FileWriter fw = new FileWriter("target/generated-sources/blockedTimes.txt");
                     fw.write(Integer.toString(this.blockedTimes));
+                    fw.close();
                     System.out.println("被阻塞的业务个数为:" + this.blockedTimes);
                     System.out.println("潮汐迁移时段长连接个数：" + this.longTimeServiceInTidalMigrationPeriod);
                     System.out.println("潮汐迁移时段被阻塞业务个数：" + this.blockedTimesInTidalMigrationPeriod);
                     System.out.println("潮汐迁移时段业务个数：" + this.servicesNumberInTidalMigrationPeriod);
+                    System.out.println("迁移时段跨域长连接个数："+ this.crossAreaLongTimeService);
+                    System.out.println("迁移时段阻塞的长连接个数："  + this.blockedLongTimeService);
+                    System.out.println("迁移时段阻塞的跨域长连接个数：" + this.blockedCrossAreaLongTimeService);
                     System.out.println("程序结束");
-                    fw.close();
                 }
 
 

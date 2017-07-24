@@ -1,5 +1,6 @@
 package Service;
 
+import SimulationImpl.Tools;
 import Topology.SimpleEdge;
 import Topology.Vertex;
 import org.jgrapht.GraphPath;
@@ -25,6 +26,7 @@ public class Service {
     boolean isAllocated;                        //是否分配资源
     boolean isBlocked;                          //是否已阻塞
     boolean isOutOfTime;                        //是否已离去
+    boolean isLongTimeService;                  //是否为长连接业务
 
 
     public Service(Vertex srcNode, Vertex desNode, int numberOfWavelenthes, int serviceTime) {
@@ -38,6 +40,12 @@ public class Service {
         this.isAllocated = false;
         this.isBlocked = false;
         this.isOutOfTime = false;
+        if(serviceTime > 2.5 * Tools.DEFAULTAVERAGESERVICETIME) {
+            this.isLongTimeService = true;
+        }else {
+            this.isLongTimeService = false;
+        }
+
     }
 
     public boolean isPathComputed(){
