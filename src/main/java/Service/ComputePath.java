@@ -26,6 +26,7 @@ public class ComputePath extends Thread {
     public int blockedTimes;
     public int servicesNumberInTidalMigrationPeriod;
     public int blockedTimesInTidalMigrationPeriod;
+    public int longTimeServiceInTidalMigrationPeriod;
 
 
     public ComputePath() {
@@ -40,6 +41,7 @@ public class ComputePath extends Thread {
         this.backupEdgeSet = graph.edgeSet();
         this.servicesNumberInTidalMigrationPeriod = 0;
         this.blockedTimesInTidalMigrationPeriod = 0;
+        this.longTimeServiceInTidalMigrationPeriod = 0;
 
         //确定每个area有多少点
         Iterator<Vertex> vertexIterator = this.graph.vertexSet().iterator();
@@ -310,13 +312,15 @@ public class ComputePath extends Thread {
                 if(alreadyRunTime > Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE &&
                         alreadyRunTime < (Tools.DEFAULTWORKINGTIME + 3 * Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
                     //判断业务是否为长连接
-                    if(service.serviceTime < 3 * Tools.DEFAULTWORKINGTIME) {
+                    if(service.serviceTime < 2.8 * Tools.DEFAULTAVERAGESERVICETIME) {
                         //重新赋边权(以负载为边权)
                         //如果在对照组分支上，将这部分注释掉
+
                         reAllocateWeight();
                         normalPeriodComputingPath(service, hopFileWriter);
                         allocateResource(service);
                     } else {
+                        longTimeServiceInTidalMigrationPeriod += 1;
                         //判断业务源宿节点是否在同一个域内
                         if(service.srcNode.areaId == service.desNode.areaId) {
 
@@ -390,7 +394,7 @@ public class ComputePath extends Thread {
                     FileWriter fw = new FileWriter("target/generated-sources/blockedTimes.txt");
                     fw.write(Integer.toString(this.blockedTimes));
                     System.out.println("被阻塞的业务个数为:" + this.blockedTimes);
-
+                    System.out.println("潮汐迁移时段长连接个数：" + this.longTimeServiceInTidalMigrationPeriod);
                     System.out.println("潮汐迁移时段被阻塞业务个数：" + this.blockedTimesInTidalMigrationPeriod);
                     System.out.println("潮汐迁移时段业务个数：" + this.servicesNumberInTidalMigrationPeriod);
                     System.out.println("程序结束");
