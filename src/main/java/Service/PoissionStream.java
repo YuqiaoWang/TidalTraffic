@@ -49,10 +49,10 @@ public class PoissionStream extends Thread {
                 this.sleep(time);     //用线程休眠来模拟泊松流到达过程
                 service.setServiceId(String.format("%4d", i).replace(" ", "0"));
                 System.out.println("--------业务 " + service.serviceId + " 到来，距上次 " + time/Tools.TIMESCALE + " 秒--------");
-                System.out.println("srcNodeId: " + service.srcNode.nodeId);
-                System.out.println("desNodeId: " + service.desNode.nodeId);
-                System.out.printf("bandwidth: %.2f \n" , service.bandwidth);
-                System.out.println("serviceTime: " + service.serviceTime);
+                //System.out.println("srcNodeId: " + service.srcNode.nodeId);
+                //System.out.println("desNodeId: " + service.desNode.nodeId);
+                //System.out.printf("bandwidth: %.2f \n" , service.bandwidth);
+                //System.out.println("serviceTime: " + service.serviceTime);
                 serviceBlockingQueue.put(service);
                 listOfServices.add(service);
             }catch (Exception e) {

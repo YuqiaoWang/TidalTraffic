@@ -26,8 +26,16 @@ public class ComputePath extends Thread {
     public int blockedTimes;
     public int servicesNumberInTidalMigrationPeriod;
     public int blockedTimesInTidalMigrationPeriod;
+    public int countHopNumber;
     public int longTimeServiceInTidalMigrationPeriod;   //长连接
+    public int shortTimeService;                        //短连接
     public int crossAreaLongTimeService;                //跨域长连接
+    public int inAreaLongTimeService;                   //域内长连接
+    public int inAreaShortTimeService;                  //域内短连接
+    public int crossAreaShortTimeService;               //跨域短连接
+    public int blockedInAreaShortTimeService;           //被阻塞域内短连接
+    public int blockedInAreaLongTimeService;            //被阻塞域内长连接
+    public int blockedCrossAreaShortTimeService;        //被阻塞跨域短连接
     public int blockedCrossAreaLongTimeService;         //被阻塞跨域长连接
     public int blockedLongTimeService;                  //被阻塞长连接
 
@@ -42,12 +50,21 @@ public class ComputePath extends Thread {
         this.programStartTime = startTime;
         this.blockedTimes = 0;
         this.backupEdgeSet = graph.edgeSet();
+        this.countHopNumber = 0;
         this.servicesNumberInTidalMigrationPeriod = 0;
         this.blockedTimesInTidalMigrationPeriod = 0;
         this.longTimeServiceInTidalMigrationPeriod = 0;
+        this.shortTimeService = 0;
         this.crossAreaLongTimeService = 0;
+        this.crossAreaShortTimeService = 0;
         this.blockedCrossAreaLongTimeService = 0;
+        this.blockedCrossAreaShortTimeService = 0;
         this.blockedLongTimeService = 0;
+        this.inAreaLongTimeService = 0;
+        this.inAreaShortTimeService = 0;
+        this.blockedInAreaLongTimeService = 0;
+        this.blockedInAreaShortTimeService = 0;
+
 
         //确定每个area有多少点
         Iterator<Vertex> vertexIterator = this.graph.vertexSet().iterator();
@@ -122,6 +139,7 @@ public class ComputePath extends Thread {
         System.out.printf("业务 " + service.serviceId + " 已算路: ");
         List<Vertex> vertexList = graphPath.getVertexList();
         Iterator<Vertex> iterator = vertexList.iterator();
+        this.countHopNumber += (vertexList.size() - 1);
         while (iterator.hasNext()) {
             Vertex vertex = iterator.next();
             if(iterator.hasNext() == true) {
@@ -142,6 +160,7 @@ public class ComputePath extends Thread {
         System.out.printf("业务 " + service.serviceId + " 已算路: ");
         List<Vertex> vertexList = graphPath.getVertexList();
         //统计跳数
+        this.countHopNumber += (vertexList.size() - 1);
         fileWriter.write(vertexList.size() - 1 + "\n");
         fileWriter.close();
 
@@ -182,7 +201,7 @@ public class ComputePath extends Thread {
             }
             //分配资源
             if(count >= n) {
-                System.out.printf("分配的波长资源：");
+                //System.out.printf("分配的波长资源：");
                 for(int i = 0; i < n; i++) {
                     int currentWavelenthNumber = freeWavelenthesNumber.get(i).intValue();   //取出波长号
                     service.wavelengthesNumber.add(Integer.valueOf(currentWavelenthNumber));//将波长号放入servce对象中
@@ -192,7 +211,7 @@ public class ComputePath extends Thread {
                         currentEdge.wavelenthOccupation[currentWavelenthNumber] = true;
                         currentEdge.numberOfOccupatedWavelength +=1;
                     }
-                    System.out.print("[" + currentWavelenthNumber + "]");
+                    //System.out.print("[" + currentWavelenthNumber + "]");
                 }
                 System.out.printf("\n");
                 service.isAllocated = true;
@@ -200,15 +219,23 @@ public class ComputePath extends Thread {
             }else {
                 service.isBlocked = true;
                 service.wavelengthesNumber.clear(); //如果分配资源不成功，就释放service对象占用的波长号
-                System.out.println("没有足够资源分配给业务 " + service.serviceId + " 。");
+                //System.out.println("没有足够资源分配给业务 " + service.serviceId + " 。");
                 blockedTimes +=1;
                 if(System.currentTimeMillis() - this.programStartTime > Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE &&
                         System.currentTimeMillis() - this.programStartTime < (Tools.DEFAULTWORKINGTIME + 3 * Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
                     blockedTimesInTidalMigrationPeriod +=1;
                     if(service.isLongTimeService) {
                         blockedLongTimeService += 1;
-                        if(service.srcNode.areaId != service.desNode.areaId) {
+                        if(!service.srcNode.areaId.equals(service.desNode.areaId)) {
                             blockedCrossAreaLongTimeService += 1;
+                        }else {
+                            blockedInAreaLongTimeService += 1;
+                        }
+                    }else {
+                        if(!service.srcNode.areaId.equals(service.desNode.areaId)) {
+                            blockedCrossAreaShortTimeService += 1;
+                        }else {
+                            blockedInAreaShortTimeService += 1;
                         }
                     }
                 }
@@ -298,9 +325,9 @@ public class ComputePath extends Thread {
                             areaThreeLoadFileWriter.close();
                     }
                     if(currentArea.load / currentArea.totalCapacity >= currentArea.threshold) {
-                        System.out.println("[area " + currentArea.areaId + "] 当前处于潮峰区,load:" + currentArea.load + "/"+ currentArea.totalCapacity);
+                        //System.out.println("[area " + currentArea.areaId + "] 当前处于潮峰区,load:" + currentArea.load + "/"+ currentArea.totalCapacity);
                     }else {
-                        System.out.println("[area " + currentArea.areaId + "] 当前处于潮谷区,load:" + currentArea.load + "/"+ currentArea.totalCapacity);
+                        //System.out.println("[area " + currentArea.areaId + "] 当前处于潮谷区,load:" + currentArea.load + "/"+ currentArea.totalCapacity);
                     }
                 }
                 //为计算资源利用率做统计
@@ -324,7 +351,15 @@ public class ComputePath extends Thread {
                 if(alreadyRunTime > Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE &&
                         alreadyRunTime < (Tools.DEFAULTWORKINGTIME + 3 * Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
                     //判断业务是否为长连接
-                    if(service.serviceTime < 2.8 * Tools.DEFAULTAVERAGESERVICETIME) {
+                    if(!service.isLongTimeService) {
+
+                        shortTimeService += 1;
+                        if(!service.srcNode.areaId.equals(service.desNode.areaId)) {
+                            crossAreaShortTimeService += 1;
+                        }else {
+                            inAreaShortTimeService += 1;
+                        }
+
                         //重新赋边权(以负载为边权)
                         //如果在对照组分支上，将这部分注释掉
 
@@ -335,7 +370,7 @@ public class ComputePath extends Thread {
                         longTimeServiceInTidalMigrationPeriod += 1;
                         //判断业务源宿节点是否在同一个域内
                         if(service.srcNode.areaId.equals(service.desNode.areaId)) {
-
+                            inAreaLongTimeService += 1;
                             Area tempArea = this.areaHashMap.get(service.srcNode.areaId);
                             //判断当前是否为潮谷
                             if(tempArea.load / tempArea.totalCapacity < tempArea.threshold) {
@@ -407,13 +442,17 @@ public class ComputePath extends Thread {
                     FileWriter fw = new FileWriter("target/generated-sources/blockedTimes.txt");
                     fw.write(Integer.toString(this.blockedTimes));
                     fw.close();
-                    System.out.println("被阻塞的业务个数为:" + this.blockedTimes);
+                    //System.out.println("被阻塞的业务个数为:" + this.blockedTimes);
                     System.out.println("潮汐迁移时段长连接个数：" + this.longTimeServiceInTidalMigrationPeriod);
-                    System.out.println("潮汐迁移时段被阻塞业务个数：" + this.blockedTimesInTidalMigrationPeriod);
-                    System.out.println("潮汐迁移时段业务个数：" + this.servicesNumberInTidalMigrationPeriod);
-                    System.out.println("迁移时段跨域长连接个数："+ this.crossAreaLongTimeService);
+                    //System.out.println("平均跳数：" + (double)this.countHopNumber / this.servicesNumberInTidalMigrationPeriod);
+                    //System.out.println("潮汐迁移时段被阻塞业务个数：" + this.blockedTimesInTidalMigrationPeriod);
+                    System.out.println("潮汐迁移时段业务个数[阻塞/全部]：" + this.blockedTimesInTidalMigrationPeriod + "/" + this.servicesNumberInTidalMigrationPeriod);
+                    System.out.println("[跨域长连接]个数[阻塞/全部]：" + this.blockedCrossAreaLongTimeService + "/" + this.crossAreaLongTimeService);
+                    System.out.println("[跨域短连接]个数[阻塞/全部]：" + this.blockedCrossAreaShortTimeService + "/" + this.crossAreaShortTimeService);
+                    System.out.println("[域内短连接]个数[阻塞/全部]：" + this.blockedInAreaShortTimeService + "/" + this.inAreaShortTimeService);
+                    System.out.println("[域内长连接]个数[阻塞/全部]：" + this.blockedInAreaLongTimeService + "/" + this.inAreaLongTimeService);
                     System.out.println("迁移时段阻塞的长连接个数："  + this.blockedLongTimeService);
-                    System.out.println("迁移时段阻塞的跨域长连接个数：" + this.blockedCrossAreaLongTimeService);
+                    //System.out.println("迁移时段阻塞的跨域长连接个数：" + this.blockedCrossAreaLongTimeService);
                     System.out.println("程序结束");
                 }
 

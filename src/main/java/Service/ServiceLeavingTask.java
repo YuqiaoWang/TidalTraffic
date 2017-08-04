@@ -15,7 +15,7 @@ public class ServiceLeavingTask extends TimerTask {
     }
 
     public void run() {
-        System.out.println("--------业务" + service.serviceId + "离去，资源被释放--------");
+        //System.out.println("--------业务" + service.serviceId + "离去，资源被释放--------");
 
         for(int i = 0; i < service.wavelengthesNumber.size(); i++) {
             int currentWavelenthNumber = service.wavelengthesNumber.get(i);
