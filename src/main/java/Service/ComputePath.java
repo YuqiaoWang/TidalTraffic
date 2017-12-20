@@ -23,7 +23,7 @@ public class ComputePath extends Thread {
     public HashMap<Service, GraphPath> serviceGraphPathHashMap = new HashMap<Service, GraphPath>();
     public BlockingQueue<Service> serviceBlockingQueue;
     public SimpleWeightedGraph<Vertex, SimpleEdge> graph;
-    public HashMap<String, Area> areaHashMap = new HashMap<String, Area>();
+    public HashMap<String, Area> areaHashMap;
     public int blockedTimes;
     public int servicesNumberInTidalMigrationPeriod;
     public int blockedTimesInTidalMigrationPeriod;
@@ -34,7 +34,8 @@ public class ComputePath extends Thread {
 
     }
 
-    public ComputePath(BlockingQueue<Service> bq, SimpleWeightedGraph graph, long startTime) {
+    public ComputePath(BlockingQueue<Service> bq, SimpleWeightedGraph graph,
+                       HashMap<String, Area> areaHashMap, long startTime) {
         this.serviceBlockingQueue = bq;
         this.graph = graph;
         this.blockedTimes = 0;
@@ -43,9 +44,11 @@ public class ComputePath extends Thread {
         this.blockedTimesInTidalMigrationPeriod = 0;
         this.lastServiceIDInTidalMigrationPeriod = "0";
         this.countHopNumber = 0;
+        this.areaHashMap = areaHashMap;
 
 
         //确定每个area有多少点
+        /*
         Iterator<Vertex> vertexIterator = this.graph.vertexSet().iterator();
         while (vertexIterator.hasNext()) {
             Vertex currentVertex = vertexIterator.next();
@@ -54,8 +57,9 @@ public class ComputePath extends Thread {
                 areaHashMap.put(currentVertex.areaId, area);
             }
 
-        }
+        }*/
 
+        /*
         Iterator<SimpleEdge> simpleEdgeIterator = this.graph.edgeSet().iterator();
         while (simpleEdgeIterator.hasNext()) {
             SimpleEdge currentEdge = simpleEdgeIterator.next();
@@ -65,7 +69,7 @@ public class ComputePath extends Thread {
                 areaHashMap.get(currentEdge.srcVertex.areaId).addNumverOfEdges();
                 areaHashMap.get(currentEdge.desVertex.areaId).addNumverOfEdges();
             }
-        }
+        }*/
 
 
     }
@@ -192,14 +196,14 @@ public class ComputePath extends Thread {
                     //域内部边
                     if(currentEdge.srcVertex.areaId == currentEdge.desVertex.areaId) {
                         Area currentArea = this.areaHashMap.get(currentEdge.srcVertex.areaId);
-                        currentArea.load += currentEdge.numberOfOccupatedWavelength;
+                        //currentArea.load += currentEdge.numberOfOccupatedWavelength;
                     }
                     //域间边
                     else {
                         Area srcArea = this.areaHashMap.get(currentEdge.srcVertex.areaId);
                         Area desArea = this.areaHashMap.get(currentEdge.desVertex.areaId);
-                        srcArea.load += currentEdge.numberOfOccupatedWavelength;
-                        desArea.load += currentEdge.numberOfOccupatedWavelength;
+                        //srcArea.load += currentEdge.numberOfOccupatedWavelength;
+                        //desArea.load += currentEdge.numberOfOccupatedWavelength;
                     }
                 }
 

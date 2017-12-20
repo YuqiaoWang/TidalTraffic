@@ -2,6 +2,7 @@ package Topology;
 
 import SimulationImpl.Tools;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,6 +16,8 @@ public class Area {
     public int numberOfEdges;
     //public static double DEFAULTTHRESHOLD = 0.7;
     List<Vertex> exportVertexList;
+    List<SimpleEdge> edges;
+    List<Vertex> vertices;
 
     public Area(String areaId) {
         this.areaId = areaId;
@@ -22,6 +25,8 @@ public class Area {
         this.numberOfEdges = 0;
         this.threshold = Tools.DEFAULTTHRESHOLD;
         this.totalCapacity = 0;
+        this.vertices = new ArrayList<Vertex>();
+        this.edges = new ArrayList<SimpleEdge>();
     }
 
     public void initialLoad() {
@@ -37,6 +42,12 @@ public class Area {
         this.totalCapacity = numberOfEdges * Tools.DEFAULTNUMBEROFWAVELENTHES;
     }
 
+    public void flushLoad() {
+        this.load = 0;
+        for(SimpleEdge edge : edges) {
+            this.load += edge.numberOfOccupatedWavelength;
+        }
+    }
 
     @Override
     public int hashCode() {

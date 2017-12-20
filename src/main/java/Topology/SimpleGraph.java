@@ -48,6 +48,8 @@ public class SimpleGraph {
                     Area area = new Area(currentNode.areaId);
                     areaHashMap.put(currentNode.areaId, area);
                 }
+                Area currentArea = areaHashMap.get(currentNode.areaId);
+                currentArea.vertices.add(currentNode);
             }
 
             /**加边*/
@@ -70,6 +72,21 @@ public class SimpleGraph {
                 //SimpleEdge edge =
                 graph.addEdge(srcNode, desNode, simpleEdge);
                 graph.setEdgeWeight(simpleEdge, metric);
+
+                //往每个域中加边
+                if(areaHashMap.get(srcNode.areaId) != areaHashMap.get(desNode.areaId)) {
+                    Area srcArea = areaHashMap.get(srcNode.areaId);
+                    Area desArea = areaHashMap.get(desNode.areaId);
+                    srcArea.edges.add(simpleEdge);
+                    desArea.edges.add(simpleEdge);
+
+                    srcArea.addNumverOfEdges();
+                    desArea.addNumverOfEdges();
+                }else {
+                    Area area = areaHashMap.get(srcNode.areaId);
+                    area.edges.add(simpleEdge);
+                    area.addNumverOfEdges();
+                }
             }
         }catch (Exception e) {
             e.printStackTrace();

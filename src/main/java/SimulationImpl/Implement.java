@@ -23,7 +23,8 @@ public class Implement {
         //业务发生 与 初步算路
         BlockingQueue<Service> servicesToComputePath = new ArrayBlockingQueue<Service>(10);
         PoissionStream poissionStreamThread = new PoissionStream(servicesToComputePath, startTime);
-        ComputePath computePathThread = new ComputePath(servicesToComputePath, simpleGraph.graph, startTime);
+        ComputePath computePathThread = new ComputePath(servicesToComputePath, simpleGraph.graph,
+                simpleGraph.areaHashMap, startTime);
 
         poissionStreamThread.start();
         computePathThread.start();

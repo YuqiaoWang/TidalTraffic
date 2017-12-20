@@ -48,32 +48,9 @@ public class LoadCountTask extends TimerTask{
 
     public void run() {
         try{
-            /*
-            FileChannel area1Channel = area1LoadCountStream.getChannel();
-            FileChannel area2Channel = area2LoadCountStream.getChannel();
-            FileChannel area3Channel = area3LoadCountStream.getChannel();
-            FileLock area1Lock = area1Channel.tryLock();
-            */
-            //FileLock area2Lock = area2Channel.tryLock();
-            //FileLock area3Lock = area3Channel.tryLock();
-
-            //String s1 = Double.toString(area1.load);
-            //s1 = s1 + "\n";
-            //String s2 = Double.toString(area2.load);
-            //s2 = s2 + "\n";
-            //String s3 = Double.toString(area3.load);
-            //s3 = s3 + "\n";
-
-
-            //area1LoadCountStream.write(s1.getBytes());
-            //area2LoadCountStream.write(s2.getBytes());
-            //area3LoadCountStream.write(s3.getBytes());
-
-            //Thread.sleep(200);
-
-            //area1Lock.release();
-            //area2Lock.release();
-            //area3Lock.release();
+            area1.flushLoad();
+            area2.flushLoad();
+            area3.flushLoad();
             area1LoadCountFileWriter.write(area1.load + "\n");
             area1LoadCountFileWriter.flush();
             area2LoadCountFileWriter.write(area2.load + "\n");
