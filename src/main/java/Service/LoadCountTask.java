@@ -32,6 +32,15 @@ public class LoadCountTask extends TimerTask{
     }
 
     public LoadCountTask(Area area1, Area area2, Area area3) throws Exception{
+        FileWriter fw1 = new FileWriter("target/generated-sources/area1loadCount.txt");
+        fw1.write("");
+        fw1.close();
+        FileWriter fw2 = new FileWriter("target/generated-sources/area2loadCount.txt");
+        fw2.write("");
+        fw2.close();
+        FileWriter fw3 = new FileWriter("target/generated-sources/area3loadCount.txt");
+        fw3.write("");
+        fw3.close();
 
         area1LoadCountFileWriter = new FileWriter("target/generated-sources/area1loadCount.txt", true);
         area2LoadCountFileWriter = new FileWriter("target/generated-sources/area2loadCount.txt", true);
