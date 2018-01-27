@@ -17,13 +17,15 @@ public class Tools {
     //平均业务到达率
     public static double DEFAULTLAMBDA = 2;
     //生成业务时，不同时间段产生的业务源宿点概率不同，用来区分时间
-    public static int DEFAULTWORKINGTIME = 1800;
+    public static int DEFAULTWORKINGTIME = 1500;
     //业务平均持续时间
     public static int DEFAULTAVERAGESERVICETIME = 200;
     //单个业务占用最大带宽数
     public static int DEFAULTMAXNUMBEROFWAVELENGTH = 4;
     //为节约运算时间，调整下方参数可
-    public static int TIMESCALE = 20;
+    public static int TIMESCALE = 25;
+    //初始平滑增大业务达到率的时间
+    public static int PLAINTIME = 200;
 
     /**关于参数的确定*/
 

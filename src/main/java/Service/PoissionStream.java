@@ -30,7 +30,11 @@ public class PoissionStream extends Thread {
         double x;
 
         for(int i = 0; i < Tools.DEFAULTSERVICENUMBER; i++) {
-            x = poissionNumber(Tools.DEFAULTLAMBDA);
+
+            double realLambda = (System.currentTimeMillis() - programStartTime < Tools.PLAINTIME * Tools.TIMESCALE) ?
+                    -(2 * Tools.DEFAULTLAMBDA / (Tools.PLAINTIME * Tools.TIMESCALE)) * (System.currentTimeMillis() - programStartTime - Tools.PLAINTIME * Tools.TIMESCALE) + Tools.DEFAULTLAMBDA:
+                    Tools.DEFAULTLAMBDA;
+            x = poissionNumber(realLambda);
             int time = (int) x * Tools.TIMESCALE;
             Service service = generateService();
             if(service.srcNode.nodeId.equals(service.desNode.nodeId)) {

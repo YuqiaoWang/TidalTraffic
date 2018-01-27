@@ -30,6 +30,7 @@ public class ComputePath extends Thread {
     public String lastServiceIDInTidalMigrationPeriod;
     public int countHopNumber;
 
+
     public ComputePath() {
 
     }
@@ -45,8 +46,7 @@ public class ComputePath extends Thread {
         this.lastServiceIDInTidalMigrationPeriod = "0";
         this.countHopNumber = 0;
         this.areaHashMap = areaHashMap;
-
-
+        
         //确定每个area有多少点
         /*
         Iterator<Vertex> vertexIterator = this.graph.vertexSet().iterator();
@@ -58,7 +58,6 @@ public class ComputePath extends Thread {
             }
 
         }*/
-
         /*
         Iterator<SimpleEdge> simpleEdgeIterator = this.graph.edgeSet().iterator();
         while (simpleEdgeIterator.hasNext()) {
@@ -131,7 +130,6 @@ public class ComputePath extends Thread {
                 }
                 //System.out.printf("\n");
                 service.isAllocated = true;
-
             }else {
                 service.isBlocked = true;
                 service.wavelengthesNumber.clear(); //如果分配资源不成功，就释放service对象占用的波长号
@@ -144,27 +142,23 @@ public class ComputePath extends Thread {
                 //FileWriter fileWriter = new FileWriter("src/main/java/Service/blockedNumber.txt");
                 //BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
                 //bufferedWriter.write();
-
-
             }
-
-
-
         }catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-
     public void run() {
         int serviceNum = 0;
         try{
             LoadCountTask loadCountTask = new
-                    LoadCountTask(areaHashMap.get("1"), areaHashMap.get("2"), areaHashMap.get("3"));
+                    LoadCountTask(graph, areaHashMap.get("1"), areaHashMap.get("2"), areaHashMap.get("3"));
             Timer timer = new Timer();
             timer.schedule(loadCountTask, 20, 200);
-        }catch (Exception e) {
 
+
+        }catch (Exception e) {
+            e.printStackTrace();
         }
 
 
@@ -188,7 +182,6 @@ public class ComputePath extends Thread {
                     Area areaToInit = (Area) entry.getValue();
                     areaToInit.initialLoad();
                 }
-
                 //计算各域负载
                 Iterator<SimpleEdge> edgeIterator = this.graph.edgeSet().iterator();
                 while (edgeIterator.hasNext()) {
@@ -206,12 +199,9 @@ public class ComputePath extends Thread {
                         //desArea.load += currentEdge.numberOfOccupatedWavelength;
                     }
                 }
-
                 //各域状态判断
                 areaMapIterator = this.areaHashMap.entrySet().iterator();
-
                 //把负载值写入文件
-
                 FileWriter areaOneLoadFileWriter, areaTwoLoadFileWriter, areaThreeLoadFileWriter, totalLoadFileWriter,
                         hopFileWriter;
                 if(Integer.valueOf(service.serviceId) == 0) {
@@ -229,8 +219,6 @@ public class ComputePath extends Thread {
                     hopFileWriter = new FileWriter("target/generated-sources/hop.txt", true);
 
                 }
-
-
                 while (areaMapIterator.hasNext()) {
                     Map.Entry entry = (Map.Entry) areaMapIterator.next();
                     Area currentArea = (Area) entry.getValue();
@@ -248,7 +236,6 @@ public class ComputePath extends Thread {
                             areaThreeLoadFileWriter.write(currentArea.load + "\n");
                             areaThreeLoadFileWriter.close();
                     }
-
                     if(currentArea.load / currentArea.totalCapacity >= currentArea.threshold) {
                         //System.out.println("[area " + currentArea.areaId + "] 当前处于潮峰区,load:" + currentArea.load + "/"+ currentArea.totalCapacity);
                     }else {
@@ -260,7 +247,6 @@ public class ComputePath extends Thread {
                 //重新赋边权(以负载为边权)
                 //如果在对照组分支上，将这部分注释掉
                 //reAllocateWeight();
-
                 //D算法算路
                 GraphPath graphPath = findShortestPath(service, this.graph);
                 serviceGraphPathHashMap.put(service, graphPath);
@@ -277,9 +263,7 @@ public class ComputePath extends Thread {
                     hopFileWriter.write(vertexList.size() - 1 + "\n");
                     hopFileWriter.close();
                 }
-
-
-                        Iterator<Vertex> iterator = vertexList.iterator();
+                Iterator<Vertex> iterator = vertexList.iterator();
                 /*
                 while (iterator.hasNext()) {
                     Vertex vertex = iterator.next();
@@ -289,17 +273,14 @@ public class ComputePath extends Thread {
                         System.out.printf(vertex.nodeId + "\n");
                     }
                 }*/
-
                 /**资源分配*/
                 allocateResource(service);
-
                 /**业务离去*/
                 if(service.isResourceAllocated() == true) {     //如果分配了资源
                     Timer leavingTimer = new Timer();
                     ServiceLeavingTask serviceLeavingTask = new ServiceLeavingTask(service);
                     leavingTimer.schedule(serviceLeavingTask, service.serviceTime * Tools.TIMESCALE);  //业务时间结束后离去
                 }
-
                 int num = Integer.valueOf(service.serviceId);
                 if(num == Tools.DEFAULTSERVICENUMBER - 1) {
                     FileWriter fw = new FileWriter("target/generated-sources/blockedTimes.txt");
@@ -312,9 +293,6 @@ public class ComputePath extends Thread {
                     System.out.println("程序结束");
                     fw.close();
                 }
-
-
-
             }catch (Exception e) {
                 e.printStackTrace();
             }
