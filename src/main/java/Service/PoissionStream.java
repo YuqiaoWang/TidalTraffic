@@ -30,7 +30,12 @@ public class PoissionStream extends Thread {
         double x;
 
         for(int i = 0; i < Tools.DEFAULTSERVICENUMBER; i++) {
-            x = poissionNumber(Tools.DEFAULTLAMBDA);
+
+
+            double realLambda = (System.currentTimeMillis() - programStartTime < Tools.PLAINTIME * Tools.TIMESCALE) ?
+                    -(2 * Tools.DEFAULTLAMBDA / (Tools.PLAINTIME * Tools.TIMESCALE)) * (System.currentTimeMillis() - programStartTime - Tools.PLAINTIME * Tools.TIMESCALE) + Tools.DEFAULTLAMBDA:
+                    Tools.DEFAULTLAMBDA;
+            x = poissionNumber(realLambda);
             int time = (int) x * Tools.TIMESCALE;
             Service service = generateService();
             if(service.srcNode.nodeId.equals(service.desNode.nodeId)) {
@@ -41,10 +46,12 @@ public class PoissionStream extends Thread {
                 this.sleep(time);     //用线程休眠来模拟泊松流到达过程
                 service.setServiceId(String.format("%4d", i).replace(" ", "0"));
                 System.out.println("--------业务 " + service.serviceId + " 到来，距上次 " + time/1000 + " 秒--------");
+                /*
                 System.out.println("srcNodeId: " + service.srcNode.nodeId);
                 System.out.println("desNodeId: " + service.desNode.nodeId);
                 System.out.printf("bandwidth: %.2f \n" , service.bandwidth);
                 System.out.println("serviceTime: " + service.serviceTime);
+                */
                 serviceBlockingQueue.put(service);
                 listOfServices.add(service);
             }catch (Exception e) {

@@ -58,4 +58,13 @@ public class SimpleEdge extends DefaultWeightedEdge {
 
     }
 
+    @Override
+    public String toString() {
+        String srcNodeId = this.srcVertex.getNodeId();
+        String desNodeId = this.desVertex.getNodeId();
+        String edgeId = (Integer.valueOf(srcNodeId) < Integer.valueOf(desNodeId)) ?
+                "edge" + srcNodeId + desNodeId : "edge" + desNodeId + srcNodeId;
+        return edgeId;
+    }
+
 }

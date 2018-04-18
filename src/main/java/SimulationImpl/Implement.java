@@ -2,6 +2,10 @@ package SimulationImpl;
 import Service.*;
 import Topology.*;
 
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Timer;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -20,10 +24,24 @@ public class Implement {
         //业务发生 与 初步算路
         BlockingQueue<Service> servicesToComputePath = new ArrayBlockingQueue<Service>(10);
         PoissionStream poissionStreamThread = new PoissionStream(servicesToComputePath, startTime);
-        ComputePath computePathThread = new ComputePath(servicesToComputePath, simpleGraph.graph, startTime);
+        ComputePath computePathThread = new ComputePath(servicesToComputePath, simpleGraph.graph,
+                simpleGraph.areaHashMap, startTime);
+
 
         poissionStreamThread.start();
         computePathThread.start();
+
+        /*
+        Timer timer = new Timer();
+
+        try{
+            LoadCountTask loadCountTask = new LoadCountTask(simpleGraph.areaHashMap.get("1"),
+                    simpleGraph.areaHashMap.get("2"), simpleGraph.areaHashMap.get("3"));
+            timer.schedule(loadCountTask, 20, 200);
+        }catch (Exception e) {
+
+        }*/
+
 
 
 
