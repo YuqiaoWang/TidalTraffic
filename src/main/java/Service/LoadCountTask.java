@@ -82,11 +82,11 @@ public class LoadCountTask extends TimerTask{
             area2.flushLoad();
             area3.flushLoad();
             if(this.writeTimes < 360) {
-                area1LoadCountFileWriter.write(area1.load + "\n");
+                area1LoadCountFileWriter.write(area1.load / area1.totalCapacity + "\n");
                 area1LoadCountFileWriter.flush();
-                area2LoadCountFileWriter.write(area2.load + "\n");
+                area2LoadCountFileWriter.write(area2.load / area2.totalCapacity+ "\n");
                 area2LoadCountFileWriter.flush();
-                area3LoadCountFileWriter.write(area3.load + "\n");
+                area3LoadCountFileWriter.write(area3.load / area2.totalCapacity + "\n");
                 area3LoadCountFileWriter.flush();
 
                 Iterator<SimpleEdge> edgeIterator = edgeSet.iterator();

@@ -2,4 +2,6 @@
 .iml
 *.class
 *.txt
+*.xls
+*.xlsx
 

@@ -100,7 +100,7 @@ public class ComputePath extends Thread {
             int count = 0;  //记录各边都满足的连续波长数
             List<Integer> freeWavelenthesNumber = new ArrayList<Integer>(); // 统计空闲波长号用
             //资源统计
-            for(int i = 0; i < Tools.DEFAULTNUMBEROFWAVELENTHES; i ++) {    //对于每个波长号，统计各个边的该波长号是否都空闲
+            for(int i = 0; i < Tools.DEFAULTNUMBEROFWAVELENTHES; i++) {    //对于每个波长号，统计各个边的该波长号是否都空闲
                 int edgeCount = 0;
                 Iterator<SimpleEdge> edgeIterator = edgeList.iterator();
                 while (edgeIterator.hasNext()) {

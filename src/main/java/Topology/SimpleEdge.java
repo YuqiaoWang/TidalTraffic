@@ -50,7 +50,9 @@ public class SimpleEdge extends DefaultWeightedEdge {
         if(x.srcVertex.nodeId.equals(this.srcVertex.nodeId) &&
                 x.desVertex.nodeId.equals(this.desVertex.nodeId)) {
             return true;
-        }else if(x.srcVertex.nodeId.equals(this.desVertex.nodeId) || x.desVertex.nodeId.equals(this.srcVertex.nodeId)) {
+            //}else if(x.srcVertex.nodeId.equals(this.desVertex.nodeId) || x.desVertex.nodeId.equals(this.srcVertex.nodeId)) {
+        }else if(x.srcVertex.nodeId.equals(this.desVertex.nodeId) &&
+                x.desVertex.nodeId.equals(this.srcVertex.nodeId)) {
             return true;
         }else {
             return false;
