@@ -9,5 +9,5 @@ struct PredictedIntervalTrafficData {
 }
 
 service TrafficDataService {
-    PredictedIntervalTrafficData getPredictedData(1:NowIntervalTrafficData)
+    PredictedIntervalTrafficData getPredictedData(1:NowIntervalTrafficData nowIntervalTrafficData)
 }

@@ -7,6 +7,27 @@ import java.util.List;
  * Created by yuqia_000 on 2018/4/27.
  */
 public class NowIntervalTraffic {
-    double timeOfHour;
-    List<Double> nowIntervalTraffic = new ArrayList<Double>();
+    public double timeOfHour;
+    public List<Double> nowIntervalTraffic;
+
+    public NowIntervalTraffic() {
+        this.timeOfHour = 0.0;
+        this.nowIntervalTraffic = new ArrayList<Double>();
+    }
+
+    public double getTimeOfHour() {
+        return timeOfHour;
+    }
+
+    public void setTimeOfHour(double timeOfHour) {
+        this.timeOfHour = timeOfHour;
+    }
+
+    public List<Double> getNowIntervalTraffic() {
+        return nowIntervalTraffic;
+    }
+
+    public void setNowIntervalTraffic(List<Double> nowIntervalTraffic) {
+        this.nowIntervalTraffic = nowIntervalTraffic;
+    }
 }

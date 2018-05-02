@@ -1,8 +1,10 @@
 package Service;
 
+import Service.Reconfiguration.Trigger;
 import Topology.Area;
 import Topology.SimpleEdge;
 import Topology.Vertex;
+import TrafficDescription.NowIntervalTraffic;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
@@ -10,10 +12,7 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.TimerTask;
+import java.util.*;
 
 /**
  * Created by yuqia_000 on 2017/12/6.
@@ -33,11 +32,17 @@ public class LoadCountTask extends TimerTask{
     Iterator<SimpleEdge> edgeIterator;
     HashMap<SimpleEdge, FileWriter> edgeLoadCountMap;
 
+    //重构用到的属性
+    List<Trigger> listenerList;     //监听器列表
+    List<NowIntervalTraffic> nowIntervalTrafficList;    //
+    NowIntervalTraffic area1NowIntervalTraffic;
+    NowIntervalTraffic area3NowIntervalTraffic;
+
     public LoadCountTask(){
 
     }
 
-    public LoadCountTask(SimpleWeightedGraph graph, Area area1, Area area2, Area area3) throws Exception{
+    public LoadCountTask(SimpleWeightedGraph graph, Area area1, Area area2, Area area3, List<Trigger> listenerList) throws Exception{
         FileWriter fw1 = new FileWriter("target/generated-sources/area1loadCount.txt");
         fw1.write("");
         fw1.close();
@@ -72,7 +77,13 @@ public class LoadCountTask extends TimerTask{
             edgeLoadCountMap.put(currentEdge, currentEdgeLoadWriter);
         }
 
-
+        //重构属性相关的初始化
+        this.listenerList = listenerList;
+        this.nowIntervalTrafficList = new ArrayList<NowIntervalTraffic>();
+        this.area1NowIntervalTraffic = new NowIntervalTraffic();
+        this.area3NowIntervalTraffic = new NowIntervalTraffic();
+        this.nowIntervalTrafficList.add(area1NowIntervalTraffic);
+        this.nowIntervalTrafficList.add(area3NowIntervalTraffic);
 
     }
 
@@ -96,7 +107,40 @@ public class LoadCountTask extends TimerTask{
                     currentEdgeLoadWriter.write((double)currentEdge.numberOfOccupatedWavelength / currentEdge.numberOfWavelenth + "\n");
                     currentEdgeLoadWriter.flush();
                 }
+
+
+                //TODO:加入重构触发用的流量统计
+                /*
+                if(this.writeTimes % 15 != 14) {
+                    area1NowIntervalTraffic.nowIntervalTraffic.add(area1.load / area1.totalCapacity);
+                    area3NowIntervalTraffic.nowIntervalTraffic.add(area3.load / area3.totalCapacity);
+                }else {
+                    //刷新流量
+                    for(Trigger trigger : listenerList) {
+                        trigger.flushTraffic(nowIntervalTrafficList);
+                    }
+
+                    area1NowIntervalTraffic.setTimeOfHour((writeTimes/15)/24.0);
+                    area1NowIntervalTraffic.setNowIntervalTraffic(new ArrayList<Double>());
+                    area3NowIntervalTraffic.setTimeOfHour((writeTimes/15)/24.0);
+                    area3NowIntervalTraffic.setNowIntervalTraffic(new ArrayList<Double>());
+                }*/
+                //刷新流量
+                area1NowIntervalTraffic.nowIntervalTraffic.add(area1.load / area1.totalCapacity);
+                area3NowIntervalTraffic.nowIntervalTraffic.add(area3.load / area3.totalCapacity);
+                if(this.writeTimes % 15 == 14) {
+                    for(Trigger trigger : listenerList) {
+                        trigger.flushTraffic(nowIntervalTrafficList);
+                    }
+
+                    area1NowIntervalTraffic.setTimeOfHour((writeTimes/15)/24.0);
+                    area1NowIntervalTraffic.setNowIntervalTraffic(new ArrayList<Double>());
+                    area3NowIntervalTraffic.setTimeOfHour((writeTimes/15)/24.0);
+                    area3NowIntervalTraffic.setNowIntervalTraffic(new ArrayList<Double>());
+                }
+
                 this.writeTimes++;
+
             }else {
                 area1LoadCountFileWriter.close();
                 area2LoadCountFileWriter.close();

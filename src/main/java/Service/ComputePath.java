@@ -1,5 +1,6 @@
 package Service;
 
+import Service.Reconfiguration.Trigger;
 import Topology.Area;
 import Topology.SimpleEdge;
 import Topology.Vertex;
@@ -30,6 +31,11 @@ public class ComputePath extends Thread {
     public String lastServiceIDInTidalMigrationPeriod;
     public int countHopNumber;
 
+    /**
+     * 重构相关的属性
+     */
+    public List<Trigger> listenerList;  //监听者列表，用于通知重构触发器
+
     public ComputePath() {
 
     }
@@ -45,6 +51,8 @@ public class ComputePath extends Thread {
         this.lastServiceIDInTidalMigrationPeriod = "0";
         this.countHopNumber = 0;
         this.areaHashMap = areaHashMap;
+
+        this.listenerList = new ArrayList<Trigger>();
         
         //确定每个area有多少点
         /*
@@ -149,11 +157,40 @@ public class ComputePath extends Thread {
         }
     }
 
+    /**
+     * 重构相关的方法
+     * 注册监听器(也就是重构的trigger)
+     */
+    public void regist(Trigger trigger) {
+        this.listenerList.add(trigger);
+    }
+
+    public void unregist(Trigger trigger) {
+        this.listenerList.remove(trigger);
+    }
+
+    /**
+     * 重构相关的方法
+     * 通知所有list中的trigger，让trigger决定是否当前进行重构
+     */
+    public void reConfigNotify() throws Exception{
+        if(!listenerList.isEmpty()) {
+            for(Trigger trigger : listenerList) {
+                //TODO:入参还未确定，应该怎样把流量传过去
+                //trigger.flushTraffic();
+            }
+        }else {
+            throw new Exception("监听列表为空");
+        }
+
+    }
+
+
     public void run() {
         int serviceNum = 0;
         try{
             LoadCountTask loadCountTask = new
-                    LoadCountTask(graph, areaHashMap.get("1"), areaHashMap.get("2"), areaHashMap.get("3"));
+                    LoadCountTask(graph, areaHashMap.get("1"), areaHashMap.get("2"), areaHashMap.get("3"), listenerList);
             Timer timer = new Timer();
             timer.schedule(loadCountTask, 20, 200);
 

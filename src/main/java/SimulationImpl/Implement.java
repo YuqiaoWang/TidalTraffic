@@ -1,5 +1,6 @@
 package SimulationImpl;
 import Service.*;
+import Service.Reconfiguration.Trigger;
 import Topology.*;
 
 
@@ -26,6 +27,7 @@ public class Implement {
         PoissionStream poissionStreamThread = new PoissionStream(servicesToComputePath, startTime);
         ComputePath computePathThread = new ComputePath(servicesToComputePath, simpleGraph.graph,
                 simpleGraph.areaHashMap, startTime);
+        Trigger trigger = new Trigger(computePathThread);
 
 
         poissionStreamThread.start();
