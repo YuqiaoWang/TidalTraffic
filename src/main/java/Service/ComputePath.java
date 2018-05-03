@@ -172,6 +172,7 @@ public class ComputePath extends Thread {
     /**
      * 重构相关的方法
      * 通知所有list中的trigger，让trigger决定是否当前进行重构
+     * 目前已将通知逻辑转移到LoadCountTask
      */
     public void reConfigNotify() throws Exception{
         if(!listenerList.isEmpty()) {

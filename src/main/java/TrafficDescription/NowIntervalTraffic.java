@@ -15,6 +15,11 @@ public class NowIntervalTraffic {
         this.nowIntervalTraffic = new ArrayList<Double>();
     }
 
+    public NowIntervalTraffic(double timeOfHour, List<Double> nowIntervalTraffic) {
+        this.timeOfHour = timeOfHour;
+        this.nowIntervalTraffic = nowIntervalTraffic;
+    }
+
     public double getTimeOfHour() {
         return timeOfHour;
     }

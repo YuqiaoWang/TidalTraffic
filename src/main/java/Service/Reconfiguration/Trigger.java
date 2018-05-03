@@ -1,8 +1,8 @@
 package Service.Reconfiguration;
 
 import Service.ComputePath;
-import TrafficDescription.NowIntervalTraffic;
-import TrafficDescription.PredictedIntervalTraffic;
+import SimulationImpl.Tools;
+import TrafficDescription.*;
 
 import java.util.List;
 
@@ -18,12 +18,15 @@ public class Trigger{
 
     public List<Double> nowIntervalTraffic;
 
+    public TransClient transClient;    //用于thrift与神经网络沟通的client端
+
     public Trigger() {
 
     }
 
     public Trigger(ComputePath computePathThread) {
         computePathThread.regist(this);
+        transClient = new TransClient();
     }
 
     /**
@@ -35,6 +38,9 @@ public class Trigger{
                     getPredictedTraffic(nowTrafficForEachArea);
             if(isReconfigurationNeeded(predictedTrafficForEachArea)) {
                 //TODO:执行重构
+                System.out.println("^^^^需要重构^^^^");
+            }else {
+                System.out.println("^^^^不需要重构^^^^");
             }
         }
     }
@@ -45,12 +51,20 @@ public class Trigger{
      * @return
      */
     public PredictedIntervalTraffic getPredictedTraffic(NowIntervalTraffic nowIntervalTraffic) {
-        //TODO:将数据通过thrift传给tensorflow；运算并得返回潮汐标识与预测流量
-
-        //TODO:格式转换 将NowIntervalTraffic转换成client要发送的数据结构
-        //包括client连接server
-        //TODO:格式转换 server返回的数据结构转PredictedIntervalTraffic
         PredictedIntervalTraffic predictedIntervalTraffic = new PredictedIntervalTraffic();
+        try{
+            //TODO:将数据通过thrift传给tensorflow；运算并得返回潮汐标识与预测流量
+            //包括client连接server
+            transStart(this.transClient);
+            //TODO:格式转换 将NowIntervalTraffic转换成client要发送的数据结构
+            PredictedIntervalTrafficData wrappedOutput =
+                    transClient.client.getPredictedData(Tools.inputDataFormatTrans(nowIntervalTraffic));
+            //TODO:格式转换 server返回的数据结构转PredictedIntervalTraffic
+            predictedIntervalTraffic = Tools.outputDataFormatTrans(wrappedOutput);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+
         return  predictedIntervalTraffic;
     }
 
@@ -61,6 +75,26 @@ public class Trigger{
      */
     public boolean isReconfigurationNeeded(PredictedIntervalTraffic predictedIntervalTraffic) {
         return predictedIntervalTraffic.migration;
+    }
+
+    /**
+     * 启动thrift的客户端
+     * @param transClient
+     */
+    public void transStart(TransClient transClient) {
+        try{
+            transClient.transport = transClient.createTTransport();
+            transClient.openTTransport(transClient.transport);
+            transClient.client = transClient.createClient(transClient.transport);
+
+            //service calling
+            if(transClient.client.equals(null)) {
+                System.out.println("创建thrift客户端失败..");
+                return ;
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /*

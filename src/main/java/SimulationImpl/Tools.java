@@ -4,6 +4,11 @@ package SimulationImpl;
  * Created by yuqia on 2017/7/1.
  */
 
+import TrafficDescription.NowIntervalTraffic;
+import TrafficDescription.NowIntervalTrafficData;
+import TrafficDescription.PredictedIntervalTraffic;
+import TrafficDescription.PredictedIntervalTrafficData;
+
 /**no - process - branch*/
 public class Tools {
     /**拓扑相关*/
@@ -34,4 +39,23 @@ public class Tools {
     // 平均业务到达率 = {2, 1.6, 1.33, 1.14, 1}
     // 业务数量=1000不变
     // 迁移起始时间 = {1200,1000,800,700,600}
+
+    /**重构相关参数*/
+
+    /**thrift建立连接所需参数*/
+    public static int PORT = 9095;
+    public static String IP_LOCALHOST = "localhost";
+
+    /**thrift相关数据格式转换*/
+    public static NowIntervalTrafficData inputDataFormatTrans(NowIntervalTraffic inputData) {
+        NowIntervalTrafficData outputData =
+                new NowIntervalTrafficData(inputData.timeOfHour, inputData.nowIntervalTraffic);
+        return  outputData;
+    }
+
+    public static PredictedIntervalTraffic outputDataFormatTrans(PredictedIntervalTrafficData inputData) {
+        PredictedIntervalTraffic outputData =
+                new PredictedIntervalTraffic(inputData.migration, inputData.predictedIntervalTraffic);
+        return outputData;
+    }
 }
