@@ -44,7 +44,8 @@ public class Tools {
 
     /**thrift建立连接所需参数*/
     public static int PORT = 9095;
-    public static String IP_LOCALHOST = "localhost";
+    //public static String IP_LOCALHOST = "localhost";
+    public static String IP_LOCALHOST = "10.108.68.219";
 
     /**thrift相关数据格式转换*/
     public static NowIntervalTrafficData inputDataFormatTrans(NowIntervalTraffic inputData) {

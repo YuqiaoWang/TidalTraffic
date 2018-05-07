@@ -55,7 +55,10 @@ public class Trigger{
         try{
             //TODO:将数据通过thrift传给tensorflow；运算并得返回潮汐标识与预测流量
             //包括client连接server
-            transStart(this.transClient);
+            if(!transClient.isClientStarted()) {
+                transStart(this.transClient);
+            }
+
             //TODO:格式转换 将NowIntervalTraffic转换成client要发送的数据结构
             PredictedIntervalTrafficData wrappedOutput =
                     transClient.client.getPredictedData(Tools.inputDataFormatTrans(nowIntervalTraffic));

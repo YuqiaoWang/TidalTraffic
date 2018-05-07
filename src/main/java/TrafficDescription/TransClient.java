@@ -13,17 +13,32 @@ import org.apache.thrift.transport.TTransportException;
 public class TransClient {
     public static int port = Tools.PORT;
     public static String ip = Tools.IP_LOCALHOST;
-    public static TrafficDataService.Client client;
-    public static TTransport transport;
+    public TrafficDataService.Client client;
+    public TTransport transport;
+
+    /*
+    private static TransClient clientSingletion;
 
 
+    private TransClient() {
+
+    }
+
+    public static TransClient getClientInstance() {
+        if(clientSingletion == null) {
+            clientSingletion = new TransClient();
+        }
+        return clientSingletion;
+    }*/
 
     /**
      * 创建TTransport
      *
      */
-    public static TTransport createTTransport() {
-        TTransport transport = new TSocket(ip, port);
+    public TTransport createTTransport() {
+        if(transport == null) {
+            transport = new TSocket(ip, port);
+        }
         return transport;
     }
 
@@ -32,8 +47,8 @@ public class TransClient {
      * @param transport
      * @throws TTransportException
      */
-    public static void openTTransport(TTransport transport) throws TTransportException {
-        if(transport.equals(null)) {
+    public void openTTransport(TTransport transport) throws TTransportException {
+        if(transport == null) {
             return ;
         }
         transport.open();
@@ -55,16 +70,34 @@ public class TransClient {
      * @param transport
      * @return
      */
-    public static TrafficDataService.Client createClient(TTransport transport) {
+    public static TrafficDataService.Client createClient(TTransport transport) throws Exception {
         if(transport.equals(null)) {
+            //throw new Exception("创建client时, transport为null");
             return null;
         }
         TProtocol protocol = new TBinaryProtocol(transport);
         if(protocol.equals(null)) {
             return null;
         }
-        TrafficDataService.Client  client = new TrafficDataService.Client(protocol);
-        return client;
+
+        //类似于单例模式
+        /*
+        if(client.equals(null)) {
+            client = new TrafficDataService.Client(protocol);
+        }else {
+            //什么都不做
+        }*/
+        TrafficDataService.Client newClient = new TrafficDataService.Client(protocol);
+        return  newClient;
+
+    }
+
+    public boolean isClientStarted() {
+        if(client != null) {
+            return true;
+        }else {
+            return false;
+        }
     }
 
 
