@@ -128,15 +128,17 @@ public class LoadCountTask extends TimerTask{
                 //刷新流量
                 area1NowIntervalTraffic.nowIntervalTraffic.add(area1.load / area1.totalCapacity);
                 area3NowIntervalTraffic.nowIntervalTraffic.add(area3.load / area3.totalCapacity);
-                if(this.writeTimes % 15 == 14) {
+                if(this.writeTimes % 15 == 14 && this.writeTimes > 28) {
                     for(Trigger trigger : listenerList) {
                         trigger.flushTraffic(nowIntervalTrafficList);
                     }
 
                     area1NowIntervalTraffic.setTimeOfHour((writeTimes/15)/24.0);
-                    area1NowIntervalTraffic.setNowIntervalTraffic(new ArrayList<Double>());
+                    //area1NowIntervalTraffic.setNowIntervalTraffic(new ArrayList<Double>());
+                    area1NowIntervalTraffic.removeOneHourTrafficData();
                     area3NowIntervalTraffic.setTimeOfHour((writeTimes/15)/24.0);
-                    area3NowIntervalTraffic.setNowIntervalTraffic(new ArrayList<Double>());
+                    //area3NowIntervalTraffic.setNowIntervalTraffic(new ArrayList<Double>());
+                    area3NowIntervalTraffic.removeOneHourTrafficData();
                 }
 
                 this.writeTimes++;

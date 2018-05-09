@@ -1,0 +1,2 @@
+model_checkpoint_path: "tidal-model.ckpt"
+all_model_checkpoint_paths: "tidal-model.ckpt"

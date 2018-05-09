@@ -35,4 +35,13 @@ public class NowIntervalTraffic {
     public void setNowIntervalTraffic(List<Double> nowIntervalTraffic) {
         this.nowIntervalTraffic = nowIntervalTraffic;
     }
+
+    public void removeOneHourTrafficData() {
+        if(this.nowIntervalTraffic.size() > 15) {
+            for(int i = 0; i < 15; i++) {
+                this.nowIntervalTraffic.remove(0);
+            }
+
+        }
+    }
 }
