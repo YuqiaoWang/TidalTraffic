@@ -83,7 +83,7 @@ public class TransClient {
         //类似于单例模式
         /*
         if(client.equals(null)) {
-            client = new TrafficDataService.Client(protocol);
+            client = new TrafficDescription.TrafficDataService.Client(protocol);
         }else {
             //什么都不做
         }*/

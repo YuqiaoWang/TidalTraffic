@@ -21,7 +21,7 @@ try:
     #time = 0.15
     time = 0.416
     nowtraffic = [0.481, 0.497, 0.493, 0.504, 0.518, 0.535, 0.527, 0.481, 0.475, 0.491, 0.493, 0.495, 0.510, 0.508, 0.525, 0.522, 0.512, 0.518, 0.522, 0.525, 0.508, 0.512, 0.456, 0.447, 0.443, 0.443, 0.462, 0.477, 0.472, 0.485]
-    data = NowIntervalTrafficData(timeOfHour=time, nowIntervalTraffic=nowtraffic)
+    data = NowIntervalTrafficData(areaId ="1", timeOfHour=time, nowIntervalTraffic=nowtraffic)
 
     predictedData = client.getPredictedData(nowIntervalTrafficData=data)
     print(predictedData.migration)

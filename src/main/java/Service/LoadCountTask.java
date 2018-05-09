@@ -80,8 +80,8 @@ public class LoadCountTask extends TimerTask{
         //重构属性相关的初始化
         this.listenerList = listenerList;
         this.nowIntervalTrafficList = new ArrayList<NowIntervalTraffic>();
-        this.area1NowIntervalTraffic = new NowIntervalTraffic();
-        this.area3NowIntervalTraffic = new NowIntervalTraffic();
+        this.area1NowIntervalTraffic = new NowIntervalTraffic(area1.areaId);
+        this.area3NowIntervalTraffic = new NowIntervalTraffic(area3.areaId);
         this.nowIntervalTrafficList.add(area1NowIntervalTraffic);
         this.nowIntervalTrafficList.add(area3NowIntervalTraffic);
 

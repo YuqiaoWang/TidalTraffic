@@ -1,6 +1,7 @@
 struct NowIntervalTrafficData {
-    1: double timeOfHour
-    2: list<double> nowIntervalTraffic
+    1: string areaId
+    2: double timeOfHour
+    3: list<double> nowIntervalTraffic
 }
 
 struct PredictedIntervalTrafficData {

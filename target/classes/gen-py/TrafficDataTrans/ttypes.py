@@ -16,17 +16,20 @@ from thrift.transport import TTransport
 class NowIntervalTrafficData(object):
     """
     Attributes:
+     - areaId
      - timeOfHour
      - nowIntervalTraffic
     """
 
     thrift_spec = (
         None,  # 0
-        (1, TType.DOUBLE, 'timeOfHour', None, None, ),  # 1
-        (2, TType.LIST, 'nowIntervalTraffic', (TType.DOUBLE, None, False), None, ),  # 2
+        (1, TType.STRING, 'areaId', 'UTF8', None, ),  # 1
+        (2, TType.DOUBLE, 'timeOfHour', None, None, ),  # 2
+        (3, TType.LIST, 'nowIntervalTraffic', (TType.DOUBLE, None, False), None, ),  # 3
     )
 
-    def __init__(self, timeOfHour=None, nowIntervalTraffic=None,):
+    def __init__(self, areaId=None, timeOfHour=None, nowIntervalTraffic=None,):
+        self.areaId = areaId
         self.timeOfHour = timeOfHour
         self.nowIntervalTraffic = nowIntervalTraffic
 
@@ -40,11 +43,16 @@ class NowIntervalTrafficData(object):
             if ftype == TType.STOP:
                 break
             if fid == 1:
+                if ftype == TType.STRING:
+                    self.areaId = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
                 if ftype == TType.DOUBLE:
                     self.timeOfHour = iprot.readDouble()
                 else:
                     iprot.skip(ftype)
-            elif fid == 2:
+            elif fid == 3:
                 if ftype == TType.LIST:
                     self.nowIntervalTraffic = []
                     (_etype3, _size0) = iprot.readListBegin()
@@ -64,12 +72,16 @@ class NowIntervalTrafficData(object):
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
         oprot.writeStructBegin('NowIntervalTrafficData')
+        if self.areaId is not None:
+            oprot.writeFieldBegin('areaId', TType.STRING, 1)
+            oprot.writeString(self.areaId.encode('utf-8') if sys.version_info[0] == 2 else self.areaId)
+            oprot.writeFieldEnd()
         if self.timeOfHour is not None:
-            oprot.writeFieldBegin('timeOfHour', TType.DOUBLE, 1)
+            oprot.writeFieldBegin('timeOfHour', TType.DOUBLE, 2)
             oprot.writeDouble(self.timeOfHour)
             oprot.writeFieldEnd()
         if self.nowIntervalTraffic is not None:
-            oprot.writeFieldBegin('nowIntervalTraffic', TType.LIST, 2)
+            oprot.writeFieldBegin('nowIntervalTraffic', TType.LIST, 3)
             oprot.writeListBegin(TType.DOUBLE, len(self.nowIntervalTraffic))
             for iter6 in self.nowIntervalTraffic:
                 oprot.writeDouble(iter6)

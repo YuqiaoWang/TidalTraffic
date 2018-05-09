@@ -29,12 +29,16 @@ class TrafficDataServiceHandler:
         print('收到来自client的请求')
         #listTraffic = [0.3, 0.4, 0.5, 0.6, 0.5, 0.4, 0.5, 0.1, 0.2, 0.3, 0.3, 0.4, 0.5, 0.3, 0.2]
         #migration = 0.6
+        areaId = nowIntervalTrafficData.areaId
         time = nowIntervalTrafficData.timeOfHour
         now_traffic = nowIntervalTrafficData.nowIntervalTraffic
         input_data = []
         input_data.append(time)
         for i in range(0, len(now_traffic)):
             input_data.append(now_traffic[i])
+        # TODO : 将来要针对不同area调用不同的模型
+        # model_param_area1 = self.model_param[0]
+        # TODO: 将来mr.predict()方法入参0改为model_param_area1
         predicted_data = mr.predict(self.model_parameter, input_data)
         out_data = predicted_data[0]
         #print(out_data)
@@ -47,11 +51,16 @@ class TrafficDataServiceHandler:
 
 
 #1.重建模型
-model_param = mr.restore()
+# TODO:针对不用area要加载不同的模型（TOTODO：需要对每个area数据进行训练）
+model_param_area1 = mr.restore()
+# 应该是个list
+# models = []
+# models.append(model_param_area1)
+# TODO： Handler构造器入参将来应该改为models
 print('重建模型成功')
 
 #2.创建服务端
-handler = TrafficDataServiceHandler(model_param)
+handler = TrafficDataServiceHandler(model_param_area1)
 processor = TrafficDataService.Processor(handler)
 #2.1监听端口
 transport = TSocket.TServerSocket(port=9095)

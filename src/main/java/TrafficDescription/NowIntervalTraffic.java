@@ -7,15 +7,17 @@ import java.util.List;
  * Created by yuqia_000 on 2018/4/27.
  */
 public class NowIntervalTraffic {
+    public String areaId;
     public double timeOfHour;
     public List<Double> nowIntervalTraffic;
 
-    public NowIntervalTraffic() {
+    public NowIntervalTraffic(String areaId) {
+        this.areaId = areaId;
         this.timeOfHour = 0.0;
         this.nowIntervalTraffic = new ArrayList<Double>();
     }
 
-    public NowIntervalTraffic(double timeOfHour, List<Double> nowIntervalTraffic) {
+    public NowIntervalTraffic(String areaId, double timeOfHour, List<Double> nowIntervalTraffic) {
         this.timeOfHour = timeOfHour;
         this.nowIntervalTraffic = nowIntervalTraffic;
     }

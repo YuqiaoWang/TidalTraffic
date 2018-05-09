@@ -50,7 +50,7 @@ public class Tools {
     /**thrift相关数据格式转换*/
     public static NowIntervalTrafficData inputDataFormatTrans(NowIntervalTraffic inputData) {
         NowIntervalTrafficData outputData =
-                new NowIntervalTrafficData(inputData.timeOfHour, inputData.nowIntervalTraffic);
+                new NowIntervalTrafficData(inputData.areaId, inputData.timeOfHour, inputData.nowIntervalTraffic);
         return  outputData;
     }
 
