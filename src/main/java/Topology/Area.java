@@ -17,8 +17,8 @@ public class Area {
     //public static double DEFAULTTHRESHOLD = 0.7;
     List<Vertex> exportVertexList;
 
-    List<SimpleEdge> edges;
-    List<Vertex> vertices;
+    public List<SimpleEdge> edges;
+    public List<Vertex> vertices;
 
     public Area(String areaId) {
         this.areaId = areaId;

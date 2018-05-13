@@ -11,20 +11,23 @@ import java.util.List;
  * Created by yuqia_000 on 2017/6/15.
  */
 public class Service {
-    String serviceId;
-    Vertex srcNode;                             //源节点
-    Vertex desNode;                             //宿节点
+    public String serviceId;
+    public Vertex srcNode;                             //源节点
+    public Vertex desNode;                             //宿节点
     double unitbandwidth = 6.25;
     double bandwidth;                           //带宽
     double wavelenth;                           //占用的波长
-    int numberOfWavelenthes;
-    int serviceTime;                            //请求服务时间
-    GraphPath<Vertex, SimpleEdge> graphPath;    //算出来的路
-    List<Integer> wavelengthesNumber;           //占用的波长号
+    public int numberOfWavelenthes;
+    public int serviceTime;                            //请求服务时间
+    public long startTime;                             //开始时刻
+    public int remainTime;                             //剩余时间
+    public GraphPath<Vertex, SimpleEdge> graphPath;    //算出来的路
+    public List<Integer> wavelengthesNumber;           //占用的波长号
     boolean isComputed;                         //是否已算路
     boolean isAllocated;                        //是否分配资源
     boolean isBlocked;                          //是否已阻塞
     boolean isOutOfTime;                        //是否已离去
+    public boolean reconfiged;                         //是否已重构
 
 
     public Service(Vertex srcNode, Vertex desNode, int numberOfWavelenthes, int serviceTime) {
@@ -33,11 +36,13 @@ public class Service {
         this.bandwidth = unitbandwidth * numberOfWavelenthes;
         this.numberOfWavelenthes = numberOfWavelenthes;
         this.serviceTime = serviceTime;
+        this.startTime = System.currentTimeMillis();            //记录起始时间
         this.wavelengthesNumber = new ArrayList<Integer>();
         this.isComputed = false;
         this.isAllocated = false;
         this.isBlocked = false;
         this.isOutOfTime = false;
+        this.reconfiged = false;
     }
 
     public boolean isPathComputed(){
@@ -50,6 +55,10 @@ public class Service {
 
     public boolean isServiceBlocked() {
         return isBlocked;
+    }
+
+    public boolean isReconfiged() {
+        return reconfiged;
     }
 
     public void setServiceId(String s) {

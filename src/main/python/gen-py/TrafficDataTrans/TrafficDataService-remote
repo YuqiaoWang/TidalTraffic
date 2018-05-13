@@ -25,6 +25,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('')
     print('Functions:')
     print('  PredictedIntervalTrafficData getPredictedData(NowIntervalTrafficData nowIntervalTrafficData)')
+    print('  PredictedEdgeTrafficData getEdgePredictedData(NowEdgeTrafficData nowEdgeTrafficData)')
     print('')
     sys.exit(0)
 
@@ -109,6 +110,12 @@ if cmd == 'getPredictedData':
         print('getPredictedData requires 1 args')
         sys.exit(1)
     pp.pprint(client.getPredictedData(eval(args[0]),))
+
+elif cmd == 'getEdgePredictedData':
+    if len(args) != 1:
+        print('getEdgePredictedData requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.getEdgePredictedData(eval(args[0]),))
 
 else:
     print('Unrecognized method %s' % cmd)

@@ -1,6 +1,8 @@
 package Topology;
 
 import SimulationImpl.Tools;
+import TrafficDescription.EdgeTraffic.NowIntervalEdgeTraffic;
+import TrafficDescription.EdgeTraffic.PredictedEdgeTraffic;
 import org.jgrapht.graph.DefaultWeightedEdge;
 
 /**
@@ -14,8 +16,15 @@ public class SimpleEdge extends DefaultWeightedEdge {
     public double metric;
     public int numberOfWavelenth;
     public boolean[] wavelenthOccupation;
+    public String[] serviceOnWavelength;
     public int numberOfOccupatedWavelength;
     //public static int DEFAULTNUMBEROFWAVELENTHES = 30;
+
+    /**重构用到的属性*/
+    public NowIntervalEdgeTraffic nowIntervalEdgeTraffic;
+    public PredictedEdgeTraffic predictedEdgeTraffic;
+    public double futureLoad;
+
     public SimpleEdge() {
 
     }
@@ -30,10 +39,14 @@ public class SimpleEdge extends DefaultWeightedEdge {
         this.capacity = capacity;
         this.numberOfWavelenth = numberOfWavelenth;
         this.wavelenthOccupation = new boolean[numberOfWavelenth];
+        this.serviceOnWavelength = new String[numberOfWavelenth];
         this.numberOfOccupatedWavelength = 0;
         for(int i = 0; i < numberOfWavelenth; i++) {
             wavelenthOccupation[i] = false;
         }
+        this.nowIntervalEdgeTraffic = new NowIntervalEdgeTraffic(this.toString());
+        this.predictedEdgeTraffic = new PredictedEdgeTraffic();
+        this.futureLoad = 0;
     }
 
     /*

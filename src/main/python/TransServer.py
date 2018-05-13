@@ -6,7 +6,7 @@ sys.path.append('gen-py')
 
 import socket
 
-from TrafficDataTrans import TrafficDataService
+from TrafficDataTrans import TrafficDescription.TrafficDataService
 from TrafficDataTrans.ttypes import *
 
 from thrift import Thrift
@@ -19,7 +19,7 @@ import model_restore as mr
 
 class TrafficDataServiceHandler:
     def __init__(self, model_param):
-        self.PredictedIntervalTrafficData = []
+        self.TrafficDescription.PredictedIntervalTrafficData = []
         self.model_parameter = model_param
 
     def ping(self):
@@ -46,7 +46,7 @@ class TrafficDataServiceHandler:
         migration = out_data[0]
 
         listTraffic = predicted_data[1:]
-        data = PredictedIntervalTrafficData(migration=migration, predictedIntervalTraffic=listTraffic)
+        data = TrafficDescription.PredictedIntervalTrafficData(migration=migration, predictedIntervalTraffic=listTraffic)
         return data
 
 
@@ -61,7 +61,7 @@ print('重建模型成功')
 
 #2.创建服务端
 handler = TrafficDataServiceHandler(model_param_area1)
-processor = TrafficDataService.Processor(handler)
+processor = TrafficDescription.TrafficDataService.Processor(handler)
 #2.1监听端口
 transport = TSocket.TServerSocket(port=9095)
 #2.2选择传输层

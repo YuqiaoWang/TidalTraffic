@@ -3,9 +3,7 @@ package Service;
 import SimulationImpl.Tools;
 import Topology.Vertex;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -13,7 +11,8 @@ import java.util.concurrent.BlockingQueue;
  */
 public class PoissionStream extends Thread {
     public double lambda = Tools.DEFAULTLAMBDA;
-    public List<Service> listOfServices = new ArrayList<Service>();
+    public Map<String, Service> servicesMap = new HashMap<>();
+    //public List<Service> listOfServices = new ArrayList<Service>();
     public BlockingQueue<Service> serviceBlockingQueue;
     public long programStartTime;
 
@@ -53,7 +52,8 @@ public class PoissionStream extends Thread {
                 System.out.println("serviceTime: " + service.serviceTime);
                 */
                 serviceBlockingQueue.put(service);
-                listOfServices.add(service);
+                //listOfServices.add(service);
+                servicesMap.put(service.serviceId, service);
             }catch (Exception e) {
                 e.printStackTrace();
             }

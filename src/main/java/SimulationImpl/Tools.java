@@ -4,10 +4,9 @@ package SimulationImpl;
  * Created by yuqia on 2017/7/1.
  */
 
-import TrafficDescription.NowIntervalTraffic;
-import TrafficDescription.NowIntervalTrafficData;
-import TrafficDescription.PredictedIntervalTraffic;
-import TrafficDescription.PredictedIntervalTrafficData;
+import TrafficDescription.*;
+import TrafficDescription.EdgeTraffic.NowIntervalEdgeTraffic;
+import TrafficDescription.EdgeTraffic.PredictedEdgeTraffic;
 
 /**no - process - branch*/
 public class Tools {
@@ -44,10 +43,15 @@ public class Tools {
 
     /**thrift建立连接所需参数*/
     public static int PORT = 9095;
-    //public static String IP_LOCALHOST = "localhost";
-    public static String IP_LOCALHOST = "10.108.68.219";
+    public static String IP_LOCALHOST = "localhost";
+    //public static String IP_LOCALHOST = "10.108.68.219";
+
+    /**全局负载均衡指标*/
+    public static double INIT_LOAD_BALANCE_TARGET = 1.0;   //TODO:全局负载均衡指标赋初值，没定好
+    public static double THREASHOLD_LOAD_BALANCE_TARGET = 0.3;  //TODO:全局负载均衡指标门限值
 
     /**thrift相关数据格式转换*/
+    /**面向域*/
     public static NowIntervalTrafficData inputDataFormatTrans(NowIntervalTraffic inputData) {
         NowIntervalTrafficData outputData =
                 new NowIntervalTrafficData(inputData.areaId, inputData.timeOfHour, inputData.nowIntervalTraffic);
@@ -59,4 +63,18 @@ public class Tools {
                 new PredictedIntervalTraffic(inputData.migration, inputData.predictedIntervalTraffic);
         return outputData;
     }
+
+    /**面向边*/
+    public static NowEdgeTrafficData inputEdgeDataFormatTrans(NowIntervalEdgeTraffic inputdata) {
+        NowEdgeTrafficData outputData =
+                new NowEdgeTrafficData(inputdata.edgeId, inputdata.timeOfHour, inputdata.nowIntervalTraffic);
+        return outputData;
+    }
+
+    public static PredictedEdgeTraffic outputDataFormatTrans(PredictedEdgeTrafficData inputData) {
+        PredictedEdgeTraffic outputData =
+                new PredictedEdgeTraffic(inputData.migration, inputData.predictedEdgeTraffic);
+        return outputData;
+    }
+
 }

@@ -99,7 +99,20 @@ public class ComputePath extends Thread {
         }
     }
 
-    public void allocateResource(Service service) {
+    /**
+     * 本方法将拓扑各边的权重赋值成预测到的负载值
+     */
+    public void reAllocatedWeightAsFutureTraffic() {
+        Iterator<SimpleEdge> edgeIterator = this.graph.edgeSet().iterator();
+        while(edgeIterator.hasNext()) {
+            SimpleEdge currentEdge = edgeIterator.next();
+            if(this.graph.containsEdge(currentEdge)) {
+                this.graph.setEdgeWeight(currentEdge, currentEdge.futureLoad);
+            }
+        }
+    }
+
+    public boolean allocateResource(Service service) {
         try {
             GraphPath servicePath = serviceGraphPathHashMap.get(service);
             List<SimpleEdge> edgeList = servicePath.getEdgeList();
@@ -133,6 +146,7 @@ public class ComputePath extends Thread {
                     while (edgeIterator.hasNext()) {
                         SimpleEdge currentEdge = edgeIterator.next();
                         currentEdge.wavelenthOccupation[currentWavelenthNumber] = true;
+                        currentEdge.serviceOnWavelength[currentWavelenthNumber] = service.serviceId;    //将每个波长跑的什么业务记录下来
                         currentEdge.numberOfOccupatedWavelength +=1;
                     }
                     //System.out.print("[" + currentWavelenthNumber + "]");
@@ -141,6 +155,7 @@ public class ComputePath extends Thread {
                 service.isAllocated = true;
             }else {
                 service.isBlocked = true;
+                service.isOutOfTime = true;
                 service.wavelengthesNumber.clear(); //如果分配资源不成功，就释放service对象占用的波长号
                 //System.out.println("没有足够资源分配给业务 " + service.serviceId + " 。");
                 blockedTimes +=1;
@@ -152,9 +167,11 @@ public class ComputePath extends Thread {
                 //BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
                 //bufferedWriter.write();
             }
+
         }catch (Exception e) {
             e.printStackTrace();
         }
+        return service.isAllocated;
     }
 
     /**
@@ -311,7 +328,7 @@ public class ComputePath extends Thread {
                     }
                 }*/
                 /**资源分配*/
-                allocateResource(service);
+                boolean allocated = allocateResource(service);
                 /**业务离去*/
                 if(service.isResourceAllocated() == true) {     //如果分配了资源
                     Timer leavingTimer = new Timer();

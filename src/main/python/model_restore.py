@@ -43,7 +43,7 @@ def restore():
     saver = tf.train.Saver()
     #with tf.Session() as sess:
     sess = tf.Session()
-    saver.restore(sess, "model_save/tidal-model.ckpt")
+    saver.restore(sess, "model_save/tidal-model.ckpt-100000")
     '''
     print('w1:')
     print(sess.run(Weights1))
@@ -54,8 +54,8 @@ def restore():
     print('b2:')
     print(sess.run(biases2))
     '''
-    l1 = restore_layer(xs, sess.run(Weights1), sess.run(biases1), activation_function=tf.nn.sigmoid)
-    prediction = restore_layer(l1, sess.run(Weights2), sess.run(biases2), activation_function=tf.nn.sigmoid)
+    l1 = restore_layer(xs, sess.run(Weights1), sess.run(biases1), activation_function=tf.nn.relu)
+    prediction = restore_layer(l1, sess.run(Weights2), sess.run(biases2), activation_function=None)
     model_param = [sess, prediction, xs]
     return model_param
 
@@ -70,8 +70,8 @@ def predict(model_param, input_data):
     print(input_data)
     x_test_raw = input_data
     x_feed_pre = np.array(x_test_raw)
-    print('x_feed_pre:')
-    print(x_feed_pre)
+    #print('x_feed_pre:')
+    #print(x_feed_pre)
     x_feed = x_feed_pre.reshape((1,31))
     print('x_feed:')
     print(x_feed)

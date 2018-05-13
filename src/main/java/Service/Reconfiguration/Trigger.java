@@ -2,8 +2,11 @@ package Service.Reconfiguration;
 
 import Service.ComputePath;
 import SimulationImpl.Tools;
+import Topology.Area;
+import Topology.SimpleEdge;
 import TrafficDescription.*;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -19,18 +22,22 @@ public class Trigger{
     public List<Double> nowIntervalTraffic;
 
     public TransClient transClient;    //用于thrift与神经网络沟通的client端
+    public HashMap<String, Area> areaHashMap;
+    public ReconfigExecutor reconfigExecutor;
 
     public Trigger() {
 
     }
 
-    public Trigger(ComputePath computePathThread) {
+    public Trigger(ComputePath computePathThread, ReconfigExecutor reconfigExecutor) {
         computePathThread.regist(this);
         transClient = new TransClient();
+        areaHashMap = computePathThread.areaHashMap;
+        this.reconfigExecutor = reconfigExecutor;
     }
 
     /**
-     * TODO：此方法入参还未确定，此方法被算路线程被动调用，定时传入，刷新流量
+     * TODO：（此方法入参还未确定），此方法被算路线程被动调用，定时传入，刷新流量
      */
     public void flushTraffic(List<NowIntervalTraffic> nowIntervalTrafficList) {
         for(NowIntervalTraffic nowTrafficForEachArea : nowIntervalTrafficList) {
@@ -39,6 +46,10 @@ public class Trigger{
             if(isReconfigurationNeeded(predictedTrafficForEachArea)) {
                 //TODO:执行重构
                 System.out.println("^^^^需要重构^^^^");
+                //TODO:对不同的域，执行重构的时间不同
+                Area currentArea = areaHashMap.get(nowTrafficForEachArea.areaId);
+                reconfigExecutor.doReconfig(currentArea, predictedTrafficForEachArea);
+
             }else {
                 System.out.println("^^^^不需要重构^^^^");
             }

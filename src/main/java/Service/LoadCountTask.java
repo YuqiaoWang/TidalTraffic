@@ -4,6 +4,7 @@ import Service.Reconfiguration.Trigger;
 import Topology.Area;
 import Topology.SimpleEdge;
 import Topology.Vertex;
+import TrafficDescription.EdgeTraffic.NowIntervalEdgeTraffic;
 import TrafficDescription.NowIntervalTraffic;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.jgrapht.graph.SimpleWeightedGraph;
@@ -34,9 +35,10 @@ public class LoadCountTask extends TimerTask{
 
     //重构用到的属性
     List<Trigger> listenerList;     //监听器列表
-    List<NowIntervalTraffic> nowIntervalTrafficList;    //
+    List<NowIntervalTraffic> nowIntervalTrafficList;    //面向每个area的1h流量统计值
     NowIntervalTraffic area1NowIntervalTraffic;
     NowIntervalTraffic area3NowIntervalTraffic;
+    //Map<String, NowIntervalEdgeTraffic> nowTrafficForEdges; //此map用来存储各个边1h的流量统计
 
     public LoadCountTask(){
 
@@ -84,6 +86,14 @@ public class LoadCountTask extends TimerTask{
         this.area3NowIntervalTraffic = new NowIntervalTraffic(area3.areaId);
         this.nowIntervalTrafficList.add(area1NowIntervalTraffic);
         this.nowIntervalTrafficList.add(area3NowIntervalTraffic);
+        //this.nowTrafficForEdges = new HashMap<>();
+        this.edgeIterator = edgeSet.iterator();
+        //初始化这个map
+        while(edgeIterator.hasNext()) {
+            SimpleEdge currentEdge = edgeIterator.next();
+            NowIntervalEdgeTraffic currentEdegeTraffic = new NowIntervalEdgeTraffic(currentEdge.toString());
+            //this.nowTrafficForEdges.put(currentEdge.toString(), currentEdegeTraffic);
+        }
 
     }
 
@@ -106,6 +116,14 @@ public class LoadCountTask extends TimerTask{
                     FileWriter currentEdgeLoadWriter = edgeLoadCountMap.get(currentEdge);
                     currentEdgeLoadWriter.write((double)currentEdge.numberOfOccupatedWavelength / currentEdge.numberOfWavelenth + "\n");
                     currentEdgeLoadWriter.flush();
+
+                    //重构用到的每条边的1h流量数据
+                    NowIntervalEdgeTraffic currentEdgeTraffic = currentEdge.nowIntervalEdgeTraffic;
+                    currentEdgeTraffic.nowIntervalTraffic.add((double)currentEdge.numberOfOccupatedWavelength / currentEdge.numberOfWavelenth);
+                    if(this.writeTimes % 15 == 14 && this.writeTimes > 28) {
+                        currentEdgeTraffic.removeOneHourTrafficData();
+                    }
+
                 }
 
 
@@ -133,6 +151,8 @@ public class LoadCountTask extends TimerTask{
                         trigger.flushTraffic(nowIntervalTrafficList);
                     }
 
+                    /**
+                     * 域的1h流量包装*/
                     area1NowIntervalTraffic.setTimeOfHour((writeTimes/15)/24.0);
                     //area1NowIntervalTraffic.setNowIntervalTraffic(new ArrayList<Double>());
                     area1NowIntervalTraffic.removeOneHourTrafficData();
