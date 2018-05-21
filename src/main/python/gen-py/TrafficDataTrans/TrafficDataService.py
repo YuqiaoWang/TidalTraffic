@@ -16,10 +16,10 @@ from thrift.transport import TTransport
 
 
 class Iface(object):
-    def getPredictedData(self, nowIntervalTrafficData):
+    def getPredictedData(self, nowAreaTrafficData):
         """
         Parameters:
-         - nowIntervalTrafficData
+         - nowAreaTrafficData
         """
         pass
 
@@ -38,18 +38,18 @@ class Client(Iface):
             self._oprot = oprot
         self._seqid = 0
 
-    def getPredictedData(self, nowIntervalTrafficData):
+    def getPredictedData(self, nowAreaTrafficData):
         """
         Parameters:
-         - nowIntervalTrafficData
+         - nowAreaTrafficData
         """
-        self.send_getPredictedData(nowIntervalTrafficData)
+        self.send_getPredictedData(nowAreaTrafficData)
         return self.recv_getPredictedData()
 
-    def send_getPredictedData(self, nowIntervalTrafficData):
+    def send_getPredictedData(self, nowAreaTrafficData):
         self._oprot.writeMessageBegin('getPredictedData', TMessageType.CALL, self._seqid)
         args = getPredictedData_args()
-        args.nowIntervalTrafficData = nowIntervalTrafficData
+        args.nowAreaTrafficData = nowAreaTrafficData
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
@@ -129,7 +129,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = getPredictedData_result()
         try:
-            result.success = self._handler.getPredictedData(args.nowIntervalTrafficData)
+            result.success = self._handler.getPredictedData(args.nowAreaTrafficData)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -167,16 +167,16 @@ class Processor(Iface, TProcessor):
 class getPredictedData_args(object):
     """
     Attributes:
-     - nowIntervalTrafficData
+     - nowAreaTrafficData
     """
 
     thrift_spec = (
         None,  # 0
-        (1, TType.STRUCT, 'nowIntervalTrafficData', (NowIntervalTrafficData, NowIntervalTrafficData.thrift_spec), None, ),  # 1
+        (1, TType.STRUCT, 'nowAreaTrafficData', (NowAreaTrafficData, NowAreaTrafficData.thrift_spec), None, ),  # 1
     )
 
-    def __init__(self, nowIntervalTrafficData=None,):
-        self.nowIntervalTrafficData = nowIntervalTrafficData
+    def __init__(self, nowAreaTrafficData=None,):
+        self.nowAreaTrafficData = nowAreaTrafficData
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -189,8 +189,8 @@ class getPredictedData_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRUCT:
-                    self.nowIntervalTrafficData = NowIntervalTrafficData()
-                    self.nowIntervalTrafficData.read(iprot)
+                    self.nowAreaTrafficData = NowAreaTrafficData()
+                    self.nowAreaTrafficData.read(iprot)
                 else:
                     iprot.skip(ftype)
             else:
@@ -203,9 +203,9 @@ class getPredictedData_args(object):
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
         oprot.writeStructBegin('getPredictedData_args')
-        if self.nowIntervalTrafficData is not None:
-            oprot.writeFieldBegin('nowIntervalTrafficData', TType.STRUCT, 1)
-            self.nowIntervalTrafficData.write(oprot)
+        if self.nowAreaTrafficData is not None:
+            oprot.writeFieldBegin('nowAreaTrafficData', TType.STRUCT, 1)
+            self.nowAreaTrafficData.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -232,7 +232,7 @@ class getPredictedData_result(object):
     """
 
     thrift_spec = (
-        (0, TType.STRUCT, 'success', (PredictedIntervalTrafficData, PredictedIntervalTrafficData.thrift_spec), None, ),  # 0
+        (0, TType.STRUCT, 'success', (PredictedAreaTrafficData, PredictedAreaTrafficData.thrift_spec), None, ),  # 0
     )
 
     def __init__(self, success=None,):
@@ -249,7 +249,7 @@ class getPredictedData_result(object):
                 break
             if fid == 0:
                 if ftype == TType.STRUCT:
-                    self.success = PredictedIntervalTrafficData()
+                    self.success = PredictedAreaTrafficData()
                     self.success.read(iprot)
                 else:
                     iprot.skip(ftype)
@@ -310,7 +310,7 @@ class getEdgePredictedData_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRUCT:
-                    self.nowEdgeTrafficData = NowEdgeTrafficData()
+                    self.nowEdgeTrafficData = TrafficDescription.NowEdgeTrafficData()
                     self.nowEdgeTrafficData.read(iprot)
                 else:
                     iprot.skip(ftype)
@@ -370,7 +370,7 @@ class getEdgePredictedData_result(object):
                 break
             if fid == 0:
                 if ftype == TType.STRUCT:
-                    self.success = PredictedEdgeTrafficData()
+                    self.success = TrafficDescription.PredictedEdgeTrafficData()
                     self.success.read(iprot)
                 else:
                     iprot.skip(ftype)

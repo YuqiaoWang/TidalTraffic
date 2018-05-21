@@ -14,8 +14,8 @@ public class PredictedEdgeTraffic {
 
     }
 
-    public PredictedEdgeTraffic(double migration, List<Double> predictedIntervalTraffic) {
-        this.migration = (migration > 0.5) ? true : false;
+    public PredictedEdgeTraffic(List<Double> predictedIntervalTraffic) {
+        //this.migration = (migration > 0.5) ? true : false;
         this.predictedIntervalTraffic = predictedIntervalTraffic;
     }
 

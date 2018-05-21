@@ -80,6 +80,8 @@ public class LoadCountTask extends TimerTask{
         }
 
         //重构属性相关的初始化
+        /**201805015 注释为了统计数据*/
+
         this.listenerList = listenerList;
         this.nowIntervalTrafficList = new ArrayList<NowIntervalTraffic>();
         this.area1NowIntervalTraffic = new NowIntervalTraffic(area1.areaId);
@@ -117,6 +119,8 @@ public class LoadCountTask extends TimerTask{
                     currentEdgeLoadWriter.write((double)currentEdge.numberOfOccupatedWavelength / currentEdge.numberOfWavelenth + "\n");
                     currentEdgeLoadWriter.flush();
 
+                    /**201805015 注释为了统计数据*/
+
                     //重构用到的每条边的1h流量数据
                     NowIntervalEdgeTraffic currentEdgeTraffic = currentEdge.nowIntervalEdgeTraffic;
                     currentEdgeTraffic.nowIntervalTraffic.add((double)currentEdge.numberOfOccupatedWavelength / currentEdge.numberOfWavelenth);
@@ -143,7 +147,9 @@ public class LoadCountTask extends TimerTask{
                     area3NowIntervalTraffic.setTimeOfHour((writeTimes/15)/24.0);
                     area3NowIntervalTraffic.setNowIntervalTraffic(new ArrayList<Double>());
                 }*/
+                /**201805015 注释为了统计数据*/
                 //刷新流量
+
                 area1NowIntervalTraffic.nowIntervalTraffic.add(area1.load / area1.totalCapacity);
                 area3NowIntervalTraffic.nowIntervalTraffic.add(area3.load / area3.totalCapacity);
                 if(this.writeTimes % 15 == 14 && this.writeTimes > 28) {

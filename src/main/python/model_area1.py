@@ -20,7 +20,7 @@ def add_layer(inputs, in_size, out_size, activation_function=None, weight_name=N
 # 从excel中读取数据
 #filepath = 'data/sheet.xlsx'
 #filepath = '/home/yuqiaowang/learnTensorflow/data/sheet.xlsx'
-workbook = xlrd.open_workbook(r'data/sheet.xlsx')
+workbook = xlrd.open_workbook(r'data/100erlang/areasCount.xls')
 sheet1 = workbook.sheet_by_index(0)
 x_data_raw = []
 y_data_raw = []
@@ -47,19 +47,19 @@ ys = tf.placeholder(tf.float32, [None, 16], name='input_y')
 
 # 3.定义神经层：隐藏层和预测层
 # add hidden layer 输入值是 xs(31个神经元), 在隐藏层有30个神经元
-layerparameters1 = add_layer(xs, 31, 40, activation_function=tf.nn.relu, weight_name='weights1', bias_name='biases1')
+layerparameters1 = add_layer(xs, 31, 40, activation_function=tf.nn.relu, weight_name='weights1_area1', bias_name='biases1_area1')
 l1 = layerparameters1[0]
 Weights1 = layerparameters1[1]
 biases1 = layerparameters1[2]
 
 # 隐藏层2
-layerparameters2 = add_layer(l1, 40, 10, activation_function = tf.nn.sigmoid, weight_name='weights2', bias_name='biases2')
+layerparameters2 = add_layer(l1, 40, 10, activation_function = tf.nn.sigmoid, weight_name='weights2_area1', bias_name='biases2_area1')
 l2 = layerparameters2[0]
 Weights2 = layerparameters2[1]
 biases2 = layerparameters2[2]
 
 # add output layer 输入值是隐藏层l1,在预测层输出1个结果
-layerparameters3 = add_layer(l2, 10, 16, activation_function=None, weight_name='weights3', bias_name='biases3')
+layerparameters3 = add_layer(l2, 10, 16, activation_function=None, weight_name='weights3_area1', bias_name='biases3_area1')
 prediction = layerparameters3[0]
 Weights3 = layerparameters3[1]
 biases3 = layerparameters3[2]
@@ -102,7 +102,7 @@ for i in range(step):
         currentLoss = sess.run(loss, feed_dict={xs:x_data, ys:y_data})
         print('epoch:%d, val_loss:%f' %(i, currentLoss))
         
-        saver.save(sess, 'model_save/tidal-model.ckpt',global_step=i)
+        saver.save(sess, 'model_save/100erlang/model_area1.ckpt',global_step=i)
         
     
 
@@ -127,7 +127,7 @@ for i in range(0, 24):
     row = origin_sheet.row(i)
     for j in range(0, 31):
         row.write(j, x_data_raw[i][j])
-out_workbook.save('data/output_validation.xls')
+out_workbook.save('data/100erlang/area1_validation.xls')
 print('验证集数据已保存')
 
 print("b1:")

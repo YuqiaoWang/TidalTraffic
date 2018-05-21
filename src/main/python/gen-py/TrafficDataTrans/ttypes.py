@@ -13,25 +13,25 @@ import sys
 from thrift.transport import TTransport
 
 
-class NowIntervalTrafficData(object):
+class NowAreaTrafficData(object):
     """
     Attributes:
      - areaId
      - timeOfHour
-     - nowIntervalTraffic
+     - nowAreaTraffic
     """
 
     thrift_spec = (
         None,  # 0
         (1, TType.STRING, 'areaId', 'UTF8', None, ),  # 1
         (2, TType.DOUBLE, 'timeOfHour', None, None, ),  # 2
-        (3, TType.LIST, 'nowIntervalTraffic', (TType.DOUBLE, None, False), None, ),  # 3
+        (3, TType.LIST, 'nowAreaTraffic', (TType.DOUBLE, None, False), None, ),  # 3
     )
 
-    def __init__(self, areaId=None, timeOfHour=None, nowIntervalTraffic=None,):
+    def __init__(self, areaId=None, timeOfHour=None, nowAreaTraffic=None,):
         self.areaId = areaId
         self.timeOfHour = timeOfHour
-        self.nowIntervalTraffic = nowIntervalTraffic
+        self.nowAreaTraffic = nowAreaTraffic
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -54,11 +54,11 @@ class NowIntervalTrafficData(object):
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.LIST:
-                    self.nowIntervalTraffic = []
+                    self.nowAreaTraffic = []
                     (_etype3, _size0) = iprot.readListBegin()
                     for _i4 in range(_size0):
                         _elem5 = iprot.readDouble()
-                        self.nowIntervalTraffic.append(_elem5)
+                        self.nowAreaTraffic.append(_elem5)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -71,7 +71,7 @@ class NowIntervalTrafficData(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
-        oprot.writeStructBegin('NowIntervalTrafficData')
+        oprot.writeStructBegin('TrafficDescription.NowAreaTrafficData')
         if self.areaId is not None:
             oprot.writeFieldBegin('areaId', TType.STRING, 1)
             oprot.writeString(self.areaId.encode('utf-8') if sys.version_info[0] == 2 else self.areaId)
@@ -80,10 +80,10 @@ class NowIntervalTrafficData(object):
             oprot.writeFieldBegin('timeOfHour', TType.DOUBLE, 2)
             oprot.writeDouble(self.timeOfHour)
             oprot.writeFieldEnd()
-        if self.nowIntervalTraffic is not None:
-            oprot.writeFieldBegin('nowIntervalTraffic', TType.LIST, 3)
-            oprot.writeListBegin(TType.DOUBLE, len(self.nowIntervalTraffic))
-            for iter6 in self.nowIntervalTraffic:
+        if self.nowAreaTraffic is not None:
+            oprot.writeFieldBegin('nowAreaTraffic', TType.LIST, 3)
+            oprot.writeListBegin(TType.DOUBLE, len(self.nowAreaTraffic))
+            for iter6 in self.nowAreaTraffic:
                 oprot.writeDouble(iter6)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
@@ -105,22 +105,22 @@ class NowIntervalTrafficData(object):
         return not (self == other)
 
 
-class PredictedIntervalTrafficData(object):
+class PredictedAreaTrafficData(object):
     """
     Attributes:
      - migration
-     - predictedIntervalTraffic
+     - predictedAreaTraffic
     """
 
     thrift_spec = (
         None,  # 0
         (1, TType.DOUBLE, 'migration', None, None, ),  # 1
-        (2, TType.LIST, 'predictedIntervalTraffic', (TType.DOUBLE, None, False), None, ),  # 2
+        (2, TType.LIST, 'predictedAreaTraffic', (TType.DOUBLE, None, False), None, ),  # 2
     )
 
-    def __init__(self, migration=None, predictedIntervalTraffic=None,):
+    def __init__(self, migration=None, predictedAreaTraffic=None,):
         self.migration = migration
-        self.predictedIntervalTraffic = predictedIntervalTraffic
+        self.predictedAreaTraffic = predictedAreaTraffic
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -138,11 +138,11 @@ class PredictedIntervalTrafficData(object):
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.LIST:
-                    self.predictedIntervalTraffic = []
+                    self.predictedAreaTraffic = []
                     (_etype10, _size7) = iprot.readListBegin()
                     for _i11 in range(_size7):
                         _elem12 = iprot.readDouble()
-                        self.predictedIntervalTraffic.append(_elem12)
+                        self.predictedAreaTraffic.append(_elem12)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -155,15 +155,15 @@ class PredictedIntervalTrafficData(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
-        oprot.writeStructBegin('PredictedIntervalTrafficData')
+        oprot.writeStructBegin('TrafficDescription.PredictedAreaTrafficData')
         if self.migration is not None:
             oprot.writeFieldBegin('migration', TType.DOUBLE, 1)
             oprot.writeDouble(self.migration)
             oprot.writeFieldEnd()
-        if self.predictedIntervalTraffic is not None:
-            oprot.writeFieldBegin('predictedIntervalTraffic', TType.LIST, 2)
-            oprot.writeListBegin(TType.DOUBLE, len(self.predictedIntervalTraffic))
-            for iter13 in self.predictedIntervalTraffic:
+        if self.predictedAreaTraffic is not None:
+            oprot.writeFieldBegin('predictedAreaTraffic', TType.LIST, 2)
+            oprot.writeListBegin(TType.DOUBLE, len(self.predictedAreaTraffic))
+            for iter13 in self.predictedAreaTraffic:
                 oprot.writeDouble(iter13)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
@@ -243,7 +243,7 @@ class NowEdgeTrafficData(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
-        oprot.writeStructBegin('NowEdgeTrafficData')
+        oprot.writeStructBegin('TrafficDescription.NowEdgeTrafficData')
         if self.edgeId is not None:
             oprot.writeFieldBegin('edgeId', TType.STRING, 1)
             oprot.writeString(self.edgeId.encode('utf-8') if sys.version_info[0] == 2 else self.edgeId)
@@ -280,18 +280,15 @@ class NowEdgeTrafficData(object):
 class PredictedEdgeTrafficData(object):
     """
     Attributes:
-     - migration
      - predictedEdgeTraffic
     """
 
     thrift_spec = (
         None,  # 0
-        (1, TType.DOUBLE, 'migration', None, None, ),  # 1
-        (2, TType.LIST, 'predictedEdgeTraffic', (TType.DOUBLE, None, False), None, ),  # 2
+        (1, TType.LIST, 'predictedEdgeTraffic', (TType.DOUBLE, None, False), None, ),  # 1
     )
 
-    def __init__(self, migration=None, predictedEdgeTraffic=None,):
-        self.migration = migration
+    def __init__(self, predictedEdgeTraffic=None,):
         self.predictedEdgeTraffic = predictedEdgeTraffic
 
     def read(self, iprot):
@@ -304,11 +301,6 @@ class PredictedEdgeTrafficData(object):
             if ftype == TType.STOP:
                 break
             if fid == 1:
-                if ftype == TType.DOUBLE:
-                    self.migration = iprot.readDouble()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 2:
                 if ftype == TType.LIST:
                     self.predictedEdgeTraffic = []
                     (_etype24, _size21) = iprot.readListBegin()
@@ -327,13 +319,9 @@ class PredictedEdgeTrafficData(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
-        oprot.writeStructBegin('PredictedEdgeTrafficData')
-        if self.migration is not None:
-            oprot.writeFieldBegin('migration', TType.DOUBLE, 1)
-            oprot.writeDouble(self.migration)
-            oprot.writeFieldEnd()
+        oprot.writeStructBegin('TrafficDescription.PredictedEdgeTrafficData')
         if self.predictedEdgeTraffic is not None:
-            oprot.writeFieldBegin('predictedEdgeTraffic', TType.LIST, 2)
+            oprot.writeFieldBegin('predictedEdgeTraffic', TType.LIST, 1)
             oprot.writeListBegin(TType.DOUBLE, len(self.predictedEdgeTraffic))
             for iter27 in self.predictedEdgeTraffic:
                 oprot.writeDouble(iter27)

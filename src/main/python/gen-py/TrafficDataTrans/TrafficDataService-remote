@@ -16,7 +16,7 @@ else:
 from thrift.transport import TTransport, TSocket, TSSLSocket, THttpClient
 from thrift.protocol.TBinaryProtocol import TBinaryProtocol
 
-from TrafficDataTrans import TrafficDataService
+from TrafficDataTrans import TrafficDescription.TrafficDataService
 from TrafficDataTrans.ttypes import *
 
 if len(sys.argv) <= 1 or sys.argv[1] == '--help':
@@ -24,8 +24,8 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('Usage: ' + sys.argv[0] + ' [-h host[:port]] [-u url] [-f[ramed]] [-s[sl]] [-novalidate] [-ca_certs certs] [-keyfile keyfile] [-certfile certfile] function [arg1 [arg2...]]')
     print('')
     print('Functions:')
-    print('  PredictedIntervalTrafficData getPredictedData(NowIntervalTrafficData nowIntervalTrafficData)')
-    print('  PredictedEdgeTrafficData getEdgePredictedData(NowEdgeTrafficData nowEdgeTrafficData)')
+    print('  TrafficDescription.PredictedAreaTrafficData getPredictedData(TrafficDescription.NowAreaTrafficData nowAreaTrafficData)')
+    print('  TrafficDescription.PredictedEdgeTrafficData getEdgePredictedData(TrafficDescription.NowEdgeTrafficData nowEdgeTrafficData)')
     print('')
     sys.exit(0)
 
@@ -102,7 +102,7 @@ else:
     else:
         transport = TTransport.TBufferedTransport(socket)
 protocol = TBinaryProtocol(transport)
-client = TrafficDataService.Client(protocol)
+client = TrafficDescription.TrafficDataService.Client(protocol)
 transport.open()
 
 if cmd == 'getPredictedData':

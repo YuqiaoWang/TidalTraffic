@@ -1,6 +1,81 @@
 import tensorflow as tf
 import numpy as np
 
+class parameter:
+    def __init__(self, areaId):
+        self.areaId = areaId
+        self.graph = tf.Graph()
+        self.sess = tf.Session(graph=self.graph)
+        '''
+        self.Weights1 = tf.Variable(tf.truncated_normal(shape=(31, 40)), name='weights1_area'+areaId)
+        self.biases1 = tf.Variable(tf.truncated_normal(shape=(1, 40)), name='biases1_area'+areaId)
+        # 隐藏层到输出层的权重偏置
+        self.Weights2 = tf.Variable(tf.truncated_normal(shape=(40, 10)), name='weights2_area'+areaId)
+        self.biases2 = tf.Variable(tf.truncated_normal(shape=(1, 10)), name='biases2_area'+areaId)
+        self.Weights3 = tf.Variable(tf.truncated_normal(shape=(10, 16)), name='weights3_area'+areaId)
+        self.biases3 = tf.Variable(tf.truncated_normal(shape=(1, 16)), name='biases3_area'+areaId)
+        self.xs = tf.placeholder(tf.float32, [None, 31])
+        '''
+    def restore(self):
+        # 1.定义变量
+        # 此程序用来做流量预测模型的参数恢复
+        # 输入层到隐藏层的权重偏置
+        '''
+        Weights1 = tf.Variable(tf.truncated_normal(shape=(31, 40)), name='weights1_area'+self.areaId)
+        biases1 = tf.Variable(tf.truncated_normal(shape=(1, 40)), name='biases1_area'+self.areaId)
+        # 隐藏层到输出层的权重偏置
+        Weights2 = tf.Variable(tf.truncated_normal(shape=(40, 10)), name='weights2_area'+self.areaId)
+        biases2 = tf.Variable(tf.truncated_normal(shape=(1, 10)), name='biases2_area'+self.areaId)
+        Weights3 = tf.Variable(tf.truncated_normal(shape=(10, 16)), name='weights3_area'+self.areaId)
+        biases3 = tf.Variable(tf.truncated_normal(shape=(1, 16)), name='biases3_area'+self.areaId)
+        xs = tf.placeholder(tf.float32, [None, 31])
+        '''
+        '''
+        with tf.Session() as sess:
+            new_saver = tf.train.import_meta_graph('./model_save/tidal-model.ckpt.meta')
+            new_saver.restore(sess, tf.train.latest_checkpoint('./model_save/'))
+            all_vars = tf.get_collection('vars')
+            print(all_vars)
+            for v in all_vars:
+                print(v)
+                print(v.name)
+                v_ = v.eval() #sess.run(v)
+                print(v_)
+        '''
+        with self.graph.as_default():
+            Weights1 = tf.Variable(tf.truncated_normal(shape=(31, 40)), name='weights1_area'+self.areaId)
+            biases1 = tf.Variable(tf.truncated_normal(shape=(1, 40)), name='biases1_area'+self.areaId)
+            # 隐藏层到输出层的权重偏置
+            Weights2 = tf.Variable(tf.truncated_normal(shape=(40, 10)), name='weights2_area'+self.areaId)
+            biases2 = tf.Variable(tf.truncated_normal(shape=(1, 10)), name='biases2_area'+self.areaId)
+            Weights3 = tf.Variable(tf.truncated_normal(shape=(10, 16)), name='weights3_area'+self.areaId)
+            biases3 = tf.Variable(tf.truncated_normal(shape=(1, 16)), name='biases3_area'+self.areaId)
+            xs = tf.placeholder(tf.float32, [None, 31])
+            # 2.恢复
+            saver = tf.train.Saver()
+            #with tf.Session() as sess:
+            #sess = tf.Session()
+            modelName = "model_area" + self.areaId + ".ckpt-95000"
+            modelPath = "model_save/100erlang/" + modelName
+            #saver.restore(sess, "model_save/tidal-model.ckpt-95000")
+            saver.restore(self.sess, modelPath)
+            '''
+            print('w1:')
+            print(sess.run(Weights1))
+            print('b1:')
+            print(sess.run(biases1))
+            print('w2:')
+            print(sess.run(Weights2))
+            print('b2:')
+            print(sess.run(biases2))
+            '''
+            l1 = restore_layer(xs, self.sess.run(Weights1), self.sess.run(biases1), activation_function=tf.nn.relu)
+            l2 = restore_layer(l1, self.sess.run(Weights2), self.sess.run(biases2), activation_function=tf.nn.sigmoid)
+            prediction = restore_layer(l2, self.sess.run(Weights3), self.sess.run(biases3), activation_function=None)
+            model_param = [self.sess, prediction, xs]
+        return model_param
+        
+
 
 #添加层
 def restore_layer(input, weights_restore, biases_restore, activation_function=None):
@@ -13,51 +88,21 @@ def restore_layer(input, weights_restore, biases_restore, activation_function=No
         outputs = activation_function(Wx_plus_b)
     return outputs
 
-def restore():
-    
-    # 1.定义变量
-    # 此程序用来做流量预测模型的参数恢复
-    # 输入层到隐藏层的权重偏置
-    Weights1 = tf.Variable(tf.truncated_normal(shape=(31, 40)), name='weights1')
-    biases1 = tf.Variable(tf.truncated_normal(shape=(1, 40)), name='biases1')
-    # 隐藏层到输出层的权重偏置
-    Weights2 = tf.Variable(tf.truncated_normal(shape=(40, 16)), name='weights2')
-    biases2 = tf.Variable(tf.truncated_normal(shape=(1, 16)), name='biases2')
 
-    xs = tf.placeholder(tf.float32, [None, 31])
-    '''
-    with tf.Session() as sess:
-        new_saver = tf.train.import_meta_graph('./model_save/tidal-model.ckpt.meta')
-        new_saver.restore(sess, tf.train.latest_checkpoint('./model_save/'))
-        all_vars = tf.get_collection('vars')
-        print(all_vars)
-        for v in all_vars:
-            print(v)
-            print(v.name)
-            v_ = v.eval() #sess.run(v)
-            print(v_)
 
-    '''
 
-    # 2.恢复
-    saver = tf.train.Saver()
-    #with tf.Session() as sess:
+def restore_specify():
     sess = tf.Session()
-    saver.restore(sess, "model_save/tidal-model.ckpt-100000")
-    '''
-    print('w1:')
-    print(sess.run(Weights1))
-    print('b1:')
-    print(sess.run(biases1))
-    print('w2:')
-    print(sess.run(Weights2))
-    print('b2:')
-    print(sess.run(biases2))
-    '''
-    l1 = restore_layer(xs, sess.run(Weights1), sess.run(biases1), activation_function=tf.nn.relu)
-    prediction = restore_layer(l1, sess.run(Weights2), sess.run(biases2), activation_function=None)
-    model_param = [sess, prediction, xs]
-    return model_param
+    saver = tf.train.import_meta_graph('model_save/tidal-model.meta')
+    saver.restore(sess, 'model_save/tidal-model-100000')
+    graph = tf.get_default_graph()
+    Weights1 = graph.get_tensor_by_name('weights1')
+    biases1 = graph.get_tensor_by_name('biases1')
+    Weights2 = graph.get_tensor_by_name('weights2')
+    biases2 = graph.get_tensor_by_name('biases2')
+    Weights3 = graph.get_tensor_by_name('weights3')
+    biases3 = graph.get_tensor_by_name('biases3')
+
 
 
 def predict(model_param, input_data):

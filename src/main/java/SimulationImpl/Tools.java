@@ -7,6 +7,8 @@ package SimulationImpl;
 import TrafficDescription.*;
 import TrafficDescription.EdgeTraffic.NowIntervalEdgeTraffic;
 import TrafficDescription.EdgeTraffic.PredictedEdgeTraffic;
+import TrafficDescription.NowAreaTrafficData;
+
 
 /**no - process - branch*/
 public class Tools {
@@ -52,15 +54,15 @@ public class Tools {
 
     /**thrift相关数据格式转换*/
     /**面向域*/
-    public static NowIntervalTrafficData inputDataFormatTrans(NowIntervalTraffic inputData) {
-        NowIntervalTrafficData outputData =
-                new NowIntervalTrafficData(inputData.areaId, inputData.timeOfHour, inputData.nowIntervalTraffic);
+    public static NowAreaTrafficData inputDataFormatTrans(NowIntervalTraffic inputData) {
+        NowAreaTrafficData outputData =
+                new NowAreaTrafficData(inputData.areaId, inputData.timeOfHour, inputData.nowIntervalTraffic);
         return  outputData;
     }
 
-    public static PredictedIntervalTraffic outputDataFormatTrans(PredictedIntervalTrafficData inputData) {
+    public static PredictedIntervalTraffic outputDataFormatTrans(PredictedAreaTrafficData inputData) {
         PredictedIntervalTraffic outputData =
-                new PredictedIntervalTraffic(inputData.migration, inputData.predictedIntervalTraffic);
+                new PredictedIntervalTraffic(inputData.migration, inputData.predictedAreaTraffic);
         return outputData;
     }
 
@@ -73,7 +75,7 @@ public class Tools {
 
     public static PredictedEdgeTraffic outputDataFormatTrans(PredictedEdgeTrafficData inputData) {
         PredictedEdgeTraffic outputData =
-                new PredictedEdgeTraffic(inputData.migration, inputData.predictedEdgeTraffic);
+                new PredictedEdgeTraffic(inputData.predictedEdgeTraffic);
         return outputData;
     }
 

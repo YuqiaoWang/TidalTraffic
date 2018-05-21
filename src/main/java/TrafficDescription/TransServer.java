@@ -27,7 +27,7 @@ public class TransServer {
 
     public static void main(String[] args) {
         handler = new Handler();
-        processor = new TrafficDataService.Processor(handler);
-        start(processor);
+        //processor = new TrafficDataService.Processor(handler);
+        //start(processor);
     }
 }

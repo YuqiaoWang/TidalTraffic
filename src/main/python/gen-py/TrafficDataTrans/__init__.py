@@ -1,1 +1,1 @@
-__all__ = ['ttypes', 'constants', 'TrafficDataService']
+__all__ = ['ttypes', 'constants', 'TrafficDescription.TrafficDataService']

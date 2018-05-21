@@ -1,26 +1,25 @@
-struct NowIntervalTrafficData {
+struct TrafficDescription.NowAreaTrafficData {
     1: string areaId
     2: double timeOfHour
-    3: list<double> nowIntervalTraffic
+    3: list<double> nowAreaTraffic
 }
 
-struct PredictedIntervalTrafficData {
+struct TrafficDescription.PredictedAreaTrafficData {
     1: double migration
-    2: list<double> predictedIntervalTraffic
+    2: list<double> predictedAreaTraffic
 }
 
-struct NowEdgeTrafficData {
+struct TrafficDescription.NowEdgeTrafficData {
     1: string edgeId
     2: double timeOfHour
     3: list<double> NowEdgeTraffic
 }
 
-struct PredictedEdgeTrafficData {
-    1: double migration
-    2: list<double> predictedEdgeTraffic
+struct TrafficDescription.PredictedEdgeTrafficData {
+    1: list<double> predictedEdgeTraffic
 }
 
-service TrafficDataService {
-    PredictedIntervalTrafficData getPredictedData(1:NowIntervalTrafficData nowIntervalTrafficData)
-    PredictedEdgeTrafficData getEdgePredictedData(1:NowEdgeTrafficData nowEdgeTrafficData)
+service TrafficDescription.TrafficDataService {
+    TrafficDescription.PredictedAreaTrafficData getPredictedData(1:TrafficDescription.NowAreaTrafficData nowAreaTrafficData)
+    TrafficDescription.PredictedEdgeTrafficData getEdgePredictedData(1:TrafficDescription.NowEdgeTrafficData nowEdgeTrafficData)
 }

@@ -54,8 +54,8 @@ public class ReconfigExecutor {
             //从待排序业务集中最前面的业务开始排序
             Service currentService = servicesToReconfig.first();
             servicesToReconfig.remove(currentService);              //从待重构业务集中移除正在重构的业务
-            Vertex srcNode = currentService.srcNode;
-            Vertex desNode = currentService.desNode;
+            //Vertex srcNode = currentService.srcNode;
+            //Vertex desNode = currentService.desNode;
             computePathThread.reAllocatedWeightAsFutureTraffic();   //重定义各边权重
             //TODO:算路（目前暂时用D算法，将来有可能改成K算法）
             //GraphPath graphPath = computePathThread.findShortestPath(currentService, computePathThread.graph);  //算路

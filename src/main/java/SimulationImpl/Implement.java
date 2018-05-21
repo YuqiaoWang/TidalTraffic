@@ -28,6 +28,7 @@ public class Implement {
         PoissionStream poissionStreamThread = new PoissionStream(servicesToComputePath, startTime);
         ComputePath computePathThread = new ComputePath(servicesToComputePath, simpleGraph.graph,
                 simpleGraph.areaHashMap, startTime);
+        /**201805015 注释为了统计数据*/
         ReconfigExecutor reconfigExecutor = new ReconfigExecutor(computePathThread, poissionStreamThread.servicesMap);
         Trigger trigger = new Trigger(computePathThread, reconfigExecutor);
 

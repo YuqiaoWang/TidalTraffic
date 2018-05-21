@@ -1,5 +1,6 @@
 package Service;
 
+import Service.Reconfiguration.ReconfigStatistic;
 import Service.Reconfiguration.Trigger;
 import Topology.Area;
 import Topology.SimpleEdge;
@@ -35,6 +36,7 @@ public class ComputePath extends Thread {
      * 重构相关的属性
      */
     public List<Trigger> listenerList;  //监听者列表，用于通知重构触发器
+    public ReconfigStatistic reconfigStatistic;
 
     public ComputePath() {
 
@@ -53,7 +55,7 @@ public class ComputePath extends Thread {
         this.areaHashMap = areaHashMap;
 
         this.listenerList = new ArrayList<Trigger>();
-        
+        this.reconfigStatistic = new ReconfigStatistic();
         //确定每个area有多少点
         /*
         Iterator<Vertex> vertexIterator = this.graph.vertexSet().iterator();

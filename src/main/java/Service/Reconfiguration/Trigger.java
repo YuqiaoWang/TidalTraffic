@@ -24,6 +24,8 @@ public class Trigger{
     public TransClient transClient;    //用于thrift与神经网络沟通的client端
     public HashMap<String, Area> areaHashMap;
     public ReconfigExecutor reconfigExecutor;
+    public ReconfigStatistic reconfigStatistic;
+
 
     public Trigger() {
 
@@ -34,6 +36,7 @@ public class Trigger{
         transClient = new TransClient();
         areaHashMap = computePathThread.areaHashMap;
         this.reconfigExecutor = reconfigExecutor;
+        this.reconfigStatistic = computePathThread.reconfigStatistic;
     }
 
     /**
@@ -43,15 +46,16 @@ public class Trigger{
         for(NowIntervalTraffic nowTrafficForEachArea : nowIntervalTrafficList) {
             PredictedIntervalTraffic predictedTrafficForEachArea =
                     getPredictedTraffic(nowTrafficForEachArea);
-            if(isReconfigurationNeeded(predictedTrafficForEachArea)) {
+            if(isReconfigurationNeeded(predictedTrafficForEachArea)) {      //判断当前该area是否需要重构
                 //TODO:执行重构
-                System.out.println("^^^^需要重构^^^^");
+                System.out.println("^^^^ area" + nowTrafficForEachArea.areaId + " 需要重构^^^^");
+                this.reconfigStatistic.reconfigTimes++;     //统计重构次数+1
                 //TODO:对不同的域，执行重构的时间不同
-                Area currentArea = areaHashMap.get(nowTrafficForEachArea.areaId);
-                reconfigExecutor.doReconfig(currentArea, predictedTrafficForEachArea);
-
-            }else {
-                System.out.println("^^^^不需要重构^^^^");
+                /**20180517测试server传过来的值是否正常加上的注释*/
+                //Area currentArea = areaHashMap.get(nowTrafficForEachArea.areaId);
+                //reconfigExecutor.doReconfig(currentArea, predictedTrafficForEachArea);
+            }else {                                                        //若当前该area不需要重构
+                System.out.println("^^^^area" + nowTrafficForEachArea.areaId +"不需要重构^^^^");
             }
         }
     }
@@ -69,9 +73,8 @@ public class Trigger{
             if(!transClient.isClientStarted()) {
                 transStart(this.transClient);
             }
-
             //TODO:格式转换 将NowIntervalTraffic转换成client要发送的数据结构
-            PredictedIntervalTrafficData wrappedOutput =
+            PredictedAreaTrafficData wrappedOutput =
                     transClient.client.getPredictedData(Tools.inputDataFormatTrans(nowIntervalTraffic));
             //TODO:格式转换 server返回的数据结构转PredictedIntervalTraffic
             predictedIntervalTraffic = Tools.outputDataFormatTrans(wrappedOutput);
