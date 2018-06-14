@@ -1,25 +1,23 @@
 package Service;
 
+import Service.Reconfiguration.ReconfigStatistic;
 import Service.Reconfiguration.Trigger;
+import SimulationImpl.ClockUtil;
+import SimulationImpl.Tools;
 import Topology.Area;
 import Topology.SimpleEdge;
 import Topology.Vertex;
 import TrafficDescription.EdgeTraffic.NowIntervalEdgeTraffic;
-import TrafficDescription.NowIntervalTraffic;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import TrafficDescription.AreaTraffic.NowIntervalTraffic;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
 import java.io.*;
-import java.lang.reflect.Field;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
 import java.util.*;
 
 /**
  * Created by yuqia_000 on 2017/12/6.
  */
 public class LoadCountTask extends TimerTask{
-
     FileWriter area1LoadCountFileWriter;
     FileWriter area2LoadCountFileWriter;
     FileWriter area3LoadCountFileWriter;
@@ -38,13 +36,16 @@ public class LoadCountTask extends TimerTask{
     List<NowIntervalTraffic> nowIntervalTrafficList;    //面向每个area的1h流量统计值
     NowIntervalTraffic area1NowIntervalTraffic;
     NowIntervalTraffic area3NowIntervalTraffic;
-    //Map<String, NowIntervalEdgeTraffic> nowTrafficForEdges; //此map用来存储各个边1h的流量统计
+    ReconfigStatistic reconfigStatistic;
+    Map<String, NowIntervalEdgeTraffic> nowTrafficForEdges; //此map用来存储各个边1h的流量统计
+    ClockUtil clock;
 
     public LoadCountTask(){
 
     }
 
-    public LoadCountTask(SimpleWeightedGraph graph, Area area1, Area area2, Area area3, List<Trigger> listenerList) throws Exception{
+    public LoadCountTask(SimpleWeightedGraph graph, HashMap<String, Area> areaHashMap,
+                         List<Trigger> listenerList, ReconfigStatistic reconfigStatistic, ClockUtil clock) throws Exception{
         FileWriter fw1 = new FileWriter("target/generated-sources/area1loadCount.txt");
         fw1.write("");
         fw1.close();
@@ -61,9 +62,9 @@ public class LoadCountTask extends TimerTask{
 
         this.writeTimes = 0;
         this.graph = graph;
-        this.area1 = area1;
-        this.area2 = area2;
-        this.area3 = area3;
+        this.area1 = areaHashMap.get("1");
+        this.area2 = areaHashMap.get("2");
+        this.area3 = areaHashMap.get("3");
         this.edgeSet = graph.edgeSet();
         this.edgeIterator = edgeSet.iterator();
         this.edgeLoadCountMap = new HashMap<SimpleEdge, FileWriter>();
@@ -83,19 +84,23 @@ public class LoadCountTask extends TimerTask{
         /**201805015 注释为了统计数据*/
 
         this.listenerList = listenerList;
+        this.reconfigStatistic = reconfigStatistic;
         this.nowIntervalTrafficList = new ArrayList<NowIntervalTraffic>();
         this.area1NowIntervalTraffic = new NowIntervalTraffic(area1.areaId);
         this.area3NowIntervalTraffic = new NowIntervalTraffic(area3.areaId);
         this.nowIntervalTrafficList.add(area1NowIntervalTraffic);
         this.nowIntervalTrafficList.add(area3NowIntervalTraffic);
-        //this.nowTrafficForEdges = new HashMap<>();
+        this.nowTrafficForEdges = new HashMap<>();
         this.edgeIterator = edgeSet.iterator();
         //初始化这个map
+        /*
         while(edgeIterator.hasNext()) {
             SimpleEdge currentEdge = edgeIterator.next();
-            NowIntervalEdgeTraffic currentEdegeTraffic = new NowIntervalEdgeTraffic(currentEdge.toString());
-            //this.nowTrafficForEdges.put(currentEdge.toString(), currentEdegeTraffic);
-        }
+            NowIntervalEdgeTraffic currentEdgeTraffic =
+                    new NowIntervalEdgeTraffic(currentEdge.srcVertex.nodeId, currentEdge.desVertex.nodeId);
+            this.nowTrafficForEdges.put(currentEdge.toString(), currentEdgeTraffic);
+        }*/
+        this.clock = clock;
 
     }
 
@@ -105,33 +110,19 @@ public class LoadCountTask extends TimerTask{
             area2.flushLoad();
             area3.flushLoad();
             if(this.writeTimes < 360) {
+                clock.setTimingIndexInHour(writeTimes % 15);
+                /**将负载信息写入文件*/
                 area1LoadCountFileWriter.write(area1.load / area1.totalCapacity + "\n");
                 area1LoadCountFileWriter.flush();
                 area2LoadCountFileWriter.write(area2.load / area2.totalCapacity+ "\n");
                 area2LoadCountFileWriter.flush();
                 area3LoadCountFileWriter.write(area3.load / area2.totalCapacity + "\n");
                 area3LoadCountFileWriter.flush();
-
                 Iterator<SimpleEdge> edgeIterator = edgeSet.iterator();
-                while(edgeIterator.hasNext()) {
-                    SimpleEdge currentEdge = edgeIterator.next();
-                    FileWriter currentEdgeLoadWriter = edgeLoadCountMap.get(currentEdge);
-                    currentEdgeLoadWriter.write((double)currentEdge.numberOfOccupatedWavelength / currentEdge.numberOfWavelenth + "\n");
-                    currentEdgeLoadWriter.flush();
-
-                    /**201805015 注释为了统计数据*/
-
-                    //重构用到的每条边的1h流量数据
-                    NowIntervalEdgeTraffic currentEdgeTraffic = currentEdge.nowIntervalEdgeTraffic;
-                    currentEdgeTraffic.nowIntervalTraffic.add((double)currentEdge.numberOfOccupatedWavelength / currentEdge.numberOfWavelenth);
-                    if(this.writeTimes % 15 == 14 && this.writeTimes > 28) {
-                        currentEdgeTraffic.removeOneHourTrafficData();
-                    }
-
-                }
-
 
                 //TODO:加入重构触发用的流量统计
+                /**计算全局负载均衡指标*/
+                this.reconfigStatistic.computeLoadBalanceTarget();
                 /*
                 if(this.writeTimes % 15 != 14) {
                     area1NowIntervalTraffic.nowIntervalTraffic.add(area1.load / area1.totalCapacity);
@@ -147,26 +138,47 @@ public class LoadCountTask extends TimerTask{
                     area3NowIntervalTraffic.setTimeOfHour((writeTimes/15)/24.0);
                     area3NowIntervalTraffic.setNowIntervalTraffic(new ArrayList<Double>());
                 }*/
-                /**201805015 注释为了统计数据*/
-                //刷新流量
+                //此处遍历各边，为了将负载写入到SimpleEdge的属性里
+                edgeIterator = edgeSet.iterator();
+                while(edgeIterator.hasNext()) {
+                    SimpleEdge currentEdge = edgeIterator.next();
+                    FileWriter currentEdgeLoadWriter = edgeLoadCountMap.get(currentEdge);
+                    currentEdgeLoadWriter.write((double)currentEdge.numberOfOccupatedWavelength / currentEdge.numberOfWavelenth + "\n");
+                    currentEdgeLoadWriter.flush();
+                    /**201805015 注释为了统计数据*/
+                    //重构用到的每条边的1h流量数据
+                    NowIntervalEdgeTraffic currentEdgeTraffic = currentEdge.nowIntervalEdgeTraffic;
+                    currentEdgeTraffic.nowIntervalTraffic.add((double)currentEdge.numberOfOccupatedWavelength / currentEdge.numberOfWavelenth);
+                }
 
+                /**201805015 注释为了统计数据*/
+
+                /** 为向tensorflow传数据进行包装*/
                 area1NowIntervalTraffic.nowIntervalTraffic.add(area1.load / area1.totalCapacity);
                 area3NowIntervalTraffic.nowIntervalTraffic.add(area3.load / area3.totalCapacity);
                 if(this.writeTimes % 15 == 14 && this.writeTimes > 28) {
                     for(Trigger trigger : listenerList) {
                         trigger.flushTraffic(nowIntervalTrafficList);
                     }
-
-                    /**
-                     * 域的1h流量包装*/
+                    /** 域的1h流量包装*/
                     area1NowIntervalTraffic.setTimeOfHour((writeTimes/15)/24.0);
-                    //area1NowIntervalTraffic.setNowIntervalTraffic(new ArrayList<Double>());
                     area1NowIntervalTraffic.removeOneHourTrafficData();
                     area3NowIntervalTraffic.setTimeOfHour((writeTimes/15)/24.0);
-                    //area3NowIntervalTraffic.setNowIntervalTraffic(new ArrayList<Double>());
                     area3NowIntervalTraffic.removeOneHourTrafficData();
                 }
 
+                //此处遍历边，为了将前1h的流量清除
+                edgeIterator = edgeSet.iterator();
+                while(edgeIterator.hasNext()) {
+                    SimpleEdge currentEdge = edgeIterator.next();
+                    /**201805015 注释为了统计数据*/
+                    //重构用到的每条边的1h流量数据
+                    NowIntervalEdgeTraffic currentEdgeTraffic = currentEdge.nowIntervalEdgeTraffic;
+                    currentEdgeTraffic.setTimeOfHour((writeTimes/15)/24.0);
+                    if(this.writeTimes % 15 == 14 && this.writeTimes > 28) {
+                        currentEdgeTraffic.removeOneHourTrafficData();
+                    }
+                }
                 this.writeTimes++;
 
             }else {
@@ -179,13 +191,7 @@ public class LoadCountTask extends TimerTask{
                     FileWriter currentEdgeLoadWriter = edgeLoadCountMap.get(currentEdge);
                     currentEdgeLoadWriter.close();
                 }
-
-
-
             }
-
-
-
         }catch (Exception e) {
             e.printStackTrace();
         }

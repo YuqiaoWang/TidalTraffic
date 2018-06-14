@@ -2,6 +2,7 @@ package Service;
 
 import Service.Reconfiguration.ReconfigStatistic;
 import Service.Reconfiguration.Trigger;
+import SimulationImpl.ClockUtil;
 import Topology.Area;
 import Topology.SimpleEdge;
 import Topology.Vertex;
@@ -31,6 +32,7 @@ public class ComputePath extends Thread {
     public int blockedTimesInTidalMigrationPeriod;
     public String lastServiceIDInTidalMigrationPeriod;
     public int countHopNumber;
+    public ClockUtil clock;
 
     /**
      * 重构相关的属性
@@ -43,44 +45,19 @@ public class ComputePath extends Thread {
     }
 
     public ComputePath(BlockingQueue<Service> bq, SimpleWeightedGraph graph,
-                       HashMap<String, Area> areaHashMap, long startTime) {
+                       HashMap<String, Area> areaHashMap, ClockUtil clock) {
         this.serviceBlockingQueue = bq;
         this.graph = graph;
         this.blockedTimes = 0;
-        this.programStartTime = startTime;
+        this.programStartTime = clock.getStartTime();
         this.servicesNumberInTidalMigrationPeriod = 0;
         this.blockedTimesInTidalMigrationPeriod = 0;
         this.lastServiceIDInTidalMigrationPeriod = "0";
         this.countHopNumber = 0;
         this.areaHashMap = areaHashMap;
-
         this.listenerList = new ArrayList<Trigger>();
-        this.reconfigStatistic = new ReconfigStatistic();
-        //确定每个area有多少点
-        /*
-        Iterator<Vertex> vertexIterator = this.graph.vertexSet().iterator();
-        while (vertexIterator.hasNext()) {
-            Vertex currentVertex = vertexIterator.next();
-            if(!areaHashMap.containsKey(currentVertex.areaId)) {
-                Area area = new Area(currentVertex.areaId);
-                areaHashMap.put(currentVertex.areaId, area);
-            }
-
-        }*/
-        /*
-        Iterator<SimpleEdge> simpleEdgeIterator = this.graph.edgeSet().iterator();
-        while (simpleEdgeIterator.hasNext()) {
-            SimpleEdge currentEdge = simpleEdgeIterator.next();
-            if(currentEdge.srcVertex.areaId.equals(currentEdge.desVertex.areaId)) {
-                areaHashMap.get(currentEdge.srcVertex.areaId).addNumverOfEdges();
-            }else {
-                areaHashMap.get(currentEdge.srcVertex.areaId).addNumverOfEdges();
-                areaHashMap.get(currentEdge.desVertex.areaId).addNumverOfEdges();
-            }
-
-        }*/
-
-
+        this.reconfigStatistic = new ReconfigStatistic(areaHashMap, graph);
+        this.clock = clock;
     }
 
     public GraphPath findShortestPath(Service service, SimpleWeightedGraph graph) {
@@ -91,6 +68,17 @@ public class ComputePath extends Thread {
         return shortestPath;
     }
 
+    public void setWeightAsMetric() {
+        Iterator<SimpleEdge> edgeIterator = this.graph.edgeSet().iterator();
+        while (edgeIterator.hasNext()) {
+            SimpleEdge currentedge = edgeIterator.next();
+            if(this.graph.containsEdge(currentedge)) {
+                this.graph.setEdgeWeight(currentedge, currentedge.metric);
+            }
+        }
+    }
+
+    //TODO：等边预测模型完成后，放弃本方法
     public void reAllocateWeight() {
         Iterator<SimpleEdge> edgeIterator = this.graph.edgeSet().iterator();
         while (edgeIterator.hasNext()) {
@@ -104,15 +92,19 @@ public class ComputePath extends Thread {
     /**
      * 本方法将拓扑各边的权重赋值成预测到的负载值
      */
+    //TODO:等边预测模型完成后，使用本方法
     public void reAllocatedWeightAsFutureTraffic() {
         Iterator<SimpleEdge> edgeIterator = this.graph.edgeSet().iterator();
         while(edgeIterator.hasNext()) {
             SimpleEdge currentEdge = edgeIterator.next();
             if(this.graph.containsEdge(currentEdge)) {
-                this.graph.setEdgeWeight(currentEdge, currentEdge.futureLoad);
+                //TODO:将来改成预测的边负载
+                this.graph.setEdgeWeight(currentEdge, currentEdge.getFutureLoad());
             }
         }
     }
+
+
 
     public boolean allocateResource(Service service) {
         try {
@@ -139,11 +131,10 @@ public class ComputePath extends Thread {
             }
             //分配资源
             if(count >= n) {
-
                 //System.out.printf("分配的波长资源：");
                 for(int i = 0; i < n; i++) {
                     int currentWavelenthNumber = freeWavelenthesNumber.get(i).intValue();   //取出波长号
-                    service.wavelengthesNumber.add(Integer.valueOf(currentWavelenthNumber));//将波长号放入servce对象中
+                    service.wavelengthesNumber.add(Integer.valueOf(currentWavelenthNumber));//将波长号放入service对象中
                     Iterator<SimpleEdge> edgeIterator = edgeList.iterator();
                     while (edgeIterator.hasNext()) {
                         SimpleEdge currentEdge = edgeIterator.next();
@@ -209,10 +200,9 @@ public class ComputePath extends Thread {
     public void run() {
         int serviceNum = 0;
         try{
-            LoadCountTask loadCountTask = new
-                    LoadCountTask(graph, areaHashMap.get("1"), areaHashMap.get("2"), areaHashMap.get("3"), listenerList);
+            LoadCountTask loadCountTask = new LoadCountTask(graph, areaHashMap, listenerList, reconfigStatistic, clock);
             Timer timer = new Timer();
-            timer.schedule(loadCountTask, 20, 200);
+            timer.schedule(loadCountTask, Tools.COUNT_DELAY, Tools.COUNT_PERIOD * Tools.TIMESCALE);
 
 
         }catch (Exception e) {
@@ -232,6 +222,7 @@ public class ComputePath extends Thread {
 
                 /**峰谷状态更新*/
                 //各域负载初始化
+                /*
                 Iterator areaMapIterator = this.areaHashMap.entrySet().iterator();
                 while (areaMapIterator.hasNext()) {
                     Map.Entry entry = (Map.Entry) areaMapIterator.next();
@@ -254,12 +245,13 @@ public class ComputePath extends Thread {
                         //srcArea.load += currentEdge.numberOfOccupatedWavelength;
                         //desArea.load += currentEdge.numberOfOccupatedWavelength;
                     }
-                }
+                }*/
                 //各域状态判断
-                areaMapIterator = this.areaHashMap.entrySet().iterator();
+                //areaMapIterator = this.areaHashMap.entrySet().iterator();
                 //把负载值写入文件
-                FileWriter areaOneLoadFileWriter, areaTwoLoadFileWriter, areaThreeLoadFileWriter, totalLoadFileWriter,
-                        hopFileWriter;
+                //FileWriter areaOneLoadFileWriter, areaTwoLoadFileWriter, areaThreeLoadFileWriter, totalLoadFileWriter,
+                //        hopFileWriter;
+                /*
                 if(Integer.valueOf(service.serviceId) == 0) {
                     areaOneLoadFileWriter = new FileWriter("target/generated-sources/area1.txt", false);
                     areaTwoLoadFileWriter = new FileWriter("target/generated-sources/area2.txt", false);
@@ -297,11 +289,11 @@ public class ComputePath extends Thread {
                     }else {
                         //System.out.println("[area " + currentArea.areaId + "] 当前处于潮谷区,load:" + currentArea.load + "/"+ currentArea.totalCapacity);
                     }
-                }
+                }*/
 
                 /**算路*/
                 //重新赋边权(以负载为边权)
-                //如果在对照组分支上，将这部分注释掉
+                //TODO:如果在对照组分支上，将这部分注释掉
                 //reAllocateWeight();
                 //D算法算路
                 GraphPath graphPath = findShortestPath(service, this.graph);
@@ -316,11 +308,11 @@ public class ComputePath extends Thread {
                 if(nowTime - this.programStartTime > Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE &&
                         nowTime - this.programStartTime < (Tools.DEFAULTWORKINGTIME + 3 * Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
                     countHopNumber += (vertexList.size() - 1);
-                    hopFileWriter.write(vertexList.size() - 1 + "\n");
-                    hopFileWriter.close();
+                    //hopFileWriter.write(vertexList.size() - 1 + "\n");
+                    //hopFileWriter.close();
                 }
-                Iterator<Vertex> iterator = vertexList.iterator();
                 /*
+                Iterator<Vertex> iterator = vertexList.iterator();
                 while (iterator.hasNext()) {
                     Vertex vertex = iterator.next();
                     if(iterator.hasNext() == true) {
@@ -346,6 +338,10 @@ public class ComputePath extends Thread {
                     System.out.println("潮汐迁移时段业务个数：" + this.servicesNumberInTidalMigrationPeriod);
                     System.out.println("平均跳数：" + (double)countHopNumber/this.servicesNumberInTidalMigrationPeriod);
                     System.out.println("迁移时段最后一个业务ID：" + lastServiceIDInTidalMigrationPeriod);
+                    System.out.println("*****重构相关统计*******");
+                    System.out.println("重构次数:" + reconfigStatistic.reconfigTimes);
+                    System.out.println("重构成功业务个数：" + reconfigStatistic.numberOfReconfigedServices);
+                    System.out.println("重构失败业务个数：" + reconfigStatistic.numberOfFailedServices);
                     System.out.println("程序结束");
                     fw.close();
                 }

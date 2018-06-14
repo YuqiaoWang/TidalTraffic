@@ -71,7 +71,7 @@ class NowAreaTrafficData(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
-        oprot.writeStructBegin('TrafficDescription.NowAreaTrafficData')
+        oprot.writeStructBegin('NowAreaTrafficData')
         if self.areaId is not None:
             oprot.writeFieldBegin('areaId', TType.STRING, 1)
             oprot.writeString(self.areaId.encode('utf-8') if sys.version_info[0] == 2 else self.areaId)
@@ -155,7 +155,7 @@ class PredictedAreaTrafficData(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
-        oprot.writeStructBegin('TrafficDescription.PredictedAreaTrafficData')
+        oprot.writeStructBegin('PredictedAreaTrafficData')
         if self.migration is not None:
             oprot.writeFieldBegin('migration', TType.DOUBLE, 1)
             oprot.writeDouble(self.migration)
@@ -188,22 +188,22 @@ class PredictedAreaTrafficData(object):
 class NowEdgeTrafficData(object):
     """
     Attributes:
-     - edgeId
+     - nodeSequence
      - timeOfHour
-     - NowEdgeTraffic
+     - nowEdgeTraffic
     """
 
     thrift_spec = (
         None,  # 0
-        (1, TType.STRING, 'edgeId', 'UTF8', None, ),  # 1
+        (1, TType.LIST, 'nodeSequence', (TType.DOUBLE, None, False), None, ),  # 1
         (2, TType.DOUBLE, 'timeOfHour', None, None, ),  # 2
-        (3, TType.LIST, 'NowEdgeTraffic', (TType.DOUBLE, None, False), None, ),  # 3
+        (3, TType.LIST, 'nowEdgeTraffic', (TType.DOUBLE, None, False), None, ),  # 3
     )
 
-    def __init__(self, edgeId=None, timeOfHour=None, NowEdgeTraffic=None,):
-        self.edgeId = edgeId
+    def __init__(self, nodeSequence=None, timeOfHour=None, nowEdgeTraffic=None,):
+        self.nodeSequence = nodeSequence
         self.timeOfHour = timeOfHour
-        self.NowEdgeTraffic = NowEdgeTraffic
+        self.nowEdgeTraffic = nowEdgeTraffic
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -215,8 +215,13 @@ class NowEdgeTrafficData(object):
             if ftype == TType.STOP:
                 break
             if fid == 1:
-                if ftype == TType.STRING:
-                    self.edgeId = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                if ftype == TType.LIST:
+                    self.nodeSequence = []
+                    (_etype17, _size14) = iprot.readListBegin()
+                    for _i18 in range(_size14):
+                        _elem19 = iprot.readDouble()
+                        self.nodeSequence.append(_elem19)
+                    iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -226,11 +231,11 @@ class NowEdgeTrafficData(object):
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.LIST:
-                    self.NowEdgeTraffic = []
-                    (_etype17, _size14) = iprot.readListBegin()
-                    for _i18 in range(_size14):
-                        _elem19 = iprot.readDouble()
-                        self.NowEdgeTraffic.append(_elem19)
+                    self.nowEdgeTraffic = []
+                    (_etype23, _size20) = iprot.readListBegin()
+                    for _i24 in range(_size20):
+                        _elem25 = iprot.readDouble()
+                        self.nowEdgeTraffic.append(_elem25)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -244,19 +249,22 @@ class NowEdgeTrafficData(object):
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
         oprot.writeStructBegin('TrafficDescription.NowEdgeTrafficData')
-        if self.edgeId is not None:
-            oprot.writeFieldBegin('edgeId', TType.STRING, 1)
-            oprot.writeString(self.edgeId.encode('utf-8') if sys.version_info[0] == 2 else self.edgeId)
+        if self.nodeSequence is not None:
+            oprot.writeFieldBegin('nodeSequence', TType.LIST, 1)
+            oprot.writeListBegin(TType.DOUBLE, len(self.nodeSequence))
+            for iter26 in self.nodeSequence:
+                oprot.writeDouble(iter26)
+            oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.timeOfHour is not None:
             oprot.writeFieldBegin('timeOfHour', TType.DOUBLE, 2)
             oprot.writeDouble(self.timeOfHour)
             oprot.writeFieldEnd()
-        if self.NowEdgeTraffic is not None:
-            oprot.writeFieldBegin('NowEdgeTraffic', TType.LIST, 3)
-            oprot.writeListBegin(TType.DOUBLE, len(self.NowEdgeTraffic))
-            for iter20 in self.NowEdgeTraffic:
-                oprot.writeDouble(iter20)
+        if self.nowEdgeTraffic is not None:
+            oprot.writeFieldBegin('nowEdgeTraffic', TType.LIST, 3)
+            oprot.writeListBegin(TType.DOUBLE, len(self.nowEdgeTraffic))
+            for iter27 in self.nowEdgeTraffic:
+                oprot.writeDouble(iter27)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -303,10 +311,10 @@ class PredictedEdgeTrafficData(object):
             if fid == 1:
                 if ftype == TType.LIST:
                     self.predictedEdgeTraffic = []
-                    (_etype24, _size21) = iprot.readListBegin()
-                    for _i25 in range(_size21):
-                        _elem26 = iprot.readDouble()
-                        self.predictedEdgeTraffic.append(_elem26)
+                    (_etype31, _size28) = iprot.readListBegin()
+                    for _i32 in range(_size28):
+                        _elem33 = iprot.readDouble()
+                        self.predictedEdgeTraffic.append(_elem33)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -323,8 +331,8 @@ class PredictedEdgeTrafficData(object):
         if self.predictedEdgeTraffic is not None:
             oprot.writeFieldBegin('predictedEdgeTraffic', TType.LIST, 1)
             oprot.writeListBegin(TType.DOUBLE, len(self.predictedEdgeTraffic))
-            for iter27 in self.predictedEdgeTraffic:
-                oprot.writeDouble(iter27)
+            for iter34 in self.predictedEdgeTraffic:
+                oprot.writeDouble(iter34)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()

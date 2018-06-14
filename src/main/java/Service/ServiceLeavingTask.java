@@ -1,8 +1,11 @@
 package Service;
 
 import Topology.SimpleEdge;
+import Topology.Vertex;
+import org.jgrapht.GraphPath;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.TimerTask;
 
 /**
@@ -24,10 +27,13 @@ public class ServiceLeavingTask extends TimerTask {
                 SimpleEdge currentEdge = edgeIterator.next();
                 currentEdge.wavelenthOccupation[currentWavelenthNumber] = false;
                 currentEdge.numberOfOccupatedWavelength-=1;
+                currentEdge.serviceOnWavelength[currentWavelenthNumber] = null; //把"该link的该波长号是哪个业务占用的"这个信息清除
             }
 
         }
         service.wavelengthesNumber.clear();
         service.isOutOfTime = true;
     }
+
+
 }

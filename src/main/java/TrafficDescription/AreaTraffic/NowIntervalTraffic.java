@@ -1,4 +1,4 @@
-package TrafficDescription;
+package TrafficDescription.AreaTraffic;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -11,7 +11,7 @@ import java.util.List;
 public class Area {
     public String areaId;
     public double threshold;
-    public double load;
+    public volatile double load;
     public double totalCapacity;
     public int numberOfEdges;
     //public static double DEFAULTTHRESHOLD = 0.7;
@@ -45,10 +45,12 @@ public class Area {
     }
 
     public void flushLoad() {
+        //synchronized (this) {
         this.load = 0;
         for(SimpleEdge edge : edges) {
             this.load += edge.numberOfOccupatedWavelength;
         }
+        //}
     }
 
     @Override

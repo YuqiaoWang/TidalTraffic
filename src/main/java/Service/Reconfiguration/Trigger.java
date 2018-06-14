@@ -3,8 +3,9 @@ package Service.Reconfiguration;
 import Service.ComputePath;
 import SimulationImpl.Tools;
 import Topology.Area;
-import Topology.SimpleEdge;
 import TrafficDescription.*;
+import TrafficDescription.AreaTraffic.NowIntervalTraffic;
+import TrafficDescription.AreaTraffic.PredictedAreaTrafficData;
 
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +37,7 @@ public class Trigger{
         transClient = new TransClient();
         areaHashMap = computePathThread.areaHashMap;
         this.reconfigExecutor = reconfigExecutor;
+        this.reconfigExecutor.setTransClient(transClient);
         this.reconfigStatistic = computePathThread.reconfigStatistic;
     }
 
@@ -52,8 +54,8 @@ public class Trigger{
                 this.reconfigStatistic.reconfigTimes++;     //统计重构次数+1
                 //TODO:对不同的域，执行重构的时间不同
                 /**20180517测试server传过来的值是否正常加上的注释*/
-                //Area currentArea = areaHashMap.get(nowTrafficForEachArea.areaId);
-                //reconfigExecutor.doReconfig(currentArea, predictedTrafficForEachArea);
+                Area currentArea = areaHashMap.get(nowTrafficForEachArea.areaId);
+                reconfigExecutor.doReconfig(currentArea, predictedTrafficForEachArea);
             }else {                                                        //若当前该area不需要重构
                 System.out.println("^^^^area" + nowTrafficForEachArea.areaId +"不需要重构^^^^");
             }

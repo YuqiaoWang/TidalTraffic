@@ -16,6 +16,14 @@ class parameter:
         self.biases3 = tf.Variable(tf.truncated_normal(shape=(1, 16)), name='biases3_area'+areaId)
         self.xs = tf.placeholder(tf.float32, [None, 31])
         '''
+    '''
+    def __enter__(self):
+        return self.sess;
+
+    def __exit__(self, type, value, traceback):
+        selft.close();
+    '''
+
     def restore(self):
         # 1.定义变量
         # 此程序用来做流量预测模型的参数恢复
@@ -112,13 +120,13 @@ def predict(model_param, input_data):
     prediction = model_param[1]
     xs = model_param[2]
     print('输入流量数据')
-    print(input_data)
+    #print(input_data)
     x_test_raw = input_data
     x_feed_pre = np.array(x_test_raw)
     #print('x_feed_pre:')
     #print(x_feed_pre)
     x_feed = x_feed_pre.reshape((1,31))
-    print('x_feed:')
+    #print('x_feed:')
     print(x_feed)
     out_data = sess.run(prediction, feed_dict={xs : x_feed})
     print('输出流量数据')

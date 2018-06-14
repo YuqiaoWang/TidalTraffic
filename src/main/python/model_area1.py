@@ -8,7 +8,7 @@ def add_layer(inputs, in_size, out_size, activation_function=None, weight_name=N
     # add one more layer and return the output of this layer
     Weights = tf.Variable(tf.random_normal([in_size, out_size]), name=weight_name)
     biases = tf.Variable(tf.zeros([1, out_size]) + 0.1, name=bias_name)
-    Wx_plus_b = tf.matmul(inputs, Weights) + biases;
+    Wx_plus_b = tf.matmul(inputs, Weights) + biases
     if activation_function is None:
         outputs = Wx_plus_b
     else:

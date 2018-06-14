@@ -5,6 +5,9 @@ import TrafficDescription.EdgeTraffic.NowIntervalEdgeTraffic;
 import TrafficDescription.EdgeTraffic.PredictedEdgeTraffic;
 import org.jgrapht.graph.DefaultWeightedEdge;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by yuqia on 2017/6/15.
  */
@@ -16,27 +19,28 @@ public class SimpleEdge extends DefaultWeightedEdge {
     public double metric;
     public int numberOfWavelenth;
     public boolean[] wavelenthOccupation;
-    public String[] serviceOnWavelength;
+    public String[] serviceOnWavelength;    //该link的该波长号是哪个业务占用的
     public int numberOfOccupatedWavelength;
     //public static int DEFAULTNUMBEROFWAVELENTHES = 30;
 
     /**重构用到的属性*/
     public NowIntervalEdgeTraffic nowIntervalEdgeTraffic;
-    public PredictedEdgeTraffic predictedEdgeTraffic;
-    public double futureLoad;
+    public List<Double> predictedEdgeTraffic;
+    private double futureLoad;
 
     public SimpleEdge() {
 
     }
 
-    public SimpleEdge(Vertex srcVertex, Vertex desVertex) {
-        this(srcVertex, desVertex, 100, Tools.DEFAULTNUMBEROFWAVELENTHES);//默认链路带宽容量和波长数
+    public SimpleEdge(Vertex srcVertex, Vertex desVertex, double metric) {
+        this(srcVertex, desVertex, 100, Tools.DEFAULTNUMBEROFWAVELENTHES, metric);//默认链路带宽容量和波长数
     }
 
-    public SimpleEdge(Vertex srcVertex, Vertex desVertex, double capacity, int numberOfWavelenth) {
+    public SimpleEdge(Vertex srcVertex, Vertex desVertex, double capacity, int numberOfWavelenth, double metric) {
         this.srcVertex = srcVertex;
         this.desVertex = desVertex;
         this.capacity = capacity;
+        this.metric = metric;
         this.numberOfWavelenth = numberOfWavelenth;
         this.wavelenthOccupation = new boolean[numberOfWavelenth];
         this.serviceOnWavelength = new String[numberOfWavelenth];
@@ -44,8 +48,8 @@ public class SimpleEdge extends DefaultWeightedEdge {
         for(int i = 0; i < numberOfWavelenth; i++) {
             wavelenthOccupation[i] = false;
         }
-        this.nowIntervalEdgeTraffic = new NowIntervalEdgeTraffic(this.toString());
-        this.predictedEdgeTraffic = new PredictedEdgeTraffic();
+        this.nowIntervalEdgeTraffic = new NowIntervalEdgeTraffic(this.srcVertex.nodeId, this.desVertex.nodeId);
+        this.predictedEdgeTraffic = new ArrayList<>();
         this.futureLoad = 0;
     }
 
@@ -56,6 +60,14 @@ public class SimpleEdge extends DefaultWeightedEdge {
         int y = desVertex.hashCode();
         return (x * y + x + y);
     }*/
+
+    public double getFutureLoad() {
+        return this.futureLoad;
+    }
+
+    public void setFutureLoad(double futureLoad) {
+        this.futureLoad = futureLoad;
+    }
 
     @Override
     public boolean equals(Object obj) {

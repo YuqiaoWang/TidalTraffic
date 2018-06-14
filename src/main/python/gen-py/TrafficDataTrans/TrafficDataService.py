@@ -310,7 +310,7 @@ class getEdgePredictedData_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRUCT:
-                    self.nowEdgeTrafficData = TrafficDescription.NowEdgeTrafficData()
+                    self.nowEdgeTrafficData = NowEdgeTrafficData()
                     self.nowEdgeTrafficData.read(iprot)
                 else:
                     iprot.skip(ftype)
@@ -353,7 +353,7 @@ class getEdgePredictedData_result(object):
     """
 
     thrift_spec = (
-        (0, TType.STRUCT, 'success', (PredictedEdgeTrafficData, PredictedEdgeTrafficData.thrift_spec), None, ),  # 0
+        (0, TType.LIST, 'success', (TType.DOUBLE, None, False), None, ),  # 0
     )
 
     def __init__(self, success=None,):
@@ -369,9 +369,13 @@ class getEdgePredictedData_result(object):
             if ftype == TType.STOP:
                 break
             if fid == 0:
-                if ftype == TType.STRUCT:
-                    self.success = TrafficDescription.PredictedEdgeTrafficData()
-                    self.success.read(iprot)
+                if ftype == TType.LIST:
+                    self.success = []
+                    (_etype38, _size35) = iprot.readListBegin()
+                    for _i39 in range(_size35):
+                        _elem40 = iprot.readDouble()
+                        self.success.append(_elem40)
+                    iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
             else:
@@ -385,8 +389,11 @@ class getEdgePredictedData_result(object):
             return
         oprot.writeStructBegin('getEdgePredictedData_result')
         if self.success is not None:
-            oprot.writeFieldBegin('success', TType.STRUCT, 0)
-            self.success.write(oprot)
+            oprot.writeFieldBegin('success', TType.LIST, 0)
+            oprot.writeListBegin(TType.DOUBLE, len(self.success))
+            for iter41 in self.success:
+                oprot.writeDouble(iter41)
+            oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()

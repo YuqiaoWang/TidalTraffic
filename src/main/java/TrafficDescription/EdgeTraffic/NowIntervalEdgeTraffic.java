@@ -1,5 +1,7 @@
 package TrafficDescription.EdgeTraffic;
 
+import org.apache.poi.hssf.record.ArrayRecord;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +10,7 @@ import java.util.List;
  */
 public class NowIntervalEdgeTraffic {
     public String edgeId;
+    public List<Double> nodeList;
     public double timeOfHour;
     public List<Double> nowIntervalTraffic;
 
@@ -15,6 +18,18 @@ public class NowIntervalEdgeTraffic {
         this.edgeId = edgeId;
         this.timeOfHour = 0.0;
         this.nowIntervalTraffic = new ArrayList<Double>();
+    }
+
+    public NowIntervalEdgeTraffic(String srcNodeId, String desNodeId) {
+        this.nodeList = new ArrayList<>();
+        for(int i = 0; i < 14; i++) {
+            this.nodeList.add(0.0);
+        }
+        this.nodeList.set(Integer.valueOf(srcNodeId) - 1, 1.0);
+        this.nodeList.set(Integer.valueOf(desNodeId) - 1, 1.0);
+        this.timeOfHour = 0.0;
+        this.nowIntervalTraffic = new ArrayList<>();
+
     }
 
     public NowIntervalEdgeTraffic(String edgeId, double timeOfHour, List<Double> nowIntervalTraffic) {

@@ -24,8 +24,8 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('Usage: ' + sys.argv[0] + ' [-h host[:port]] [-u url] [-f[ramed]] [-s[sl]] [-novalidate] [-ca_certs certs] [-keyfile keyfile] [-certfile certfile] function [arg1 [arg2...]]')
     print('')
     print('Functions:')
-    print('  TrafficDescription.PredictedAreaTrafficData getPredictedData(TrafficDescription.NowAreaTrafficData nowAreaTrafficData)')
-    print('  TrafficDescription.PredictedEdgeTrafficData getEdgePredictedData(TrafficDescription.NowEdgeTrafficData nowEdgeTrafficData)')
+    print('  PredictedAreaTrafficData getPredictedData(NowAreaTrafficData nowAreaTrafficData)')
+    print('   getEdgePredictedData(TrafficDescription.NowEdgeTrafficData nowEdgeTrafficData)')
     print('')
     sys.exit(0)
 

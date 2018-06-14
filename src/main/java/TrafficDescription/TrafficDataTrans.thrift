@@ -1,18 +1,18 @@
-struct TrafficDescription.NowAreaTrafficData {
+struct NowAreaTrafficData {
     1: string areaId
     2: double timeOfHour
     3: list<double> nowAreaTraffic
 }
 
-struct TrafficDescription.PredictedAreaTrafficData {
+struct PredictedAreaTrafficData {
     1: double migration
     2: list<double> predictedAreaTraffic
 }
 
 struct TrafficDescription.NowEdgeTrafficData {
-    1: string edgeId
+    1: list<double>  nodeSequence
     2: double timeOfHour
-    3: list<double> NowEdgeTraffic
+    3: list<double> nowEdgeTraffic
 }
 
 struct TrafficDescription.PredictedEdgeTrafficData {
@@ -20,6 +20,6 @@ struct TrafficDescription.PredictedEdgeTrafficData {
 }
 
 service TrafficDescription.TrafficDataService {
-    TrafficDescription.PredictedAreaTrafficData getPredictedData(1:TrafficDescription.NowAreaTrafficData nowAreaTrafficData)
-    TrafficDescription.PredictedEdgeTrafficData getEdgePredictedData(1:TrafficDescription.NowEdgeTrafficData nowEdgeTrafficData)
+    PredictedAreaTrafficData getPredictedData(1:NowAreaTrafficData nowAreaTrafficData)
+    list<double> getEdgePredictedData(1:TrafficDescription.NowEdgeTrafficData nowEdgeTrafficData)
 }
