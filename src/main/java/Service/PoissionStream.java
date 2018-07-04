@@ -10,15 +10,16 @@ import java.util.concurrent.BlockingQueue;
  * Created by yuqia on 2017/6/14.
  */
 public class PoissionStream extends Thread {
-    public double lambda = Tools.DEFAULTLAMBDA;
-    public Map<String, Service> servicesMap = new HashMap<>();
+    public double lambda = Tools.DEFAULTLAMBDA;                         //业务到达率
+    public Map<String, Service> servicesMap = new HashMap<>();          //存储service的map
     //public List<Service> listOfServices = new ArrayList<Service>();
-    public BlockingQueue<Service> serviceBlockingQueue;
-    public long programStartTime;
+    public BlockingQueue<Service> serviceBlockingQueue;                 //阻塞队列（与算路分配模块对接）
+    public long programStartTime;                                       //程序启动时间
 
     public PoissionStream() {
 
     }
+
     public PoissionStream(BlockingQueue<Service> bq, long startTime) {
         this.serviceBlockingQueue = bq;
         this.programStartTime = startTime;
@@ -27,10 +28,7 @@ public class PoissionStream extends Thread {
     @Override
     public void run() {
         double x;
-
         for(int i = 0; i < Tools.DEFAULTSERVICENUMBER; i++) {
-
-
             double realLambda = (System.currentTimeMillis() - programStartTime < Tools.PLAINTIME * Tools.TIMESCALE) ?
                     -(2 * Tools.DEFAULTLAMBDA / (Tools.PLAINTIME * Tools.TIMESCALE)) * (System.currentTimeMillis() - programStartTime - Tools.PLAINTIME * Tools.TIMESCALE) + Tools.DEFAULTLAMBDA:
                     Tools.DEFAULTLAMBDA;
@@ -67,7 +65,6 @@ public class PoissionStream extends Thread {
         double b = 1;
         double c = Math.exp(-lambda);
         double u;
-
         do {
             u = Math.random();
             b *= u;
@@ -108,72 +105,6 @@ public class PoissionStream extends Thread {
     }
 
     /**节点不均匀随机分布*/
-    /*
-    public String srcNuniformNode() {
-        Random rand = new Random();
-        int i;
-        if(System.currentTimeMillis() - this.programStartTime < Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE) {
-            i = rand.nextInt(16) + 1;
-            switch (i) {
-                case 16 :
-                    i = 1;
-                    break;
-                case 15 :
-                    i = 2;
-                    break;
-                case 14 :
-                    i = 3;
-                    break;
-                case 13 :
-                    i = 1;
-                    break;
-                case 12 :
-                    i = 2;
-                    break;
-                case 11 :
-                    i = 3;
-                    break;
-                case 10 :
-                    i = 1;
-                    break;
-                case 9 :
-                    i = 2;
-                    break;
-                case 8 :
-                    i = 3;
-                    break;
-                default:
-                    break;
-            }
-        }else {
-
-            i = rand.nextInt(13) + 1;
-
-            switch (i) {
-                case 13 :
-                    i = 4;
-                    break;
-                case 12 :
-                    i = 5;
-                    break;
-                case 11 :
-                    i = 4;
-                    break;
-                case 10 :
-                    i = 5;
-                    break;
-                case 9 :
-                    i = 4;
-                    break;
-                case 8 :
-                    i = 5;
-                    break;
-                default:
-                    break;
-            }
-        }
-        return Integer.toString(i);
-    }*/
     public String srcNuniformNode() {
         Random rand = new Random();
         int i;
@@ -203,76 +134,6 @@ public class PoissionStream extends Thread {
         }
         return Integer.toString(i);
     }
-    /*
-    public String desNuniformNode() {
-        Random rand = new Random();
-        int i ;
-        if(System.currentTimeMillis() - this.programStartTime < (Tools.DEFAULTWORKINGTIME*Tools.TIMESCALE)) {
-            i = rand.nextInt(16) + 1;
-            switch (i) {
-                case 16 :
-                    i = 6;
-                    break;
-                case 15 :
-                    i = 5;
-                    break;
-                case 14 :
-                    i = 1;
-                    break;
-                case 13 :
-                    i = 2;
-                    break;
-                case 12 :
-                    i = 6;
-                    break;
-                case 11 :
-                    i = 7;
-                    break;
-                case 10 :
-                    i = 1;
-                    break;
-                case 9 :
-                    i = 2;
-                    break;
-                case 8 :
-                    i = 3;
-                    break;
-                default:
-                    break;
-            }
-        }else {
-            i = rand.nextInt(15) + 1;
-            switch (i) {
-                case 15 :
-                    i = 4;
-                    break;
-                case 14 :
-                    i = 5;
-                    break;
-                case 13 :
-                    i = 6;
-                    break;
-                case 12 :
-                    i = 7;
-                    break;
-                case 11 :
-                    i = 4;
-                    break;
-                case 10 :
-                    i = 5;
-                    break;
-                case 9 :
-                    i = 6;
-                    break;
-                case 8 :
-                    i = 7;
-                    break;
-                default:
-                    break;
-            }
-        }
-        return Integer.toString(i);
-    }*/
 
     public String desNuniformNode() {
         Random rand = new Random();

@@ -17,6 +17,10 @@ import java.util.*;
 /**
  * Created by yuqia_000 on 2017/12/6.
  */
+
+/**
+ * 流量统计任务
+ */
 public class LoadCountTask extends TimerTask{
     FileWriter area1LoadCountFileWriter;
     FileWriter area2LoadCountFileWriter;
@@ -31,14 +35,14 @@ public class LoadCountTask extends TimerTask{
     Iterator<SimpleEdge> edgeIterator;
     HashMap<SimpleEdge, FileWriter> edgeLoadCountMap;
 
-    //重构用到的属性
+    /**重构用到的属性*/
     List<Trigger> listenerList;     //监听器列表
     List<NowIntervalTraffic> nowIntervalTrafficList;    //面向每个area的1h流量统计值
-    NowIntervalTraffic area1NowIntervalTraffic;
-    NowIntervalTraffic area3NowIntervalTraffic;
-    ReconfigStatistic reconfigStatistic;
+    NowIntervalTraffic area1NowIntervalTraffic;         //area1的1h流量的包装类
+    NowIntervalTraffic area3NowIntervalTraffic;         //area3的1h流量的包装类
+    ReconfigStatistic reconfigStatistic;                //重构统计器
     Map<String, NowIntervalEdgeTraffic> nowTrafficForEdges; //此map用来存储各个边1h的流量统计
-    ClockUtil clock;
+    ClockUtil clock;                                    //计时器
 
     public LoadCountTask(){
 
@@ -118,26 +122,11 @@ public class LoadCountTask extends TimerTask{
                 area2LoadCountFileWriter.flush();
                 area3LoadCountFileWriter.write(area3.load / area2.totalCapacity + "\n");
                 area3LoadCountFileWriter.flush();
-                Iterator<SimpleEdge> edgeIterator = edgeSet.iterator();
+                Iterator<SimpleEdge> edgeIterator;
 
                 //TODO:加入重构触发用的流量统计
                 /**计算全局负载均衡指标*/
                 this.reconfigStatistic.computeLoadBalanceTarget();
-                /*
-                if(this.writeTimes % 15 != 14) {
-                    area1NowIntervalTraffic.nowIntervalTraffic.add(area1.load / area1.totalCapacity);
-                    area3NowIntervalTraffic.nowIntervalTraffic.add(area3.load / area3.totalCapacity);
-                }else {
-                    //刷新流量
-                    for(Trigger trigger : listenerList) {
-                        trigger.flushTraffic(nowIntervalTrafficList);
-                    }
-
-                    area1NowIntervalTraffic.setTimeOfHour((writeTimes/15)/24.0);
-                    area1NowIntervalTraffic.setNowIntervalTraffic(new ArrayList<Double>());
-                    area3NowIntervalTraffic.setTimeOfHour((writeTimes/15)/24.0);
-                    area3NowIntervalTraffic.setNowIntervalTraffic(new ArrayList<Double>());
-                }*/
                 //此处遍历各边，为了将负载写入到SimpleEdge的属性里
                 edgeIterator = edgeSet.iterator();
                 while(edgeIterator.hasNext()) {
@@ -171,7 +160,6 @@ public class LoadCountTask extends TimerTask{
                 edgeIterator = edgeSet.iterator();
                 while(edgeIterator.hasNext()) {
                     SimpleEdge currentEdge = edgeIterator.next();
-                    /**201805015 注释为了统计数据*/
                     //重构用到的每条边的1h流量数据
                     NowIntervalEdgeTraffic currentEdgeTraffic = currentEdge.nowIntervalEdgeTraffic;
                     currentEdgeTraffic.setTimeOfHour((writeTimes/15)/24.0);

@@ -10,26 +10,15 @@ import org.apache.thrift.transport.TTransportException;
 /**
  * Created by yuqia_000 on 2018/5/2.
  */
+
+/**
+ * 与python server端建立通信的client端
+ */
 public class TransClient {
     public static int port = Tools.PORT;
     public static String ip = Tools.IP_LOCALHOST;
     public TrafficDataService.Client client;
     public TTransport transport;
-
-    /*
-    private static TransClient clientSingletion;
-
-
-    private TransClient() {
-
-    }
-
-    public static TransClient getClientInstance() {
-        if(clientSingletion == null) {
-            clientSingletion = new TransClient();
-        }
-        return clientSingletion;
-    }*/
 
     /**
      * 创建TTransport
@@ -79,14 +68,6 @@ public class TransClient {
         if(protocol.equals(null)) {
             return null;
         }
-
-        //类似于单例模式
-        /*
-        if(client.equals(null)) {
-            client = new TrafficDescription.TrafficDescription.TrafficDescription.TrafficDescription.TrafficDataService.Client(protocol);
-        }else {
-            //什么都不做
-        }*/
         TrafficDataService.Client newClient = new TrafficDataService.Client(protocol);
         return  newClient;
 

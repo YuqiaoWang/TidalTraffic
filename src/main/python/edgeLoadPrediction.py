@@ -48,8 +48,8 @@ y_data = np.array(y_data_raw)
 
 # 2.定义节点准备接收数据
 # define placeholder for inputs to network
-xs = tf.placeholder(tf.float32, [None, input_neural_num])
-ys = tf.placeholder(tf.float32, [None, output_neural_num])
+xs = tf.placeholder(tf.float32, [None, input_neural_num], name='input_x_edge')
+ys = tf.placeholder(tf.float32, [None, output_neural_num], name='input_y_edge')
 
 # 3.定义神经层：隐藏层和预测层
 # add hidden layer 输入值是 xs(31个神经元), 在隐藏层有30个神经元
@@ -82,7 +82,7 @@ sess = tf.InteractiveSession()
 # 上面定义的都没有运算，直到sess.run 才会开始运算
 sess.run(init)
 
-saver=tf.train.Saver(max_to_keep=1)
+saver = tf.train.Saver(max_to_keep=1)
 
 # 迭代1000次学习， sess.run optimizer
 step = 100001
@@ -102,7 +102,7 @@ print(sess.run(biases1))
 #    print(sess.run(prediction, feed_dict={xs:x_data[i][:, np.newaxis]}))
 out_workbook = xlwt.Workbook()
 out_sheet = out_workbook.add_sheet('prediction')
-for i in range(0, 24):
+for i in range(0+24, 24+24):
 #    x_feed = np.transpose(x_data[i + 48][:,np.newaxis])
     x_feed = np.transpose(x_data[i][:, np.newaxis])
     xl_out_data = sess.run(prediction, feed_dict={xs: x_feed})
@@ -112,7 +112,7 @@ for i in range(0, 24):
         row.write(j, xl_write_data[0][j])
 out_workbook.save('data/newEdgePredictOutput.xls')
 
-
+sess.close()
 #x_feed = np.transpose(x_data[11][:,np.newaxis])
 #print(sess.run(prediction, feed_dict={xs : x_feed}))
 #for i in range(0:24):

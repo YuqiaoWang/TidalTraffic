@@ -14,6 +14,10 @@ import java.util.List;
 /**
  * Created by yuqia_000 on 2018/1/10.
  */
+
+/**
+ * 本类用做跑完程序后，做整理数据的后处理入口
+ */
 public class PreProcess {
     public static HSSFWorkbook workbookForEdge;
     public static HSSFWorkbook workbookForArea;
@@ -30,6 +34,7 @@ public class PreProcess {
                         "edge59", "edge67", "edge78", "edge79", "edge410", "edge514", "edge812", "edge912" ,"edge1011",
                         "edge1013", "edge1112", "edge1114", "edge1213", "edge1314"};
         //将边负载写入excel
+        //TODO：2018-06-14现在边预测的数据要求改了！！暂时不要用这个方法
         for(String fileName : edgeFileNameArray) {
             preProcess.writeEdgeLoadIntoExcel(fileName, preProcess.workbookForEdge);
         }
@@ -40,9 +45,7 @@ public class PreProcess {
             preProcess.writeAreaLoadIntoExcel(filename, preProcess.workbookForArea);
         }
 
-
         //将数据写入excel文件
-
         String pathForEdge = "target/generated-sources/edgeload/各边流量统计.xls";
         String pathForArea = "target/generated-sources/各域流量统计.xls";
         OutputStream streamForEdge = new FileOutputStream(pathForEdge);
@@ -51,10 +54,10 @@ public class PreProcess {
         preProcess.workbookForArea.write(streamForArea);
         preProcess.workbookForEdge.close();
         preProcess.workbookForArea.close();
-
-
     }
 
+    //TODO：2018-06-14现在边预测的数据要求改了！！暂时不要用这个方法
+    @Deprecated
     public void writeEdgeLoadIntoExcel(String filename, HSSFWorkbook workbook) throws IOException {
         HSSFSheet sheet = workbook.createSheet("边" + filename +"预处理");
         FileReader fileReader = new FileReader("target/generated-sources/edgeload/"+ filename +".txt");
@@ -82,7 +85,6 @@ public class PreProcess {
             dataList.add(Double.valueOf(data));
             data = bufferedReader.readLine();
         }
-        //System.out.println(dataList.size());
         int startIndex = 0;
         int columnIndex = 0;
         int count = 0;
@@ -100,7 +102,6 @@ public class PreProcess {
                         rows[i].createCell(columnIndex).setCellValue(dataList.get(i-16));
                     }
                 }
-
                 count++;
             }
             columnIndex++;
@@ -117,7 +118,6 @@ public class PreProcess {
             }
             columnIndex++;
         }
-
     }
 
     public void writeAreaLoadIntoExcel(String filename, HSSFWorkbook workbook) throws IOException {
@@ -146,7 +146,6 @@ public class PreProcess {
             dataList.add(Double.valueOf(data));
             data = bufferedReader.readLine();
         }
-        //System.out.println(dataList.size());
         int startIndex = 0;
         int columnIndex = 0;
         int count = 0;
@@ -181,8 +180,6 @@ public class PreProcess {
             }
             columnIndex++;
         }
-
     }
-
 }
 

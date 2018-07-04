@@ -10,23 +10,27 @@ import java.util.List;
 /**
  * Created by yuqia_000 on 2017/6/15.
  */
+
+/**
+ * 业务
+ */
 public class Service {
     public String serviceId;
     public Vertex srcNode;                             //源节点
     public Vertex desNode;                             //宿节点
     double unitbandwidth = 6.25;
-    double bandwidth;                           //带宽
-    double wavelenth;                           //占用的波长
-    public int numberOfWavelenthes;
+    double bandwidth;                                  //带宽
+    double wavelenth;                                  //占用的波长
+    public int numberOfWavelenthes;                    //占用的波长数
     public int serviceTime;                            //请求服务时间
     public long startTime;                             //开始时刻
     public int remainTime;                             //剩余时间
     public GraphPath<Vertex, SimpleEdge> graphPath;    //算出来的路
-    public List<Integer> wavelengthesNumber;           //占用的波长号
-    boolean isComputed;                         //是否已算路
-    boolean isAllocated;                        //是否分配资源
-    boolean isBlocked;                          //是否已阻塞
-    boolean isOutOfTime;                        //是否已离去
+    public List<Integer> wavelengthesNumber;           //占用的波长号列表
+    boolean isComputed;                                //是否已算路
+    boolean isAllocated;                               //是否分配资源
+    boolean isBlocked;                                 //是否已阻塞
+    boolean isOutOfTime;                               //是否已离去
     public boolean reconfiged;                         //是否已重构
 
 

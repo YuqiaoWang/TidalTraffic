@@ -3,11 +3,15 @@ package Topology;
 /**
  * Created by yuqia_000 on 2017/6/15.
  */
+
+/**
+ * 节点
+ */
 public class Vertex {
-    public String areaId;
-    public String nodeId;
-    public int portNumber;
-    public String[] portId;
+    public String areaId;   //节点所属area
+    public String nodeId;   //id
+    public int portNumber;  //端口数
+    public String[] portId; //端口id
 
     public Vertex(String nodeId) {
         this(nodeId,3);//默认3个端口

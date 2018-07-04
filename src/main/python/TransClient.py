@@ -30,10 +30,12 @@ try:
     #data = NowAreaTrafficData(areaId ="1", timeOfHour=time, nowAreaTraffic=nowtraffic)
     nowedegetraffic = []
     nodeSequence = [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    now_edge_traffic = [0, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.083333333, 0.083333333, 0.083333333, 0.083333333, 0.116666667, 0.116666667, 0.15, 0.15, 0.15, 0.133333333, 0.133333333, 0.166666667, 0.166666667, 0.166666667]
+    #now_edge_traffic = [0, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.083333333, 0.083333333, 0.083333333, 0.083333333, 0.116666667, 0.116666667, 0.15, 0.15, 0.15, 0.133333333, 0.133333333, 0.166666667, 0.166666667, 0.166666667]
+    now_edge_traffic2 = [0, 0, 0, 0, 0, 0, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.116666667, 0.133333333, 0.133333333, 0.133333333, 0.133333333, 0.133333333, 0.166666667, 0.166666667, 0.166666667, 0.216666667, 0.216666667, 0.216666667, 0.216666667, 0.216666667, 0.216666667, 0.25, 0.25, 0.25]
     #data = NowAreaTrafficData(areaId="1", timeOfHour=0.45833, nowAreaTraffic=nowtraffic5)
-    data = NowEdgeTrafficData(nodeSequence=nodeSequence, timeOfHour=time, nowEdgeTraffic=now_edge_traffic)
+    data = NowEdgeTrafficData(nodeSequence=nodeSequence, timeOfHour=time, nowEdgeTraffic=now_edge_traffic2)
     predictedData = client.getEdgePredictedData(nowEdgeTrafficData = data)
+    #predictedData = client.getPredictedData(nowAreaTrafficData=data)
     print(predictedData)
 
 except Thrift.TException as ex:

@@ -12,9 +12,9 @@ class edge_parameter:
     def restore(self):
         with self.graph.as_default():
             Weights1 = tf.Variable(tf.truncated_normal(shape=(45, 40)), name='weights1_edge')
-            biases1 = tf.Variable(tf.truncated_normal(shape=(1,40)), name='biases1_edge')
+            biases1 = tf.Variable(tf.truncated_normal(shape=(1, 40)), name='biases1_edge')
             #隐藏层到输出层的权重偏置
-            Weights2 = tf.Variable(tf.truncated_normal(shape=(40,15)), name='weights2_edge')
+            Weights2 = tf.Variable(tf.truncated_normal(shape=(40, 15)), name='weights2_edge')
             biases2 = tf.Variable(tf.truncated_normal(shape=(1, 15)), name='biases2_edge')
             xs = tf.placeholder(tf.float32, [None, 45])
 
@@ -50,9 +50,10 @@ def predict(model_param, input_data):
     #print(input_data)
     x_test_raw = input_data
     x_feed_pre = np.array(x_test_raw)
-    x_feed = x_feed_pre.reshape((1, 45))
+    x_feed = np.transpose(x_feed_pre[:, np.newaxis])
+    #x_feed = x_feed_pre.reshape((1, 45))
     print(x_feed)
     out_data = pre_sess.run(prediction, feed_dict={xs : x_feed})
     print('输出流量数据')
-    print(out_data)
+    print(out_data.tolist())
     return out_data

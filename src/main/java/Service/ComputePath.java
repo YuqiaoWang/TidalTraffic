@@ -12,6 +12,7 @@ import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 import org.jgrapht.graph.SimpleWeightedGraph;
+import sun.reflect.annotation.ExceptionProxy;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -22,23 +23,26 @@ import java.util.concurrent.BlockingQueue;
  * Created by yuqia_000 on 2017/6/17.
  */
 public class ComputePath extends Thread {
-    public long programStartTime;
-    public HashMap<Service, GraphPath> serviceGraphPathHashMap = new HashMap<Service, GraphPath>();
+    public long programStartTime;                           //程序启动时间
+    public HashMap<Service, GraphPath> serviceGraphPathHashMap = new HashMap<Service, GraphPath>(); //业务-最短路 map
     public BlockingQueue<Service> serviceBlockingQueue;     //阻塞队列，用于业务发生器线程与算路分配资源线程之间的资源分配
-    public SimpleWeightedGraph<Vertex, SimpleEdge> graph;
-    public HashMap<String, Area> areaHashMap;               //标号与域的映射
-    public int blockedTimes;
-    public int servicesNumberInTidalMigrationPeriod;
-    public int blockedTimesInTidalMigrationPeriod;
-    public String lastServiceIDInTidalMigrationPeriod;
-    public int countHopNumber;
-    public ClockUtil clock;
+    public SimpleWeightedGraph<Vertex, SimpleEdge> graph;   //拓扑
+    public HashMap<String, Area> areaHashMap;               //标号与域的map
+    /**
+     * 统计指标
+     */
+    public int blockedTimes;                                //业务阻塞次数
+    public int servicesNumberInTidalMigrationPeriod;        //潮汐时段业务个数
+    public int blockedTimesInTidalMigrationPeriod;          //潮汐时段业务阻塞个数
+    public String lastServiceIDInTidalMigrationPeriod;      //潮汐时段最后一个业务的ID
+    public int countHopNumber;                              //跳数统计
+    public ClockUtil clock;                                 //计时相关
 
     /**
      * 重构相关的属性
      */
     public List<Trigger> listenerList;  //监听者列表，用于通知重构触发器
-    public ReconfigStatistic reconfigStatistic;
+    public ReconfigStatistic reconfigStatistic; //重构统计器
 
     public ComputePath() {
 
@@ -55,11 +59,17 @@ public class ComputePath extends Thread {
         this.lastServiceIDInTidalMigrationPeriod = "0";
         this.countHopNumber = 0;
         this.areaHashMap = areaHashMap;
-        this.listenerList = new ArrayList<Trigger>();
+        this.listenerList = new ArrayList<>();
         this.reconfigStatistic = new ReconfigStatistic(areaHashMap, graph);
         this.clock = clock;
     }
 
+    /**
+     * 最短路算路
+     * @param service   业务
+     * @param graph     拓扑
+     * @return  算出来的最短路
+     */
     public GraphPath findShortestPath(Service service, SimpleWeightedGraph graph) {
         Vertex srcNode = service.srcNode;
         Vertex desNode = service.desNode;
@@ -68,6 +78,9 @@ public class ComputePath extends Thread {
         return shortestPath;
     }
 
+    /**
+     * 将边权赋值为[距离（拓扑中两点间长度）]
+     */
     public void setWeightAsMetric() {
         Iterator<SimpleEdge> edgeIterator = this.graph.edgeSet().iterator();
         while (edgeIterator.hasNext()) {
@@ -78,6 +91,9 @@ public class ComputePath extends Thread {
         }
     }
 
+    /**
+     * 将边权赋值成[当前负载值]
+     */
     //TODO：等边预测模型完成后，放弃本方法
     public void reAllocateWeight() {
         Iterator<SimpleEdge> edgeIterator = this.graph.edgeSet().iterator();
@@ -90,7 +106,7 @@ public class ComputePath extends Thread {
     }
 
     /**
-     * 本方法将拓扑各边的权重赋值成预测到的负载值
+     * 将各边的权重赋值成[预测到的负载值]
      */
     //TODO:等边预测模型完成后，使用本方法
     public void reAllocatedWeightAsFutureTraffic() {
@@ -104,12 +120,18 @@ public class ComputePath extends Thread {
         }
     }
 
-
-
+    /**
+     * 资源分配（在业务算完路后调用）
+     * @param service   业务
+     * @return  是否分配成功
+     */
     public boolean allocateResource(Service service) {
         try {
             GraphPath servicePath = serviceGraphPathHashMap.get(service);
-            List<SimpleEdge> edgeList = servicePath.getEdgeList();
+            if(servicePath == null) {                   //判断是否算路
+                throw new Exception("业务["+service.serviceId+"]还未算路！");
+            }
+            List<SimpleEdge> edgeList = servicePath.getEdgeList();  //得到路径的link序列
             int n = service.numberOfWavelenthes;
             /** 分配波长(满足波长一致性) */
             int count = 0;  //记录各边都满足的连续波长数
@@ -130,7 +152,7 @@ public class ComputePath extends Thread {
                 }
             }
             //分配资源
-            if(count >= n) {
+            if(count >= n) {            //如果[空闲波长]不少于[需要的波长]
                 //System.out.printf("分配的波长资源：");
                 for(int i = 0; i < n; i++) {
                     int currentWavelenthNumber = freeWavelenthesNumber.get(i).intValue();   //取出波长号
@@ -146,21 +168,21 @@ public class ComputePath extends Thread {
                 }
                 //System.out.printf("\n");
                 service.isAllocated = true;
-            }else {
+            }else {                 //若波长资源不够用
                 service.isBlocked = true;
                 service.isOutOfTime = true;
                 service.wavelengthesNumber.clear(); //如果分配资源不成功，就释放service对象占用的波长号
                 //System.out.println("没有足够资源分配给业务 " + service.serviceId + " 。");
                 blockedTimes +=1;
-                if(System.currentTimeMillis() - this.programStartTime > Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE &&
-                        System.currentTimeMillis() - this.programStartTime < (Tools.DEFAULTWORKINGTIME + 3 * Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
+                long programRunningTime = System.currentTimeMillis() - this.clock.getStartTime();   //程序运行时间
+                if(programRunningTime > Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE &&
+                        programRunningTime < (Tools.DEFAULTWORKINGTIME + 3 * Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
                     blockedTimesInTidalMigrationPeriod +=1;
                  }
                 //FileWriter fileWriter = new FileWriter("src/main/java/Service/blockedNumber.txt");
                 //BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
                 //bufferedWriter.write();
             }
-
         }catch (Exception e) {
             e.printStackTrace();
         }
@@ -169,7 +191,8 @@ public class ComputePath extends Thread {
 
     /**
      * 重构相关的方法
-     * 注册监听器(也就是重构的trigger)
+     * 注册监听器(也就是重构的trigger)，让trigger决定是否当前进行重构
+     * （目前已将通知逻辑转移到LoadCountTask）
      */
     public void regist(Trigger trigger) {
         this.listenerList.add(trigger);
@@ -179,118 +202,27 @@ public class ComputePath extends Thread {
         this.listenerList.remove(trigger);
     }
 
-    /**
-     * 重构相关的方法
-     * 通知所有list中的trigger，让trigger决定是否当前进行重构
-     * 目前已将通知逻辑转移到LoadCountTask
-     */
-    public void reConfigNotify() throws Exception{
-        if(!listenerList.isEmpty()) {
-            for(Trigger trigger : listenerList) {
-                //TODO:入参还未确定，应该怎样把流量传过去
-                //trigger.flushTraffic();
-            }
-        }else {
-            throw new Exception("监听列表为空");
-        }
-
-    }
-
-
     public void run() {
         int serviceNum = 0;
         try{
-            LoadCountTask loadCountTask = new LoadCountTask(graph, areaHashMap, listenerList, reconfigStatistic, clock);
-            Timer timer = new Timer();
-            timer.schedule(loadCountTask, Tools.COUNT_DELAY, Tools.COUNT_PERIOD * Tools.TIMESCALE);
-
-
+            LoadCountTask loadCountTask =
+                    new LoadCountTask(graph, areaHashMap, listenerList, reconfigStatistic, clock);  //新建统计任务
+            Timer timer = new Timer();  //定时器
+            timer.schedule(loadCountTask, Tools.COUNT_DELAY, Tools.COUNT_PERIOD * Tools.TIMESCALE); //定时器执行统计
         }catch (Exception e) {
             e.printStackTrace();
         }
-        while (serviceNum < Tools.DEFAULTSERVICENUMBER) {
+        while (serviceNum < Tools.DEFAULTSERVICENUMBER) {   //在业务发生过程中
             try {
-
                 /**业务到来*/
-                Service service = serviceBlockingQueue.take();
+                Service service = serviceBlockingQueue.take();  //从阻塞队列拿到业务
                 serviceNum++;
-                if(System.currentTimeMillis() - programStartTime > Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE &&
-                        System.currentTimeMillis() - programStartTime < (Tools.DEFAULTWORKINGTIME + 3 * Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
+                long programRunningTime = System.currentTimeMillis() - this.clock.getStartTime();   //程序运行时间
+                if(programRunningTime > Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE &&
+                        programRunningTime < (Tools.DEFAULTWORKINGTIME + 3 * Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
                     this.servicesNumberInTidalMigrationPeriod +=1;
                     lastServiceIDInTidalMigrationPeriod = service.serviceId;
                 }
-
-                /**峰谷状态更新*/
-                //各域负载初始化
-                /*
-                Iterator areaMapIterator = this.areaHashMap.entrySet().iterator();
-                while (areaMapIterator.hasNext()) {
-                    Map.Entry entry = (Map.Entry) areaMapIterator.next();
-                    Area areaToInit = (Area) entry.getValue();
-                    areaToInit.initialLoad();
-                }
-                //计算各域负载
-                Iterator<SimpleEdge> edgeIterator = this.graph.edgeSet().iterator();
-                while (edgeIterator.hasNext()) {
-                    SimpleEdge currentEdge = edgeIterator.next();
-                    //域内部边
-                    if(currentEdge.srcVertex.areaId == currentEdge.desVertex.areaId) {
-                        Area currentArea = this.areaHashMap.get(currentEdge.srcVertex.areaId);
-                        //currentArea.load += currentEdge.numberOfOccupatedWavelength;
-                    }
-                    //域间边
-                    else {
-                        Area srcArea = this.areaHashMap.get(currentEdge.srcVertex.areaId);
-                        Area desArea = this.areaHashMap.get(currentEdge.desVertex.areaId);
-                        //srcArea.load += currentEdge.numberOfOccupatedWavelength;
-                        //desArea.load += currentEdge.numberOfOccupatedWavelength;
-                    }
-                }*/
-                //各域状态判断
-                //areaMapIterator = this.areaHashMap.entrySet().iterator();
-                //把负载值写入文件
-                //FileWriter areaOneLoadFileWriter, areaTwoLoadFileWriter, areaThreeLoadFileWriter, totalLoadFileWriter,
-                //        hopFileWriter;
-                /*
-                if(Integer.valueOf(service.serviceId) == 0) {
-                    areaOneLoadFileWriter = new FileWriter("target/generated-sources/area1.txt", false);
-                    areaTwoLoadFileWriter = new FileWriter("target/generated-sources/area2.txt", false);
-                    areaThreeLoadFileWriter = new FileWriter("target/generated-sources/area3.txt", false);
-                    totalLoadFileWriter = new FileWriter("target/generated-sources/total.txt", false);
-                    hopFileWriter = new FileWriter("target/generated-sources/hop.txt", false);
-
-                }else {
-                    areaOneLoadFileWriter = new FileWriter("target/generated-sources/area1.txt", true);
-                    areaTwoLoadFileWriter = new FileWriter("target/generated-sources/area2.txt", true);
-                    areaThreeLoadFileWriter = new FileWriter("target/generated-sources/area3.txt", true);
-                    totalLoadFileWriter = new FileWriter("target/generated-sources/total.txt", true);
-                    hopFileWriter = new FileWriter("target/generated-sources/hop.txt", true);
-
-                }
-                while (areaMapIterator.hasNext()) {
-                    Map.Entry entry = (Map.Entry) areaMapIterator.next();
-                    Area currentArea = (Area) entry.getValue();
-
-                    switch (Integer.valueOf(currentArea.areaId)) {
-                        case 1 :
-                            areaOneLoadFileWriter.write(currentArea.load + "\n");
-                            areaOneLoadFileWriter.close();
-                            break;
-                        case 2 :
-                            areaTwoLoadFileWriter.write(currentArea.load + "\n");
-                            areaTwoLoadFileWriter.close();
-                            break;
-                        case 3 :
-                            areaThreeLoadFileWriter.write(currentArea.load + "\n");
-                            areaThreeLoadFileWriter.close();
-                    }
-                    if(currentArea.load / currentArea.totalCapacity >= currentArea.threshold) {
-                        //System.out.println("[area " + currentArea.areaId + "] 当前处于潮峰区,load:" + currentArea.load + "/"+ currentArea.totalCapacity);
-                    }else {
-                        //System.out.println("[area " + currentArea.areaId + "] 当前处于潮谷区,load:" + currentArea.load + "/"+ currentArea.totalCapacity);
-                    }
-                }*/
-
                 /**算路*/
                 //重新赋边权(以负载为边权)
                 //TODO:如果在对照组分支上，将这部分注释掉
@@ -302,14 +234,11 @@ public class ComputePath extends Thread {
                 service.setGraphPath(graphPath);
                 System.out.printf("业务 " + service.serviceId + " 已算路: ");
                 List<Vertex> vertexList = graphPath.getVertexList();
-
                 //统计跳数
                 long nowTime = System.currentTimeMillis();
                 if(nowTime - this.programStartTime > Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE &&
                         nowTime - this.programStartTime < (Tools.DEFAULTWORKINGTIME + 3 * Tools.DEFAULTAVERAGESERVICETIME) * Tools.TIMESCALE) {
                     countHopNumber += (vertexList.size() - 1);
-                    //hopFileWriter.write(vertexList.size() - 1 + "\n");
-                    //hopFileWriter.close();
                 }
                 /*
                 Iterator<Vertex> iterator = vertexList.iterator();
@@ -329,26 +258,27 @@ public class ComputePath extends Thread {
                     ServiceLeavingTask serviceLeavingTask = new ServiceLeavingTask(service);
                     leavingTimer.schedule(serviceLeavingTask, service.serviceTime * Tools.TIMESCALE);  //业务时间结束后离去
                 }
-                int num = Integer.valueOf(service.serviceId);
-                if(num == Tools.DEFAULTSERVICENUMBER - 1) {
-                    FileWriter fw = new FileWriter("target/generated-sources/blockedTimes.txt");
-                    fw.write(Integer.toString(this.blockedTimes));
-                    System.out.println("被阻塞的业务个数为:" + this.blockedTimes);
-                    System.out.println("潮汐迁移时段被阻塞业务个数：" + this.blockedTimesInTidalMigrationPeriod);
-                    System.out.println("潮汐迁移时段业务个数：" + this.servicesNumberInTidalMigrationPeriod);
-                    System.out.println("平均跳数：" + (double)countHopNumber/this.servicesNumberInTidalMigrationPeriod);
-                    System.out.println("迁移时段最后一个业务ID：" + lastServiceIDInTidalMigrationPeriod);
-                    System.out.println("*****重构相关统计*******");
-                    System.out.println("重构次数:" + reconfigStatistic.reconfigTimes);
-                    System.out.println("重构成功业务个数：" + reconfigStatistic.numberOfReconfigedServices);
-                    System.out.println("重构失败业务个数：" + reconfigStatistic.numberOfFailedServices);
-                    System.out.println("程序结束");
-                    fw.close();
-                }
             }catch (Exception e) {
                 e.printStackTrace();
             }
         }
-
+        try {
+            FileWriter fw = new FileWriter("target/generated-sources/blockedTimes.txt");
+            fw.write(Integer.toString(this.blockedTimes));
+            fw.close();
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        /**统计*/
+        System.out.println("被阻塞的业务个数为:" + this.blockedTimes);
+        System.out.println("潮汐迁移时段被阻塞业务个数：" + this.blockedTimesInTidalMigrationPeriod);
+        System.out.println("潮汐迁移时段业务个数：" + this.servicesNumberInTidalMigrationPeriod);
+        System.out.println("平均跳数：" + (double)countHopNumber/this.servicesNumberInTidalMigrationPeriod);
+        System.out.println("迁移时段最后一个业务ID：" + lastServiceIDInTidalMigrationPeriod);
+        System.out.println("*****重构相关统计*******");
+        System.out.println("重构次数:" + reconfigStatistic.reconfigTimes);
+        System.out.println("重构成功业务个数：" + reconfigStatistic.numberOfReconfigedServices);
+        System.out.println("重构失败业务个数：" + reconfigStatistic.numberOfFailedServices);
+        System.out.println("程序结束");
     }
 }

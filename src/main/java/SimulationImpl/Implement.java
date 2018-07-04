@@ -19,37 +19,17 @@ public class Implement {
         //拓扑读取
         SimpleGraph simpleGraph = new SimpleGraph();
         simpleGraph.parseJsonToGraph();
-
         //初始化时间
         ClockUtil clock = new ClockUtil();
-
         //业务发生 与 初步算路
         BlockingQueue<Service> servicesToComputePath = new ArrayBlockingQueue<Service>(10);
         PoissionStream poissionStreamThread = new PoissionStream(servicesToComputePath, clock.getStartTime());
         ComputePath computePathThread = new ComputePath(servicesToComputePath, simpleGraph.graph,
                 simpleGraph.areaHashMap, clock);
         /**201805015 注释为了统计数据*/
-
         ReconfigExecutor reconfigExecutor = new ReconfigExecutor(computePathThread, poissionStreamThread.servicesMap, clock);
         Trigger trigger = new Trigger(computePathThread, reconfigExecutor);
-
-
         poissionStreamThread.start();
         computePathThread.start();
-
-        /*
-        Timer timer = new Timer();
-
-        try{
-            LoadCountTask loadCountTask = new LoadCountTask(simpleGraph.areaHashMap.get("1"),
-                    simpleGraph.areaHashMap.get("2"), simpleGraph.areaHashMap.get("3"));
-            timer.schedule(loadCountTask, 20, 200);
-        }catch (Exception e) {
-
-        }*/
-
-
-
-
     }
 }

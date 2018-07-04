@@ -15,11 +15,14 @@ import java.util.*;
  */
 public class SimpleGraph {
     public SimpleWeightedGraph<Vertex, SimpleEdge> graph= new SimpleWeightedGraph<Vertex, SimpleEdge>(SimpleEdge.class);
-    public HashMap<String, Vertex> vertexHashMap = new HashMap<String, Vertex>();
-    public HashMap<String, Area> areaHashMap = new HashMap<String, Area>();
+    public HashMap<String, Vertex> vertexHashMap = new HashMap<String, Vertex>();   //节点map
+    public HashMap<String, Area> areaHashMap = new HashMap<String, Area>();       //area map
 
+    /**
+     * 从json文件读取拓扑
+     * @return
+     */
     public SimpleWeightedGraph<Vertex,SimpleEdge> parseJsonToGraph() {
-
         try{
             JsonParser parser = new JsonParser();
             JsonObject jsonObject = (JsonObject) parser.parse(
@@ -42,7 +45,6 @@ public class SimpleGraph {
                 currentNode.areaId = vertexObj.get("areaId").toString();
                 graph.addVertex(currentNode);
                 vertexHashMap.put(currentNode.nodeId, currentNode);
-
                 //下面的信息没有传过去
                 if(!areaHashMap.containsKey(currentNode.areaId)) {
                     Area area = new Area(currentNode.areaId);
@@ -60,16 +62,9 @@ public class SimpleGraph {
                 String srcId = edgeObject.get("srcId").toString();
                 String desId = edgeObject.get("desId").toString();
                 double metric = Double.valueOf(edgeObject.get("metric").toString());
-                //Vertex srcNode = new Vertex(srcId);
-                //Vertex desNode = new Vertex(desId);
                 Vertex srcNode = vertexHashMap.get(srcId);
                 Vertex desNode = vertexHashMap.get(desId);
-                //vertexHashMap.put(srcId, srcNode);
-                //vertexHashMap.put(desId, desNode);
-                //graph.addVertex(srcNode);
-                //graph.addVertex(desNode);
                 SimpleEdge simpleEdge = new SimpleEdge(srcNode, desNode, metric);
-                //SimpleEdge edge =
                 graph.addEdge(srcNode, desNode, simpleEdge);
                 graph.setEdgeWeight(simpleEdge, metric);
                 //往每个域中加边
@@ -78,7 +73,6 @@ public class SimpleGraph {
                     Area desArea = areaHashMap.get(desNode.areaId);
                     srcArea.edges.add(simpleEdge);
                     desArea.edges.add(simpleEdge);
-
                     srcArea.addNumverOfEdges();
                     desArea.addNumverOfEdges();
                 }else {
@@ -93,11 +87,4 @@ public class SimpleGraph {
 
         return this.graph;
     }
-
-
-    /*
-    public static void main(String[] args) {
-        SimpleGraph mysimpleGraph = new SimpleGraph();
-        mysimpleGraph.parseJsonToGraph();
-    }*/
 }

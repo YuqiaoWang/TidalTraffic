@@ -11,22 +11,26 @@ import java.util.List;
 /**
  * Created by yuqia on 2017/6/15.
  */
+
+/**
+ * 边
+ */
 public class SimpleEdge extends DefaultWeightedEdge {
-    public Vertex srcVertex;
-    public Vertex desVertex;
-    public double capacity;
+    public Vertex srcVertex;              //源节点
+    public Vertex desVertex;              //宿节点
+    public double capacity;               //容量
     public double unitWavelength = 6.25;  //每个波长的固定带宽
-    public double metric;
-    public int numberOfWavelenth;
-    public boolean[] wavelenthOccupation;
+    public double metric;                 //路长（用作边权）
+    public int numberOfWavelenth;         //一条link的波长总数
+    public boolean[] wavelenthOccupation; //波长占用情况（true为占用，false为空闲）
     public String[] serviceOnWavelength;    //该link的该波长号是哪个业务占用的
-    public int numberOfOccupatedWavelength;
+    public int numberOfOccupatedWavelength; //被占用的波长个数
     //public static int DEFAULTNUMBEROFWAVELENTHES = 30;
 
     /**重构用到的属性*/
-    public NowIntervalEdgeTraffic nowIntervalEdgeTraffic;
-    public List<Double> predictedEdgeTraffic;
-    private double futureLoad;
+    public NowIntervalEdgeTraffic nowIntervalEdgeTraffic;   //边2h的包装的流量
+    public List<Double> predictedEdgeTraffic;               //预测到的下1h的流量
+    private double futureLoad;                              //未来时刻的负载
 
     public SimpleEdge() {
 
