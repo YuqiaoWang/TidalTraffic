@@ -63,9 +63,12 @@ public class Tools {
 
     /**thrift相关数据格式转换*/
     /**面向域*/
-    public static NowAreaTrafficData inputDataFormatTrans(NowIntervalTraffic inputData) {
+    public static NowAreaTrafficData inputDataFormatTrans(NowIntervalTraffic inputData) throws Exception {
         //check格式
         int sizeOfTrafficData = inputData.getNowIntervalTraffic().size();
+//        if(sizeOfTrafficData != 31) {
+//            throw new Exception("发送area数据格式错误！");
+//        }
         NowAreaTrafficData outputData =
                 new NowAreaTrafficData(inputData.areaId, inputData.timeOfHour, inputData.nowIntervalTraffic);
         return  outputData;
@@ -78,9 +81,12 @@ public class Tools {
     }
 
     /**面向边*/
-    public static NowEdgeTrafficData inputEdgeDataFormatTrans(NowIntervalEdgeTraffic inputdata) {
+    public static NowEdgeTrafficData inputEdgeDataFormatTrans(NowIntervalEdgeTraffic inputdata) throws Exception{
         //check格式
-        int sizeofTrafficData = inputdata.getNowIntervalTraffic().size();
+//        int sizeOfTrafficData = inputdata.getNowIntervalTraffic().size();
+//        if(sizeOfTrafficData != 45) {
+//            throw new Exception("发送link数据格式错误！");
+//        }
         NowEdgeTrafficData outputData =
                 new NowEdgeTrafficData(inputdata.nodeList, inputdata.timeOfHour, inputdata.nowIntervalTraffic);
         return outputData;

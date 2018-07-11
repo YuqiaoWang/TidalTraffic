@@ -43,7 +43,8 @@ public class ReconfigExecutor {
     //TODO:重构执行体
     public void doReconfig(Area area, PredictedIntervalTraffic predictedIntervalTraffic) {
         //对于高负载的每一条链路，将这些链路上跑的业务放入待重构的业务集（这个集合是按占用波长数和跳数降序排列的）
-        for(SimpleEdge currentEdge : area.edges) {
+          for(SimpleEdge currentEdge : computePathThread.graph.edgeSet()) {
+//        for(SimpleEdge currentEdge : area.edges) {
             //对area里每条边，都去拿其预测结果，判断是否为高负载
             try{
                 currentEdge.predictedEdgeTraffic =

@@ -46,7 +46,7 @@ public class PreProcess {
         }
 
         //将数据写入excel文件
-        String pathForEdge = "target/generated-sources/edgeload/各边流量统计.xls";
+        String pathForEdge = "target/generated-sources/edgeload/各边流量统计_old.xls";
         String pathForArea = "target/generated-sources/各域流量统计.xls";
         OutputStream streamForEdge = new FileOutputStream(pathForEdge);
         OutputStream streamForArea = new FileOutputStream(pathForArea);
