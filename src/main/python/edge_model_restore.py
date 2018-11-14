@@ -26,8 +26,8 @@ class edge_parameter:
             l1 = restore_layer(xs, self.sess.run(Weights1), self.sess.run(biases1), activation_function=tf.nn.relu)
             prediction = restore_layer(l1, self.sess.run(Weights2), self.sess.run(biases2), activation_function=None)
             model_param = [self.sess, prediction, xs]
-            print("从模型中恢复的biases1:")
-            print(self.sess.run(biases1))
+            # print("从模型中恢复的biases1:")
+            # print(self.sess.run(biases1))
         return model_param
             
     #添加层

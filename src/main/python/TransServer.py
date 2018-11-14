@@ -18,6 +18,7 @@ from thrift.server import TServer
 
 import model_restore as mr
 import edge_model_restore as emr
+import xlwt
 
 class TrafficDataServiceHandler:
     def __init__(self, model_areas, model_edge):
@@ -28,6 +29,12 @@ class TrafficDataServiceHandler:
         self.PredictedAreaTrafficData.append(predictedArea3Data)
         self.model_areas = model_areas
         self.model_edge = model_edge
+        self.workbook_area = xlwt.Workbook()
+        self.sheet_area1 = self.workbook_area.add_sheet('area1')
+        self.sheet_area3 = self.workbook_area.add_sheet('area3')
+        self.row_1 = 0;
+        self.row_3 = 0;
+
 
 
     def ping(self):
@@ -58,6 +65,19 @@ class TrafficDataServiceHandler:
         migration = out_data[0]
 
         listTraffic = predicted_data[1:]
+        if areaId is '1':
+            row = self.sheet_area1.row(self.row_1)
+            data_lenth = len(listTraffic)
+            for i in range(0, data_lenth):
+                row.write(i, listTraffic[i])
+            self.row_1 += 1
+        if areaId is '3':
+            row = self.sheet_area1.row(self.row_3)
+            data_lenth = len(listTraffic)
+            for i in range(0, data_lenth):
+                row.write(i, listTraffic[i])
+            self.row_3 += 1
+        self.workbook_area.save('data/100erlang/area_predict_data.xls')
         #data = PredictedIntervalTrafficData(migration=migration, predictedIntervalTraffic=listTraffic)
         data = PredictedAreaTrafficData(migration=migration, predictedAreaTraffic=listTraffic)
         return data
