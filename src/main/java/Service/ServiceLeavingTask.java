@@ -18,11 +18,15 @@ import java.util.TimerTask;
  */
 public class ServiceLeavingTask extends TimerTask {
     Service service; // 要终止的业务
-    Timer timer; // 执行这个任务的timer
+    // Timer timer; // 执行这个任务的timer
 
-    public ServiceLeavingTask(Service service, Timer timer) {
+    /*
+     * public ServiceLeavingTask(Service service, Timer timer) { this.service =
+     * service; this.timer = timer; }
+     */
+
+    public ServiceLeavingTask(Service service) {
         this.service = service;
-        this.timer = timer;
     }
 
     public void run() {
@@ -39,7 +43,7 @@ public class ServiceLeavingTask extends TimerTask {
         }
         service.wavelengthesNumber.clear();
         service.isOutOfTime = true;
-        this.timer.cancel();
+        // this.timer.cancel();
     }
 
 }

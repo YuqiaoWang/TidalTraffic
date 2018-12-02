@@ -18,6 +18,9 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by yuqia_000 on 2017/6/17.
@@ -28,6 +31,7 @@ public class ComputePath extends Thread {
     public BlockingQueue<Service> serviceBlockingQueue; // 阻塞队列，用于业务发生器线程与算路分配资源线程之间的资源分配
     public SimpleWeightedGraph<Vertex, SimpleEdge> graph; // 拓扑
     public HashMap<String, Area> areaHashMap; // 标号与域的map
+    public ScheduledExecutorService scheduExec; // 线程池，用来存放timertask的执行线程
     /**
      * 统计指标
      */
@@ -59,9 +63,12 @@ public class ComputePath extends Thread {
         this.lastServiceIDInTidalMigrationPeriod = "0";
         this.countHopNumber = 0;
         this.areaHashMap = areaHashMap;
+        this.scheduExec = Executors.newScheduledThreadPool(Tools.CORE_POOL_SIZE);
         this.listenerList = new ArrayList<>();
         this.reconfigStatistic = new ReconfigStatistic(areaHashMap, graph);
         this.clock = clock;
+
+        this.setName("compute_path_thread");
     }
 
     /**
@@ -209,8 +216,11 @@ public class ComputePath extends Thread {
         int serviceNum = 0;
         try {
             LoadCountTask loadCountTask = new LoadCountTask(graph, areaHashMap, listenerList, reconfigStatistic, clock); // 新建统计任务
-            Timer timer = new Timer(); // 定时器
-            timer.schedule(loadCountTask, Tools.COUNT_DELAY, Tools.COUNT_PERIOD * Tools.TIMESCALE); // 定时器执行统计
+            // Timer timer = new Timer(); // 定时器
+            // timer.schedule(loadCountTask, Tools.COUNT_DELAY, Tools.COUNT_PERIOD *
+            // Tools.TIMESCALE); 
+            this.scheduExec.scheduleAtFixedRate(loadCountTask, Tools.COUNT_DELAY, Tools.COUNT_PERIOD * Tools.TIMESCALE,
+                    TimeUnit.MILLISECONDS); // 定时器执行统计
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -254,9 +264,12 @@ public class ComputePath extends Thread {
                 boolean allocated = allocateResource(service);
                 /** 业务离去 */
                 if (service.isResourceAllocated() == true) { // 如果分配了资源
-                    Timer leavingTimer = new Timer();
-                    ServiceLeavingTask serviceLeavingTask = new ServiceLeavingTask(service, leavingTimer);
-                    leavingTimer.schedule(serviceLeavingTask, service.serviceTime * Tools.TIMESCALE); // 业务时间结束后离去
+                    // Timer leavingTimer = new Timer();
+                    ServiceLeavingTask serviceLeavingTask = new ServiceLeavingTask(service);
+                    // leavingTimer.schedule(serviceLeavingTask, service.serviceTime *
+                    // Tools.TIMESCALE);
+                    this.scheduExec.schedule(serviceLeavingTask, service.serviceTime * Tools.TIMESCALE,
+                            TimeUnit.MILLISECONDS);// 业务时间结束后离去
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -279,6 +292,16 @@ public class ComputePath extends Thread {
         System.out.println("times of reconstruction:" + reconfigStatistic.reconfigTimes);
         System.out.println("number of success reconstruction:" + reconfigStatistic.numberOfReconfigedServices);
         System.out.println("number of failure reconstruction:" + reconfigStatistic.numberOfFailedServices);
+
+        while (System.currentTimeMillis() - this.programStartTime < Tools.COUNT_TIMES * Tools.TIMESCALE
+                * Tools.COUNT_PERIOD) {
+            try {
+                Thread.sleep(1000);
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
+        }
+        this.scheduExec.shutdown();
         System.out.println("Program ending");
     }
 }

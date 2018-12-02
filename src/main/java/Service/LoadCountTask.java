@@ -72,6 +72,11 @@ public class LoadCountTask extends TimerTask {
         this.edgeSet = graph.edgeSet();
         this.edgeIterator = edgeSet.iterator();
         this.edgeLoadCountMap = new HashMap<SimpleEdge, FileWriter>();
+        // 判断目录是否存在，若不存在，则新建目录
+        File fileParent = new File("target/generated-sources/edgeload/x.txt").getParentFile();
+        if (!fileParent.exists()) {
+            fileParent.mkdirs();
+        }
         while (edgeIterator.hasNext()) {
             SimpleEdge currentEdge = edgeIterator.next();
             String edgeId = currentEdge.toString();
@@ -111,7 +116,7 @@ public class LoadCountTask extends TimerTask {
             area1.flushLoad();
             area2.flushLoad();
             area3.flushLoad();
-            if (this.writeTimes < 360) {
+            if (this.writeTimes < Tools.COUNT_TIMES) {
                 clock.setTimingIndexInHour(writeTimes % 15);
                 /** 将负载信息写入文件 */
                 area1LoadCountFileWriter.write(area1.load / area1.totalCapacity + "\n");

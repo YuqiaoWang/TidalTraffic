@@ -1,8 +1,9 @@
-.idea
+.idea/*
 .iml
 *.class
 *.txt
 *.xls
 *.xlsx
-target/classes/
-
+target/classes/*
+*.jar
+src/main/python/__pycache__/*

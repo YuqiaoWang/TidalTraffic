@@ -23,6 +23,7 @@ public class PoissionStream extends Thread {
     public PoissionStream(BlockingQueue<Service> bq, long startTime) {
         this.serviceBlockingQueue = bq;
         this.programStartTime = startTime;
+        this.setName("poission_generate_thread");
     }
 
     @Override
