@@ -6,4 +6,6 @@
 *.xlsx
 target/classes/*
 *.jar
+*.pyc
+*.png
 src/main/python/__pycache__/*

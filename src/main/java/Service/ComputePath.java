@@ -279,7 +279,7 @@ public class ComputePath extends Thread {
             }
         }
         try {
-            FileWriter fw = new FileWriter("target/generated-sources/blockedTimes.txt");
+            FileWriter fw = new FileWriter("data/load/blockedTimes.txt");
             fw.write(Integer.toString(this.blockedTimes));
             fw.close();
         } catch (Exception e) {
@@ -289,7 +289,8 @@ public class ComputePath extends Thread {
         System.out.println("number of blocked services:" + this.blockedTimes);
         System.out.println("blocked services in tidal period:" + this.blockedTimesInTidalMigrationPeriod);
         System.out.println("number of services in tidal period:" + this.servicesNumberInTidalMigrationPeriod);
-        System.out.println("average hop:" + (double) countHopNumber / this.servicesNumberInTidalMigrationPeriod);
+        double averageHop = (double) countHopNumber / this.servicesNumberInTidalMigrationPeriod;
+        System.out.println("average hop:" + averageHop);
         System.out.println("the last service ID in tidal period:" + lastServiceIDInTidalMigrationPeriod);
         System.out.println("*****statistic about reconstruction*******");
         System.out.println("times of reconstruction:" + reconfigStatistic.reconfigTimes);
@@ -307,6 +308,7 @@ public class ComputePath extends Thread {
         this.scheduExec.shutdown();
         System.out.println("Program ending");
         try {
+            FigureGenerate.generateJson(this.blockedTimes, this.blockedTimesInTidalMigrationPeriod, averageHop);
             FigureGenerate.generateFigure();
         } catch (Exception e) {
             // TODO: handle exception

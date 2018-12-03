@@ -50,19 +50,19 @@ public class LoadCountTask extends TimerTask {
 
     public LoadCountTask(SimpleWeightedGraph<Vertex, SimpleEdge> graph, HashMap<String, Area> areaHashMap,
             List<Trigger> listenerList, ReconfigStatistic reconfigStatistic, ClockUtil clock) throws Exception {
-        FileWriter fw1 = new FileWriter("target/generated-sources/area1loadCount.txt");
+        FileWriter fw1 = new FileWriter("data/load/area1loadCount.txt");
         fw1.write("");
         fw1.close();
-        FileWriter fw2 = new FileWriter("target/generated-sources/area2loadCount.txt");
+        FileWriter fw2 = new FileWriter("data/load/area2loadCount.txt");
         fw2.write("");
         fw2.close();
-        FileWriter fw3 = new FileWriter("target/generated-sources/area3loadCount.txt");
+        FileWriter fw3 = new FileWriter("data/load/area3loadCount.txt");
         fw3.write("");
         fw3.close();
 
-        area1LoadCountFileWriter = new FileWriter("target/generated-sources/area1loadCount.txt", true);
-        area2LoadCountFileWriter = new FileWriter("target/generated-sources/area2loadCount.txt", true);
-        area3LoadCountFileWriter = new FileWriter("target/generated-sources/area3loadCount.txt", true);
+        area1LoadCountFileWriter = new FileWriter("data/load/area1loadCount.txt", true);
+        area2LoadCountFileWriter = new FileWriter("data/load/area2loadCount.txt", true);
+        area3LoadCountFileWriter = new FileWriter("data/load/area3loadCount.txt", true);
 
         this.writeTimes = 0;
         this.graph = graph;
@@ -73,17 +73,17 @@ public class LoadCountTask extends TimerTask {
         this.edgeIterator = edgeSet.iterator();
         this.edgeLoadCountMap = new HashMap<SimpleEdge, FileWriter>();
         // 判断目录是否存在，若不存在，则新建目录
-        File fileParent = new File("target/generated-sources/edgeload/x.txt").getParentFile();
+        File fileParent = new File("data/load/edgeload/x.txt").getParentFile();
         if (!fileParent.exists()) {
             fileParent.mkdirs();
         }
         while (edgeIterator.hasNext()) {
             SimpleEdge currentEdge = edgeIterator.next();
             String edgeId = currentEdge.toString();
-            FileWriter currentEdgeLoadWriter = new FileWriter("target/generated-sources/edgeload/" + edgeId + ".txt");
+            FileWriter currentEdgeLoadWriter = new FileWriter("data/load/edgeload/" + edgeId + ".txt");
             currentEdgeLoadWriter.write("");
             currentEdgeLoadWriter.close();
-            currentEdgeLoadWriter = new FileWriter("target/generated-sources/edgeload/" + edgeId + ".txt", true);
+            currentEdgeLoadWriter = new FileWriter("data/load/edgeload/" + edgeId + ".txt", true);
             edgeLoadCountMap.put(currentEdge, currentEdgeLoadWriter);
         }
 

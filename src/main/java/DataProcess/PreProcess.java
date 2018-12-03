@@ -45,8 +45,8 @@ public class PreProcess {
         }
 
         // 将数据写入excel文件
-        String pathForEdge = "target/generated-sources/edgeload/各边流量统计_old.xls";
-        String pathForArea = "target/generated-sources/各域流量统计.xls";
+        String pathForEdge = "data/load/edgeload/各边流量统计_old.xls";
+        String pathForArea = "data/load/各域流量统计.xls";
         OutputStream streamForEdge = new FileOutputStream(pathForEdge);
         OutputStream streamForArea = new FileOutputStream(pathForArea);
         preProcess.workbookForEdge.write(streamForEdge);
@@ -59,7 +59,7 @@ public class PreProcess {
     @Deprecated
     public void writeEdgeLoadIntoExcel(String filename, HSSFWorkbook workbook) throws IOException {
         HSSFSheet sheet = workbook.createSheet("边" + filename + "预处理");
-        FileReader fileReader = new FileReader("target/generated-sources/edgeload/" + filename + ".txt");
+        FileReader fileReader = new FileReader("data/load/edgeload/" + filename + ".txt");
         BufferedReader bufferedReader = new BufferedReader(fileReader);
         /**
          * 写入时间数据（excel第1行）
@@ -108,7 +108,7 @@ public class PreProcess {
         }
 
         // 写入预测数据（excel第33行-47行）
-        fileReader = new FileReader("target/generated-sources/edgeload/" + filename + ".txt");
+        fileReader = new FileReader("data/load/edgeload/" + filename + ".txt");
         bufferedReader = new BufferedReader(fileReader);
         columnIndex = 0;
         while (columnIndex <= 23) {
@@ -121,7 +121,7 @@ public class PreProcess {
 
     public void writeAreaLoadIntoExcel(String filename, HSSFWorkbook workbook) throws IOException {
         HSSFSheet sheet = workbook.createSheet("域" + filename + "预处理");
-        FileReader fileReader = new FileReader("target/generated-sources/" + filename + ".txt");
+        FileReader fileReader = new FileReader("data/load/" + filename + ".txt");
         BufferedReader bufferedReader = new BufferedReader(fileReader);
         /**
          * 写入时间数据（excel第1行）
