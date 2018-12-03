@@ -7,6 +7,11 @@
     <artifactId>ACP</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.jgrapht</groupId>
@@ -38,6 +43,11 @@
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.7.22</version>
         </dependency>
+        <dependency>
+            <groupId>org.python</groupId>
+            <artifactId>jython-standalone</artifactId>
+            <version>2.7.0</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -46,6 +56,16 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.5.1</version>
                 <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.0</version>
+                <configuration>
+                    <encoding>utf-8</encoding>
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>

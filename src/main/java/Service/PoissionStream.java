@@ -44,7 +44,7 @@ public class PoissionStream extends Thread {
                 continue;
             }
             try {
-                this.sleep(time); // 用线程休眠来模拟泊松流到达过程
+                Thread.sleep(time); // 用线程休眠来模拟泊松流到达过程
                 service.setServiceId(String.format("%4d", i).replace(" ", "0"));
                 System.out.println("--------service No. " + service.serviceId + " coming, " + time / 1000
                         + " seconds later than last time--------");
@@ -83,7 +83,7 @@ public class PoissionStream extends Thread {
 
     /** 随机产生业务 */
     public Service generateService() {
-        double unitWavelenth = 6.25;
+        //double unitWavelenth = 6.25;
         Random rand = new Random();
         // String srcNodeId = Integer.toString(rand.nextInt(7) + 1);
         String srcNodeId = srcNuniformNode();

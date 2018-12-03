@@ -3,7 +3,6 @@ package Service.Reconfiguration;
 import Service.Service;
 import Service.ComputePath;
 import SimulationImpl.ClockUtil;
-import SimulationImpl.Implement;
 import SimulationImpl.Tools;
 import Topology.Area;
 import Topology.SimpleEdge;
@@ -78,7 +77,7 @@ public class ReconfigExecutor {
             computePathThread.reAllocatedWeightAsFutureTraffic(); // 重定义各边权重
             // computePathThread.reAllocateWeight(); //暂时使用当前负载做边权
             // TODO:算路（目前暂时用D算法，将来有可能改成K算法）
-            GraphPath graphPath = computePathThread.findShortestPath(currentService, computePathThread.graph); // 算路
+            GraphPath<Vertex, SimpleEdge> graphPath = computePathThread.findShortestPath(currentService, computePathThread.graph); // 算路
             computePathThread.serviceGraphPathHashMap.put(currentService, graphPath);
             List<Integer> originOccupiedWavelengths = currentService.wavelengthesNumber; // 该业务搬移前占用的波长号
             GraphPath<Vertex, SimpleEdge> originPath = currentService.graphPath; // 该业务搬移前的路由

@@ -48,8 +48,8 @@ public class LoadCountTask extends TimerTask {
 
     }
 
-    public LoadCountTask(SimpleWeightedGraph graph, HashMap<String, Area> areaHashMap, List<Trigger> listenerList,
-            ReconfigStatistic reconfigStatistic, ClockUtil clock) throws Exception {
+    public LoadCountTask(SimpleWeightedGraph<Vertex, SimpleEdge> graph, HashMap<String, Area> areaHashMap,
+            List<Trigger> listenerList, ReconfigStatistic reconfigStatistic, ClockUtil clock) throws Exception {
         FileWriter fw1 = new FileWriter("target/generated-sources/area1loadCount.txt");
         fw1.write("");
         fw1.close();

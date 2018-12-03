@@ -104,7 +104,7 @@ public class Trigger {
         try {
             transClient.transport = transClient.createTTransport();
             transClient.openTTransport(transClient.transport);
-            transClient.client = transClient.createClient(transClient.transport);
+            transClient.client = TransClient.createClient(transClient.transport);
 
             // service calling
             if (transClient.client.equals(null)) {

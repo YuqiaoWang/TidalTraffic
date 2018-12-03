@@ -1,12 +1,8 @@
 package Service;
 
 import Topology.SimpleEdge;
-import Topology.Vertex;
-import org.jgrapht.GraphPath;
 
 import java.util.Iterator;
-import java.util.List;
-import java.util.Timer;
 import java.util.TimerTask;
 
 /**

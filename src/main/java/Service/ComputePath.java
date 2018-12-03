@@ -7,12 +7,12 @@ import Topology.Area;
 import Topology.SimpleEdge;
 import Topology.Vertex;
 import SimulationImpl.Tools;
-import jdk.nashorn.internal.ir.BlockLexicalContext;
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 import org.jgrapht.graph.SimpleWeightedGraph;
-import sun.reflect.annotation.ExceptionProxy;
+
+import DataProcess.FigureGenerate;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -27,9 +27,11 @@ import java.util.concurrent.TimeUnit;
  */
 public class ComputePath extends Thread {
     public long programStartTime; // 程序启动时间
-    public HashMap<Service, GraphPath> serviceGraphPathHashMap = new HashMap<Service, GraphPath>(); // 业务-最短路 map
+    public HashMap<Service, GraphPath<Vertex, SimpleEdge>> serviceGraphPathHashMap = new HashMap<Service, GraphPath<Vertex, SimpleEdge>>(); // 业务-最短路
+                                                                                                                                            // map
     public BlockingQueue<Service> serviceBlockingQueue; // 阻塞队列，用于业务发生器线程与算路分配资源线程之间的资源分配
     public SimpleWeightedGraph<Vertex, SimpleEdge> graph; // 拓扑
+    public SimpleWeightedGraph<Vertex, SimpleEdge> loadGraph; // 负载拓扑，用于过程中更改权重
     public HashMap<String, Area> areaHashMap; // 标号与域的map
     public ScheduledExecutorService scheduExec; // 线程池，用来存放timertask的执行线程
     /**
@@ -52,10 +54,11 @@ public class ComputePath extends Thread {
 
     }
 
-    public ComputePath(BlockingQueue<Service> bq, SimpleWeightedGraph graph, HashMap<String, Area> areaHashMap,
-            ClockUtil clock) {
+    public ComputePath(BlockingQueue<Service> bq, SimpleWeightedGraph<Vertex, SimpleEdge> graph,
+            HashMap<String, Area> areaHashMap, ClockUtil clock) {
         this.serviceBlockingQueue = bq;
         this.graph = graph;
+        this.loadGraph = (SimpleWeightedGraph<Vertex, SimpleEdge>) graph.clone();
         this.blockedTimes = 0;
         this.programStartTime = clock.getStartTime();
         this.servicesNumberInTidalMigrationPeriod = 0;
@@ -78,10 +81,11 @@ public class ComputePath extends Thread {
      * @param graph   拓扑
      * @return 算出来的最短路
      */
-    public GraphPath findShortestPath(Service service, SimpleWeightedGraph graph) {
+    public GraphPath<Vertex, SimpleEdge> findShortestPath(Service service,
+            SimpleWeightedGraph<Vertex, SimpleEdge> graph) {
         Vertex srcNode = service.srcNode;
         Vertex desNode = service.desNode;
-        GraphPath shortestPath = DijkstraShortestPath.findPathBetween(graph, srcNode, desNode);
+        GraphPath<Vertex, SimpleEdge> shortestPath = DijkstraShortestPath.findPathBetween(graph, srcNode, desNode);
         service.isComputed = true;
         return shortestPath;
     }
@@ -136,7 +140,7 @@ public class ComputePath extends Thread {
      */
     public boolean allocateResource(Service service) {
         try {
-            GraphPath servicePath = serviceGraphPathHashMap.get(service);
+            GraphPath<Vertex, SimpleEdge> servicePath = serviceGraphPathHashMap.get(service);
             if (servicePath == null) { // 判断是否算路
                 throw new Exception("业务[" + service.serviceId + "]还未算路！");
             }
@@ -201,8 +205,7 @@ public class ComputePath extends Thread {
     }
 
     /**
-     * 重构相关的方法 注册监听器(也就是重构的trigger)，让trigger决定是否当前进行重构 （目前已将通知逻辑转移到Loa
-     *  CountTask）
+     * 重构相关的方法 注册监听器(也就是重构的trigger)，让trigger决定是否当前进行重构 （目前已将通知逻辑转移到Loa CountTask）
      */
     public void regist(Trigger trigger) {
         this.listenerList.add(trigger);
@@ -218,7 +221,7 @@ public class ComputePath extends Thread {
             LoadCountTask loadCountTask = new LoadCountTask(graph, areaHashMap, listenerList, reconfigStatistic, clock); // 新建统计任务
             // Timer timer = new Timer(); // 定时器
             // timer.schedule(loadCountTask, Tools.COUNT_DELAY, Tools.COUNT_PERIOD *
-            // Tools.TIMESCALE); 
+            // Tools.TIMESCALE);
             this.scheduExec.scheduleAtFixedRate(loadCountTask, Tools.COUNT_DELAY, Tools.COUNT_PERIOD * Tools.TIMESCALE,
                     TimeUnit.MILLISECONDS); // 定时器执行统计
         } catch (Exception e) {
@@ -241,7 +244,7 @@ public class ComputePath extends Thread {
                 // TODO:如果在对照组分支上，将这部分注释掉
                 // reAllocateWeight();
                 // D算法算路
-                GraphPath graphPath = findShortestPath(service, this.graph);
+                GraphPath<Vertex, SimpleEdge> graphPath = findShortestPath(service, this.graph);
                 serviceGraphPathHashMap.put(service, graphPath);
                 service.isComputed = true;
                 service.setGraphPath(graphPath);
@@ -303,5 +306,12 @@ public class ComputePath extends Thread {
         }
         this.scheduExec.shutdown();
         System.out.println("Program ending");
+        try {
+            FigureGenerate.generateFigure();
+        } catch (Exception e) {
+            // TODO: handle exception
+            e.printStackTrace();
+        }
+
     }
 }
