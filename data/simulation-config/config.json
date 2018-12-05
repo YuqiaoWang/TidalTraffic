@@ -1,1 +1,1 @@
-{"service":{"lambda":2.0,"service_time":300,"threshold":0.6},"statistic":{"block_times":0,"tidalBlock_times":0,"average_hop":2.2103559870550162}}
+{"service":{"lambda":2.0,"service_time":300,"threshold":0.6},"statistic":{"block_times":1,"tidalBlock_times":1,"average_hop":2.234920634920635}}
