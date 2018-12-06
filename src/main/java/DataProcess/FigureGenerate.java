@@ -17,7 +17,7 @@ import SimulationImpl.Tools;
  */
 public class FigureGenerate {
     /**
-     * 执行python脚本，生成图片
+     * 执行python脚本，生成图片,同时完成数据写入excel
      */
     public static void generateFigure() throws IOException {
         String fileName = "src/main/python/pic_gen/tidal_pic_gen.py";
@@ -45,9 +45,11 @@ public class FigureGenerate {
         serviceObject.addProperty("lambda", Tools.DEFAULTLAMBDA);
         serviceObject.addProperty("service_time", Tools.DEFAULTAVERAGESERVICETIME);
         serviceObject.addProperty("threshold", Tools.DEFAULTTHRESHOLD);
+        statisticObject.addProperty("count_times", Tools.COUNT_TIMES);
         statisticObject.addProperty("block_times", blockTimes);
         statisticObject.addProperty("tidalBlock_times", tidalBlockTimes);
         statisticObject.addProperty("average_hop", hop);
+        configJson.addProperty("data_type", "training_data");
         configJson.add("service", serviceObject);
         configJson.add("statistic", statisticObject);
         String fileContent = configJson.toString(); // json文件内容

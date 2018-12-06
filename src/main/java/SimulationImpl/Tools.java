@@ -22,15 +22,16 @@ public class Tools {
     /** 业务发生相关 */
     public static final int DEFAULTSERVICENUMBER = 1000; // 用于设置生成业务个数
 
-    public static final double DEFAULTLAMBDA = 2; // 平均业务到达率
+    public static final double DEFAULTLAMBDA = 10 / 9.0; // 平均业务到达率
 
-    public static final int DEFAULTWORKINGTIME = 1600; // 生成业务时，不同时间段产生的业务源宿点概率不同，用来区分时间, 之前设定为1500
+    // public static final int DEFAULTWORKINGTIME = 1600; //
+    // 生成业务时，不同时间段产生的业务源宿点概率不同，用来区分时间, 之前设定为1500
 
-    public static final int DEFAULTAVERAGESERVICETIME = 300; // 业务平均持续时间
+    public static final int DEFAULTAVERAGESERVICETIME = 500; // 业务平均持续时间
 
     public static final int DEFAULTMAXNUMBEROFWAVELENGTH = 1; // 单个业务占用最大带宽数
 
-    public static final int TIMESCALE = 25; // 为节约运算时间，调整下方参数可
+    public static final int TIMESCALE = 5; // 为节约运算时间，调整下方参数可
 
     public static final int PLAINTIME = 250; // 初始平滑增大业务达到率的时间
 
@@ -40,10 +41,17 @@ public class Tools {
     /** 流量统计相关 */
     public static final int COUNT_DELAY = 20; // 定时统计的时延
 
-    public static final int COUNT_PERIOD = 8; // 定时统计的周期
+    public static final int COUNT_PERIOD = 40; // 定时统计的周期
 
     public static final int COUNT_TIMES = 360; // 数据统计次数
 
+    public static final int PROGRAM_EXECUTE_TIME = COUNT_TIMES * COUNT_PERIOD * TIMESCALE; // 程序执行时间
+
+    public static final int DEFAULTWORKINGTIME = 5 * PROGRAM_EXECUTE_TIME / 9; // 潮汐到达时间暂定为5/9的程序执行时间
+
+    public static final int DEFAULTTIDALENDTIME = 2 * PROGRAM_EXECUTE_TIME / 3; // 潮汐结束时间暂定为 2/3的程序执行时间
+
+    public static final int DEFAULTSERVICEENDTIME = 3 * PROGRAM_EXECUTE_TIME / 4; // 业务结束时间暂定为 3/4的程序执行时间
     /** 关于参数的确定 */
 
     // 平均业务持续时间=200不变

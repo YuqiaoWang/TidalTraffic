@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
  * Created by yuqia_000 on 2017/6/17.
  */
 public class ComputePath extends Thread {
+    private ServiceTransMsg msg; // 业务传输完毕标识
     public long programStartTime; // 程序启动时间
     public HashMap<Service, GraphPath<Vertex, SimpleEdge>> serviceGraphPathHashMap = new HashMap<Service, GraphPath<Vertex, SimpleEdge>>(); // 业务-最短路
                                                                                                                                             // map
@@ -55,7 +56,7 @@ public class ComputePath extends Thread {
     }
 
     public ComputePath(BlockingQueue<Service> bq, SimpleWeightedGraph<Vertex, SimpleEdge> graph,
-            HashMap<String, Area> areaHashMap, ClockUtil clock) {
+            HashMap<String, Area> areaHashMap, ServiceTransMsg msg, ClockUtil clock) {
         this.serviceBlockingQueue = bq;
         this.graph = graph;
         this.loadGraph = (SimpleWeightedGraph<Vertex, SimpleEdge>) graph.clone();
@@ -70,7 +71,7 @@ public class ComputePath extends Thread {
         this.listenerList = new ArrayList<>();
         this.reconfigStatistic = new ReconfigStatistic(areaHashMap, graph);
         this.clock = clock;
-
+        this.msg = msg;
         this.setName("compute_path_thread");
     }
 
@@ -188,9 +189,7 @@ public class ComputePath extends Thread {
                 // System.out.println("没有足够资源分配给业务 " + service.serviceId + " 。");
                 blockedTimes += 1;
                 long programRunningTime = System.currentTimeMillis() - this.clock.getStartTime(); // 程序运行时间
-                if (programRunningTime > Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE
-                        && programRunningTime < (Tools.DEFAULTWORKINGTIME + 3 * Tools.DEFAULTAVERAGESERVICETIME)
-                                * Tools.TIMESCALE) {
+                if (programRunningTime > Tools.DEFAULTWORKINGTIME && programRunningTime < Tools.DEFAULTTIDALENDTIME) {
                     blockedTimesInTidalMigrationPeriod += 1;
                 }
                 // FileWriter fileWriter = new
@@ -227,15 +226,17 @@ public class ComputePath extends Thread {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        while (serviceNum < Tools.DEFAULTSERVICENUMBER) { // 在业务发生过程中
+        // while (serviceNum < Tools.DEFAULTSERVICENUMBER) { // 在业务发生过程中
+        while (System.currentTimeMillis() - programStartTime < Tools.DEFAULTSERVICEENDTIME) { // 当业务未发生完毕时
+            if (this.msg.getStatus()) {
+                break;
+            }
             try {
                 /** 业务到来 */
                 Service service = serviceBlockingQueue.take(); // 从阻塞队列拿到业务
                 serviceNum++;
                 long programRunningTime = System.currentTimeMillis() - this.clock.getStartTime(); // 程序运行时间
-                if (programRunningTime > Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE
-                        && programRunningTime < (Tools.DEFAULTWORKINGTIME + 3 * Tools.DEFAULTAVERAGESERVICETIME)
-                                * Tools.TIMESCALE) {
+                if (programRunningTime > Tools.DEFAULTWORKINGTIME && programRunningTime < Tools.DEFAULTTIDALENDTIME) {
                     this.servicesNumberInTidalMigrationPeriod += 1;
                     lastServiceIDInTidalMigrationPeriod = service.serviceId;
                 }
@@ -252,9 +253,8 @@ public class ComputePath extends Thread {
                 List<Vertex> vertexList = graphPath.getVertexList();
                 // 统计跳数
                 long nowTime = System.currentTimeMillis();
-                if (nowTime - this.programStartTime > Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE && nowTime
-                        - this.programStartTime < (Tools.DEFAULTWORKINGTIME + 3 * Tools.DEFAULTAVERAGESERVICETIME)
-                                * Tools.TIMESCALE) {
+                if (nowTime - this.programStartTime > Tools.DEFAULTWORKINGTIME
+                        && nowTime - this.programStartTime < Tools.DEFAULTTIDALENDTIME) {
                     countHopNumber += (vertexList.size() - 1);
                 }
                 /*
@@ -297,8 +297,7 @@ public class ComputePath extends Thread {
         System.out.println("number of success reconstruction:" + reconfigStatistic.numberOfReconfigedServices);
         System.out.println("number of failure reconstruction:" + reconfigStatistic.numberOfFailedServices);
 
-        while (System.currentTimeMillis() - this.programStartTime < Tools.COUNT_TIMES * Tools.TIMESCALE
-                * Tools.COUNT_PERIOD) {
+        while (System.currentTimeMillis() - this.programStartTime < Tools.PROGRAM_EXECUTE_TIME) {
             try {
                 Thread.sleep(1000);
             } catch (Exception e) {

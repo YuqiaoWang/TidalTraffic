@@ -15,21 +15,24 @@ public class PoissionStream extends Thread {
     // public List<Service> listOfServices = new ArrayList<Service>();
     public BlockingQueue<Service> serviceBlockingQueue; // 阻塞队列（与算路分配模块对接）
     public long programStartTime; // 程序启动时间
+    private ServiceTransMsg msg;
 
     public PoissionStream() {
 
     }
 
-    public PoissionStream(BlockingQueue<Service> bq, long startTime) {
+    public PoissionStream(BlockingQueue<Service> bq, ServiceTransMsg msg, long startTime) {
         this.serviceBlockingQueue = bq;
         this.programStartTime = startTime;
+        this.msg = msg;
         this.setName("poission_generate_thread");
     }
 
     @Override
     public void run() {
         double x;
-        for (int i = 0; i < Tools.DEFAULTSERVICENUMBER; i++) {
+        int serviceIndex = 0;
+        while (System.currentTimeMillis() - programStartTime < Tools.DEFAULTSERVICEENDTIME) {
             // 程序初始化时的平滑增长到达率
             double realLambda = (System.currentTimeMillis() - programStartTime < Tools.PLAINTIME * Tools.TIMESCALE)
                     ? -(2 * Tools.DEFAULTLAMBDA / (Tools.PLAINTIME * Tools.TIMESCALE))
@@ -40,12 +43,12 @@ public class PoissionStream extends Thread {
             int time = (int) x * Tools.TIMESCALE;
             Service service = generateService();
             if (service.srcNode.nodeId.equals(service.desNode.nodeId)) {
-                i = i - 1;
+                serviceIndex = serviceIndex - 1;
                 continue;
             }
             try {
                 Thread.sleep(time); // 用线程休眠来模拟泊松流到达过程
-                service.setServiceId(String.format("%4d", i).replace(" ", "0"));
+                service.setServiceId(String.format("%4d", serviceIndex).replace(" ", "0"));
                 System.out.println("--------service No. " + service.serviceId + " coming, " + time / 1000
                         + " seconds later than last time--------");
                 /*
@@ -60,8 +63,13 @@ public class PoissionStream extends Thread {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
+            serviceIndex++;
+            this.msg.addIndex();
         }
+        this.msg.complete(); // 表示传输完毕
+        /*
+         * for (int i = 0; i < Tools.DEFAULTSERVICENUMBER; i++) { }
+         */
     }
 
     /** 产生满足泊松分布的随机数 */
@@ -83,7 +91,7 @@ public class PoissionStream extends Thread {
 
     /** 随机产生业务 */
     public Service generateService() {
-        //double unitWavelenth = 6.25;
+        // double unitWavelenth = 6.25;
         Random rand = new Random();
         // String srcNodeId = Integer.toString(rand.nextInt(7) + 1);
         String srcNodeId = srcNuniformNode();
@@ -115,27 +123,23 @@ public class PoissionStream extends Thread {
         Random rand = new Random();
         int i;
         long nowTime = System.currentTimeMillis();
-        if (nowTime - this.programStartTime < Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE) {
+        if (nowTime - this.programStartTime < Tools.DEFAULTWORKINGTIME) { // area1区概率大
             i = rand.nextInt(50) + 1;
             if (i > 14) {
                 i = (i - 14) % 9 + 1;
             }
-        } else if (nowTime - this.programStartTime > Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE
-                && nowTime - this.programStartTime < (Tools.DEFAULTWORKINGTIME + Tools.DEFAULTAVERAGESERVICETIME)
-                        * Tools.TIMESCALE) {
-            i = rand.nextInt(34) + 1;
-            if (i > 14) {
-                i = (i - 14) % 10 + 5;
-            }
-        } else if (nowTime - this.programStartTime > (Tools.DEFAULTWORKINGTIME + Tools.DEFAULTAVERAGESERVICETIME)
-                * Tools.TIMESCALE
-                && nowTime - this.programStartTime < (Tools.DEFAULTWORKINGTIME + 2 * Tools.DEFAULTAVERAGESERVICETIME)
-                        * Tools.TIMESCALE) {
-            i = rand.nextInt(44) + 1;
-            if (i > 14) {
-                i = (i - 14) % 10 + 5;
-            }
-        } else {
+        }
+        /*
+         * else if (nowTime - this.programStartTime > Tools.DEFAULTWORKINGTIME &&
+         * nowTime - this.programStartTime < Tools.DEFAULTTIDALENDTIME) { // area3区概率大 i
+         * = rand.nextInt(34) + 1; if (i > 14) { i = (i - 14) % 10 + 5; } } else if
+         * (nowTime - this.programStartTime > (Tools.DEFAULTWORKINGTIME +
+         * Tools.DEFAULTAVERAGESERVICETIME) Tools.TIMESCALE && nowTime -
+         * this.programStartTime < (Tools.DEFAULTWORKINGTIME + 2 *
+         * Tools.DEFAULTAVERAGESERVICETIME) Tools.TIMESCALE) { i = rand.nextInt(44) + 1;
+         * if (i > 14) { i = (i - 14) % 10 + 5; } }
+         */
+        else {
             i = rand.nextInt(54) + 1;
             if (i > 14) {
                 i = (i - 14) % 10 + 5;
@@ -147,7 +151,7 @@ public class PoissionStream extends Thread {
     public String desNuniformNode() {
         Random rand = new Random();
         int i;
-        if (System.currentTimeMillis() - this.programStartTime < Tools.DEFAULTWORKINGTIME * Tools.TIMESCALE) {
+        if (System.currentTimeMillis() - this.programStartTime < Tools.DEFAULTWORKINGTIME) {
             i = rand.nextInt(32) + 1;
             if (i > 14) {
                 i = (i - 14) % 9 + 1;
