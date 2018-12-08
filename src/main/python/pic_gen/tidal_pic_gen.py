@@ -2,9 +2,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
+import platform
 import os
 import datetime
-import platform
 import json
 import xlwt
 import xlrd
@@ -109,6 +109,7 @@ data_save.save_data(dataMat_area3, 'area3', new_path, service_ratio)
 
 # 5.保存 & 展示图片
 pic_path = os.path.join(os.path.join(new_path, '..'), 'pic')
+pic_path = os.path.join(pic_path, date_form)
 # 图片名称采取: '日期+业务量' 命名
 # 5.0 系统兼容性适应
 if system_name == 'Windows':

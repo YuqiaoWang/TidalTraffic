@@ -22,7 +22,7 @@ public class Tools {
     /** 业务发生相关 */
     public static final int DEFAULTSERVICENUMBER = 1000; // 用于设置生成业务个数
 
-    public static final double DEFAULTLAMBDA = 10 / 9.0; // 平均业务到达率
+    public static final double DEFAULTLAMBDA = 2; // 平均业务到达率
 
     // public static final int DEFAULTWORKINGTIME = 1600; //
     // 生成业务时，不同时间段产生的业务源宿点概率不同，用来区分时间, 之前设定为1500

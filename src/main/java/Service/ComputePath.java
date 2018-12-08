@@ -297,7 +297,7 @@ public class ComputePath extends Thread {
         System.out.println("number of success reconstruction:" + reconfigStatistic.numberOfReconfigedServices);
         System.out.println("number of failure reconstruction:" + reconfigStatistic.numberOfFailedServices);
 
-        while (System.currentTimeMillis() - this.programStartTime < Tools.PROGRAM_EXECUTE_TIME) {
+        while (System.currentTimeMillis() - this.programStartTime < Tools.PROGRAM_EXECUTE_TIME + 1000) {
             try {
                 Thread.sleep(1000);
             } catch (Exception e) {
