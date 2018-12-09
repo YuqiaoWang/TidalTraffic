@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 import tensorflow as tf
 import numpy as np
 import sys
@@ -35,9 +36,10 @@ config_content = json.load(json_file)
 model_type = config_content['model']['type']  # 用与区别模型是area还是link
 area_name = config_content['model']['area_name']  # 区域名称
 service_ratio = config_content['model']['service_ratio']  # 业务量
-input_num = config_content['param']['input'] # 输入层神经元个数
-output_num = config_content['param']['output'] # 输出层神经元个数
-
+input_num = config_content['param']['input']  # 输入层神经元个数
+output_num = config_content['param']['output']  # 输出层神经元个数
+hidden_layer = config_content['param']['hidden']['layer']  # 隐藏层层数
+hidden_neurons = config_content['param']['hidden']['neuron']  # 隐藏层各层神经元个数
 
 # 1.训练数据的读取处理
 # 1.1 文件读取
@@ -50,7 +52,6 @@ data_path = os.path.join(data_path, 'load')
 file_name = 'training_data_' + area_name + '.xls'  # 训练数据文件名
 file_path = os.path.join(data_path, file_name)  # 训练数据文件路径
 book = xlrd.open_workbook(file_path)
-# workbook = xlrd.open_workbook(r'data/100erlang/areasCount.xls')
 sheet_name = 'ratio' + str(service_ratio)  # 表单名
 if sheet_name not in book.sheet_names():  # 鲁棒性判断，防止表单不存在
     raise RuntimeError('sheet does not exist!')
@@ -73,26 +74,44 @@ xs = tf.placeholder(tf.float32, [None, input_num], name='input_x')
 ys = tf.placeholder(tf.float32, [None, output_num], name='input_y')
 
 # 3.定义神经层：隐藏层和预测层
+layers_params = []
+current_layer_param = []
+for i in range(0, hidden_layer):
+    if i == 0:
+        current_layer_param = add_layer(
+            xs, input_num, hidden_neurons[0], activation_function=tf.nn.relu, weight_name='weight_' + str(i), bias_name='bias_' + str(i))
+    else:
+        current_layer_param = add_layer(current_layer_param[0], hidden_neurons[i-1], hidden_neurons[i],
+                                        activation_function=tf.nn.sigmoid, weight_name='weight_' + str(i), bias_name='bia_' + str(i))
+    layers_params.append(current_layer_param)
+
+output_layer = add_layer(layers_params[-1][0], hidden_neurons[-1], output_num, activation_function=None,
+                         weight_name='weight_' + str(hidden_layer), bias_name='bias_' + str(hidden_layer))
+layers_params.append(output_layer)
+prediction = output_layer[0]
+weight_last = output_layer[1]
+biase_last = output_layer[2]
+
 # add hidden layer 输入值是 xs(31个神经元), 在隐藏层有30个神经元
-layerparameters1 = add_layer(xs, 31, 40, activation_function=tf.nn.relu,
-                             weight_name='weights1_area1', bias_name='biases1_area1')
-l1 = layerparameters1[0]
-Weights1 = layerparameters1[1]
-biases1 = layerparameters1[2]
+# layerparameters1 = add_layer(xs, 31, 40, activation_function=tf.nn.relu,
+#                             weight_name='weights1_area1', bias_name='biases1_area1')
+#l1 = layerparameters1[0]
+#Weights1 = layerparameters1[1]
+#biases1 = layerparameters1[2]
 
 # 隐藏层2
-layerparameters2 = add_layer(l1, 40, 10, activation_function=tf.nn.sigmoid,
-                             weight_name='weights2_area1', bias_name='biases2_area1')
-l2 = layerparameters2[0]
-Weights2 = layerparameters2[1]
-biases2 = layerparameters2[2]
+# layerparameters2 = add_layer(l1, 40, 10, activation_function=tf.nn.sigmoid,
+#                             weight_name='weights2_area1', bias_name='biases2_area1')
+#l2 = layerparameters2[0]
+#Weights2 = layerparameters2[1]
+#biases2 = layerparameters2[2]
 
 # add output layer 输入值是隐藏层l1,在预测层输出1个结果
-layerparameters3 = add_layer(l2, 10, 16, activation_function=None,
-                             weight_name='weights3_area1', bias_name='biases3_area1')
-prediction = layerparameters3[0]
-Weights3 = layerparameters3[1]
-biases3 = layerparameters3[2]
+# layerparameters3 = add_layer(l2, 10, 16, activation_function=None,
+#                             weight_name='weights3_area1', bias_name='biases3_area1')
+#prediction = layerparameters3[0]
+#Weights3 = layerparameters3[1]
+#biases3 = layerparameters3[2]
 
 # 4.定义loss表达式
 # the error between prediction and real data
@@ -111,13 +130,12 @@ train_step = tf.train.GradientDescentOptimizer(0.005).minimize(loss)
 lr = 1e-4
 #train_step = tf.train.AdamOptimizer(lr).minimize(cross_entropy)
 
-
 # import step 对所有变量进行初始化
 init = tf.global_variables_initializer()
 #sess = tf.Session()
 sess = tf.InteractiveSession()
-# 上面定义的都没有运算，直到sess.run 才会开始运算
-sess.run(init)
+sess.run(init)  # 上面定义的都没有运算，直到sess.run 才会开始运算
+
 
 saver = tf.train.Saver(max_to_keep=1)
 
@@ -160,10 +178,10 @@ for i in range(0, 24):
 # out_workbook.save('data/100erlang/area1_validation.xls')
 print('验证集数据已保存')
 
-print("b1:")
-print(sess.run(biases1))
-print("b2:")
-print(sess.run(biases2))
+# print("b1:")
+# print(sess.run(biases1))
+# print("b2:")
+# print(sess.run(biases2))
 
 
 # 7.参数保存

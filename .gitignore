@@ -5,7 +5,7 @@
 *.txt
 *.xls
 *.xlsx
-target/classes/*
+target/*
 *.jar
 *.pyc
 *.png
