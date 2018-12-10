@@ -176,7 +176,7 @@ for i in (0, hidden_layer):
     if (i == 0):
         model_file_name = str(area_name) + '/' + str(hidden_neurons[0])
     else:
-        model_file_name = model_file_name + '/' + hidden_neurons[i]
+        model_file_name = str(model_file_name) + '/' + str(hidden_neurons[i])
 model_file_name = os.path.join(model_save_path, model_file_name)
 saver = tf.train.Saver()
 with tf.Session() as sess:
