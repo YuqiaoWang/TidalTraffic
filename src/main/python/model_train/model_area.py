@@ -88,37 +88,18 @@ for i in range(0, hidden_layer):
 output_layer = add_layer(layers_params[-1][0], hidden_neurons[-1], output_num, activation_function=None,
                          weight_name='weight_' + str(hidden_layer), bias_name='bias_' + str(hidden_layer))
 layers_params.append(output_layer)
-prediction = output_layer[0]
-weight_last = output_layer[1]
-biase_last = output_layer[2]
+prediction = output_layer[0]  # 输出层
+weight_last = output_layer[1]  # 最后一层隐藏层到输出层的weights
+bias_last = output_layer[2]  # 最后一层阴藏层到输出层的bias
 
-# add hidden layer 输入值是 xs(31个神经元), 在隐藏层有30个神经元
-# layerparameters1 = add_layer(xs, 31, 40, activation_function=tf.nn.relu,
-#                             weight_name='weights1_area1', bias_name='biases1_area1')
-#l1 = layerparameters1[0]
-#Weights1 = layerparameters1[1]
-#biases1 = layerparameters1[2]
-
-# 隐藏层2
-# layerparameters2 = add_layer(l1, 40, 10, activation_function=tf.nn.sigmoid,
-#                             weight_name='weights2_area1', bias_name='biases2_area1')
-#l2 = layerparameters2[0]
-#Weights2 = layerparameters2[1]
-#biases2 = layerparameters2[2]
-
-# add output layer 输入值是隐藏层l1,在预测层输出1个结果
-# layerparameters3 = add_layer(l2, 10, 16, activation_function=None,
-#                             weight_name='weights3_area1', bias_name='biases3_area1')
-#prediction = layerparameters3[0]
-#Weights3 = layerparameters3[1]
-#biases3 = layerparameters3[2]
 
 # 4.定义loss表达式
 # the error between prediction and real data
 loss = tf.reduce_mean(tf.reduce_sum(
     tf.square(ys-prediction), reduction_indices=[1]))
-cross_entropy = (-1) * tf.reduce_sum(ys * tf.log(prediction))
-loss2 = tf.reduce_mean(cross_entropy)
+#cross_entropy = (-1) * tf.reduce_sum(ys * tf.log(prediction))
+#loss2 = tf.reduce_mean(cross_entropy)
+#cross_entropy = tf.reduce_mean(-tf.reduce_sum(ys * tf.log(prediction), reduction_indices=[1]))
 #cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels= ys, logits=prediction))
 #cross_ent = -tf.reduce_mean(tf.reduce_sum(ys * tf.log(prediction), reduction_indices=[1]))
 #cross_ent = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits())
@@ -127,7 +108,7 @@ loss2 = tf.reduce_mean(cross_entropy)
 # 这一行定义了用什么方式去减少loss,学习率是0.005
 #train_step = tf.train.GradientDescentOptimizer(0.005).minimize(cross_entropy)
 train_step = tf.train.GradientDescentOptimizer(0.005).minimize(loss)
-lr = 1e-4
+#lr = 1e-4
 #train_step = tf.train.AdamOptimizer(lr).minimize(cross_entropy)
 
 # import step 对所有变量进行初始化
@@ -174,7 +155,7 @@ for i in range(0, 24):
     # 保存验证集原始数据
     #row = origin_sheet.row(i)
     # for j in range(0, 31):
-    #    row.write(j, x_data_raw[i][j])
+    #    row.write(j, x_data_raw[xi][j])
 # out_workbook.save('data/100erlang/area1_validation.xls')
 print('验证集数据已保存')
 
@@ -185,10 +166,23 @@ print('验证集数据已保存')
 
 
 # 7.参数保存
-#saver = tf.train.Saver()
-# with tf.Session() as sess:
-#    sess.run(tf.global_variables_initializer())
-#    saver.save(sess, './model_save/tidal-model.ckpt', global_step=step)
+model_save_path = os.path.join(parent_path, 'model_save')
+model_save_path = os.path.join(model_save_path, model_type)
+model_save_path = os.path.join(model_save_path, 'ratio_' + str(service_ratio))
+if not os.path.exists(model_save_path):
+    os.makedirs(r'' + model_save_path)
+model_file_name = ''
+for i in (0, hidden_layer):
+    if (i == 0):
+        model_file_name = str(area_name) + '/' + str(hidden_neurons[0])
+    else:
+        model_file_name = model_file_name + '/' + hidden_neurons[i]
+model_file_name = os.path.join(model_save_path, model_file_name)
+saver = tf.train.Saver()
+with tf.Session() as sess:
+    sess.run(tf.global_variables_initializer())
+    #saver.save(sess, './model_save/tidal-model.ckpt', global_step=step)
+    saver.save(sess, model_file_name, global_step=step)
 print('模型参数已保存')
 
 
