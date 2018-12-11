@@ -57,16 +57,29 @@ if sheet_name not in book.sheet_names():  # 鲁棒性判断，防止表单不存
     raise RuntimeError('sheet does not exist!')
 sheet = book.sheet_by_name(sheet_name)
 # 1.2 数据拼凑(shape)
-x_data_raw = []
-y_data_raw = []
-rols = sheet.nrows  # 行数，即训练数据样本数量
-for i in range(1, rols):
+x_train_data_raw = []
+y_train_data_raw = []
+rols = sheet.nrows  # 行数，即训练数据样本数量（现将数据分为训练数据与测试数据）
+train_rols = rols - 24
+test_rols = 24
+# 1.2.1 训练数据
+for i in range(1, train_rols):
     xdata = sheet.row_values(i)[: input_num]  # 单个输入样本数据
     ydata = sheet.row_values(i)[input_num:]  # 单个输出样本数据
-    x_data_raw.append(xdata)
-    y_data_raw.append(ydata)
-x_data = np.array(x_data_raw)
-y_data = np.array(y_data_raw)
+    x_train_data_raw.append(xdata)
+    y_train_data_raw.append(ydata)
+x_train_data = np.array(x_train_data_raw)
+y_train_data = np.array(y_train_data_raw)
+# 1.2.2 测试数据
+x_test_data_raw = []
+y_test_data_raw = []
+for i in range(train_rols, train_rols + test_rols):
+    xdata = sheet.row_values(i)[: input_num]  # 单个输入样本数据
+    ydata = sheet.row_values(i)[input_num:]  # 单个输出样本数据
+    x_test_data_raw.append(xdata)
+    y_test_data_raw.append(ydata)
+x_test_data = np.array(x_test_data_raw)
+y_test_data = np.array(y_test_data_raw)
 
 # 2.定义节点准备接收数据
 # define placeholder for inputs to network
@@ -103,12 +116,14 @@ loss = tf.reduce_mean(tf.reduce_sum(
 #cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels= ys, logits=prediction))
 #cross_ent = -tf.reduce_mean(tf.reduce_sum(ys * tf.log(prediction), reduction_indices=[1]))
 #cross_ent = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits())
+# cross_entropy = -tf.reduce_mean(tf.reduce_sum(ys *
+#                                              tf.log(prediction) + (1 - ys) * tf.log(1 - prediction), axis=1))
 
 # 5.选择optimizer使loss达到最小
 # 这一行定义了用什么方式去减少loss,学习率是0.005
 #train_step = tf.train.GradientDescentOptimizer(0.005).minimize(cross_entropy)
 train_step = tf.train.GradientDescentOptimizer(0.005).minimize(loss)
-#lr = 1e-4
+lr = 1e-4
 #train_step = tf.train.AdamOptimizer(lr).minimize(cross_entropy)
 
 # import step 对所有变量进行初始化
@@ -117,66 +132,74 @@ init = tf.global_variables_initializer()
 sess = tf.InteractiveSession()
 sess.run(init)  # 上面定义的都没有运算，直到sess.run 才会开始运算
 
+saver = tf.train.Saver(max_to_keep=1)  # 模型保存对象
 
-saver = tf.train.Saver(max_to_keep=1)
-
+# 6.训练过程
 # 迭代1000次学习， sess.run optimizer
 step = 100000
 for i in range(step):
     # training train_step 和 loss 都是由 placeholder 定义的运算，所以这里要用 feed 传入参数
-    sess.run(train_step, feed_dict={xs: x_data, ys: y_data})
+    sess.run(train_step, feed_dict={xs: x_train_data, ys: y_train_data})
     if i % 5000 == 0:
         # to see the step improvement
-        #print(sess.run(loss, feed_dict={xs: x_data, ys: y_data}))
-        #currentLoss = sess.run(loss, feed_dict={xs: x_data, ys: y_data})
-        currentLoss = sess.run(loss, feed_dict={xs: x_data, ys: y_data})
+        #print(sess.run(loss, feed_dict={xs: x_train_data, ys: y_train_data}))
+        #currentLoss = sess.run(loss, feed_dict={xs: x_train_data, ys: y_train_data})
+        currentLoss = sess.run(
+            loss, feed_dict={xs: x_train_data, ys: y_train_data})
         print('epoch:%d, val_loss:%f' % (i, currentLoss))
 
         # saver.save(sess, 'model_save/100erlang/model_area1.ckpt', global_step=i)
 
+# 7.0 & 8.0 路径定义
+model_save_path = os.path.join(parent_path, 'model_save')
+model_save_path = os.path.join(model_save_path, model_type)
+model_save_path = os.path.join(model_save_path, 'ratio_' + str(service_ratio))
 
-# 6.验证部分
+# 7.验证（测试）部分
 # for i in range (800, 820):
-#    print(sess.run(prediction, feed_dict={xs:x_data[i][:, np.newaxis]}))
+#    print(sess.run(prediction, feed_dict={xs:x_train_data[i][:, np.newaxis]}))
 out_workbook = xlwt.Workbook()
 origin_sheet = out_workbook.add_sheet('origin_data')
 out_sheet = out_workbook.add_sheet('prediction')
-for i in range(0, 24):
-    #    x_feed = np.transpose(x_data[i + 96][:,np.newaxis])
-    x_feed = np.transpose(x_data[i][:, np.newaxis])
+for i in range(0, test_rols):
+    #    x_feed = np.transpose(x_train_data[i + 96][:,np.newaxis])
+    x_feed = np.transpose(x_test_data[i][:, np.newaxis])
     if i is 1:
         print(x_feed)
     xl_out_data = sess.run(prediction, feed_dict={xs: x_feed})
     xl_write_data = xl_out_data.tolist()
     # 保存验证集结果数据
     row = out_sheet.row(i)
-    # for j in range(0, 16):
-    #    row.write(j, xl_write_data[0][j])
+    for j in range(0, 16):
+        row.write(j, xl_write_data[0][j])
     # 保存验证集原始数据
-    #row = origin_sheet.row(i)
-    # for j in range(0, 31):
-    #    row.write(j, x_data_raw[xi][j])
+    row = origin_sheet.row(i)
+    for j in range(0, 31):
+        row.write(j, x_test_data_raw[i][j])
+out_workbook_path = os.path.join(model_save_path, 'test')
+if not os.path.exists(out_workbook_path):
+    os.makedirs(r'' + out_workbook_path)
+out_workbook_name = os.path.join(out_workbook_path, str(area_name)+'.xls')
+out_workbook.save(out_workbook_name)
 # out_workbook.save('data/100erlang/area1_validation.xls')
 print('验证集数据已保存')
-
 # print("b1:")
 # print(sess.run(biases1))
 # print("b2:")
 # print(sess.run(biases2))
 
-
-# 7.参数保存
-model_save_path = os.path.join(parent_path, 'model_save')
-model_save_path = os.path.join(model_save_path, model_type)
-model_save_path = os.path.join(model_save_path, 'ratio_' + str(service_ratio))
+# 8.模型保存
+#model_save_path = os.path.join(parent_path, 'model_save')
+#model_save_path = os.path.join(model_save_path, model_type)
+#model_save_path = os.path.join(model_save_path, 'ratio_' + str(service_ratio))
 if not os.path.exists(model_save_path):
     os.makedirs(r'' + model_save_path)
 model_file_name = ''
-for i in (0, hidden_layer):
+for i in range(0, hidden_layer):
     if (i == 0):
-        model_file_name = str(area_name) + '/' + str(hidden_neurons[0])
+        model_file_name = str(area_name) + '_' + str(hidden_neurons[0])
     else:
-        model_file_name = str(model_file_name) + '/' + str(hidden_neurons[i])
+        model_file_name = model_file_name + '_' + str(hidden_neurons[i])
 model_file_name = os.path.join(model_save_path, model_file_name)
 saver = tf.train.Saver()
 with tf.Session() as sess:
@@ -187,8 +210,8 @@ print('模型参数已保存')
 
 
 sess.close()
-#x_feed = np.transpose(x_data[11][:,np.newaxis])
+#x_feed = np.transpose(x_train_data[11][:,np.newaxis])
 #print(sess.run(prediction, feed_dict={xs : x_feed}))
 # for i in range(0:24):
-#    x_feed = np.transpose(x_data[i][:, np.newaxis])
+#    x_feed = np.transpose(x_train_data[i][:, np.newaxis])
 #    xl_write_data = sess.run(prediction, feed_dict={xs : x_feed})
