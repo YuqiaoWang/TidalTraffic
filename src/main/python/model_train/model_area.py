@@ -179,7 +179,13 @@ for i in range(0, test_rols):
 out_workbook_path = os.path.join(model_save_path, 'test')
 if not os.path.exists(out_workbook_path):
     os.makedirs(r'' + out_workbook_path)
-out_workbook_name = os.path.join(out_workbook_path, str(area_name)+'.xls')
+out_workbook_name = ''
+for i in range(0, hidden_layer):
+    if (i == 0):
+        out_workbook_name = str(area_name) + '_' + str(hidden_neurons[0])
+    else:
+        out_workbook_name = model_file_name + '_' + str(hidden_neurons[i])
+out_workbook_name = os.path.join(out_workbook_path, out_workbook_name+'.xls')
 out_workbook.save(out_workbook_name)
 # out_workbook.save('data/100erlang/area1_validation.xls')
 print('验证集数据已保存')
