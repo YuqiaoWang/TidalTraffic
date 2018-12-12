@@ -215,6 +215,8 @@ print('模型参数已保存')
 # 9 误差分析
 mean_squared_error = metrics.mean_squared_error(y_test_data, y_test_predict)
 r2_score = metrics.r2_score(y_test_data, y_test_predict)
+mean_absolute_error = metrics.mean_absolute_error(y_test_data, y_test_predict)
+mean_squared_log_error = metrics.mean_squared_log_error(y_test_data, y_test_predict)
 explained_variance_score = metrics.explained_variance_score(y_test_data, y_test_predict)
 print('均方误差:')
 print(mean_squared_error)
@@ -222,6 +224,10 @@ print('R方误差:')
 print(r2_score)
 print('explained_variance_score:')
 print(explained_variance_score)
+print('平均绝对误差:')
+print(mean_absolute_error)
+print('均方对数误差:')
+print(mean_squared_log_error)
 
 
 
