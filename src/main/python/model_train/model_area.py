@@ -160,17 +160,20 @@ model_save_path = os.path.join(model_save_path, 'ratio_' + str(service_ratio))
 out_workbook = xlwt.Workbook()
 origin_sheet = out_workbook.add_sheet('origin_data')
 out_sheet = out_workbook.add_sheet('prediction')
-y_test_predict = [] #测试集对应的预测结果
+y_test_predict = [] # 测试集对应的预测结果(回归)
+tidal_predict = []  # 测试集潮汐标识位预测结果(分类)
 for i in range(0, test_rols):
     x_feed = np.transpose(x_test_data[i][:, np.newaxis])
-    if i is 1:
-        print(x_feed)
     xl_out_data = sess.run(prediction, feed_dict={xs: x_feed})
-    xl_write_data = xl_out_data.tolist()
+    xl_write_data = xl_out_data.tolist()  # 矩阵转二维数组
+    
     if y_test_predict == []:
-        y_test_predict = xl_write_data
+        tidal_predict = xl_write_data[:, 0]
+        y_test_predict = xl_write_data[:, 1:]
     else:
-        y_test_predict = np.concatenate((y_test_predict, xl_write_data), axis=0)
+        tidal_predict = np.concatenate(
+            (y_test_predict, xl_write_data[:, 0]), axis=0)
+        y_test_predict = np.concatenate((y_test_predict, xl_write_data[:, 1:]), axis=0)
     # 保存验证集结果数据
     row = out_sheet.row(i)
     for j in range(0, 16):
