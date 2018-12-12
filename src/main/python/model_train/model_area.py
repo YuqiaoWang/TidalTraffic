@@ -9,6 +9,7 @@ import os
 import xlrd
 import xlwt
 from xlutils.copy import copy as xl_copy
+import sklearn.metrics as metrics
 
 
 # 添加层
@@ -156,18 +157,20 @@ model_save_path = os.path.join(model_save_path, model_type)
 model_save_path = os.path.join(model_save_path, 'ratio_' + str(service_ratio))
 
 # 7.验证（测试）部分
-# for i in range (800, 820):
-#    print(sess.run(prediction, feed_dict={xs:x_train_data[i][:, np.newaxis]}))
 out_workbook = xlwt.Workbook()
 origin_sheet = out_workbook.add_sheet('origin_data')
 out_sheet = out_workbook.add_sheet('prediction')
+y_test_predict = [] #测试集对应的预测结果
 for i in range(0, test_rols):
-    #    x_feed = np.transpose(x_train_data[i + 96][:,np.newaxis])
     x_feed = np.transpose(x_test_data[i][:, np.newaxis])
     if i is 1:
         print(x_feed)
     xl_out_data = sess.run(prediction, feed_dict={xs: x_feed})
     xl_write_data = xl_out_data.tolist()
+    if y_test_predict == []:
+        y_test_predict = xl_write_data
+    else:
+        y_test_predict = np.concatenate((y_test_predict, xl_write_data), axis=0)
     # 保存验证集结果数据
     row = out_sheet.row(i)
     for j in range(0, 16):
@@ -184,15 +187,10 @@ for i in range(0, hidden_layer):
     if (i == 0):
         out_workbook_name = str(area_name) + '_' + str(hidden_neurons[0])
     else:
-        out_workbook_name = model_file_name + '_' + str(hidden_neurons[i])
+        out_workbook_name = out_workbook_name + '_' + str(hidden_neurons[i])
 out_workbook_name = os.path.join(out_workbook_path, out_workbook_name+'.xls')
 out_workbook.save(out_workbook_name)
-# out_workbook.save('data/100erlang/area1_validation.xls')
 print('验证集数据已保存')
-# print("b1:")
-# print(sess.run(biases1))
-# print("b2:")
-# print(sess.run(biases2))
 
 # 8.模型保存
 #model_save_path = os.path.join(parent_path, 'model_save')
@@ -213,6 +211,18 @@ with tf.Session() as sess:
     #saver.save(sess, './model_save/tidal-model.ckpt', global_step=step)
     saver.save(sess, model_file_name, global_step=step)
 print('模型参数已保存')
+
+# 9 误差分析
+mean_squared_error = metrics.mean_squared_error(y_test_data, y_test_predict)
+r2_score = metrics.r2_score(y_test_data, y_test_predict)
+explained_variance_score = metrics.explained_variance_score(y_test_data, y_test_predict)
+print('均方误差:')
+print(mean_squared_error)
+print('R方误差:')
+print(r2_score)
+print('explained_variance_score:')
+print(explained_variance_score)
+
 
 
 sess.close()
