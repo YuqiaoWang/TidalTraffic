@@ -109,8 +109,10 @@ bias_last = output_layer[2]  # 最后一层阴藏层到输出层的bias
 
 # 4.定义loss表达式
 # the error between prediction and real data
-loss = tf.reduce_mean(tf.reduce_sum(
-    tf.square(ys-prediction), reduction_indices=[1]))
+with tf.name_scope('loss'):
+    loss = tf.reduce_mean(tf.reduce_sum(
+        tf.square(ys - prediction), reduction_indices=[1]))
+    tf.summary.scalar('loss', loss)
 #cross_entropy = (-1) * tf.reduce_sum(ys * tf.log(prediction))
 #loss2 = tf.reduce_mean(cross_entropy)
 #cross_entropy = tf.reduce_mean(-tf.reduce_sum(ys * tf.log(prediction), reduction_indices=[1]))
@@ -131,6 +133,11 @@ lr = 1e-4
 init = tf.global_variables_initializer()
 #sess = tf.Session()
 sess = tf.InteractiveSession()
+
+#merged 用于tensorboard绘图
+merged = tf.summary.merge_all()
+writer = tf.summary.FileWriter("logs/", sess.graph)
+
 sess.run(init)  # 上面定义的都没有运算，直到sess.run 才会开始运算
 
 saver = tf.train.Saver(max_to_keep=1)  # 模型保存对象
@@ -141,6 +148,8 @@ step = 100000
 for i in range(step):
     # training train_step 和 loss 都是由 placeholder 定义的运算，所以这里要用 feed 传入参数
     sess.run(train_step, feed_dict={xs: x_train_data, ys: y_train_data})
+    rs = sess.run(merged)
+    writer.add_summary(rs, i)
     if i % 5000 == 0:
         # to see the step improvement
         #print(sess.run(loss, feed_dict={xs: x_train_data, ys: y_train_data}))
@@ -168,12 +177,16 @@ for i in range(0, test_rols):
     xl_write_data = xl_out_data.tolist()  # 矩阵转二维数组
     
     if y_test_predict == []:
-        tidal_predict = xl_write_data[:, 0]
-        y_test_predict = xl_write_data[:, 1:]
+        #tidal_predict = xl_write_data[0][0]
+        #y_test_predict = xl_write_data[0][1:]
+        y_test_predict = xl_write_data
     else:
-        tidal_predict = np.concatenate(
-            (y_test_predict, xl_write_data[:, 0]), axis=0)
-        y_test_predict = np.concatenate((y_test_predict, xl_write_data[:, 1:]), axis=0)
+        #tidal_predict = np.concatenate(
+        #    (y_test_predict, xl_write_data[0][0]), axis=0)
+        #y_test_predict = np.concatenate((y_test_predict, xl_write_data[0][1:]), axis=0)
+        y_test_predict = np.concatenate(
+            (y_test_predict, xl_write_data), axis=0)
+    
     # 保存验证集结果数据
     row = out_sheet.row(i)
     for j in range(0, 16):
@@ -182,6 +195,8 @@ for i in range(0, test_rols):
     row = origin_sheet.row(i)
     for j in range(0, 31):
         row.write(j, x_test_data_raw[i][j])
+print('y_test_predict')
+print(y_test_predict)
 out_workbook_path = os.path.join(model_save_path, 'test')
 if not os.path.exists(out_workbook_path):
     os.makedirs(r'' + out_workbook_path)
@@ -219,7 +234,7 @@ print('模型参数已保存')
 mean_squared_error = metrics.mean_squared_error(y_test_data, y_test_predict)
 r2_score = metrics.r2_score(y_test_data, y_test_predict)
 mean_absolute_error = metrics.mean_absolute_error(y_test_data, y_test_predict)
-mean_squared_log_error = metrics.mean_squared_log_error(y_test_data, y_test_predict)
+#mean_squared_log_error = metrics.mean_squared_log_error(y_test_data, y_test_predict)
 explained_variance_score = metrics.explained_variance_score(y_test_data, y_test_predict)
 print('均方误差:')
 print(mean_squared_error)
@@ -229,8 +244,8 @@ print('explained_variance_score:')
 print(explained_variance_score)
 print('平均绝对误差:')
 print(mean_absolute_error)
-print('均方对数误差:')
-print(mean_squared_log_error)
+#print('均方对数误差:')
+#print(mean_squared_log_error)
 
 
 
