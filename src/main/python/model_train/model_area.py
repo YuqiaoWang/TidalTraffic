@@ -15,9 +15,13 @@ import sklearn.metrics as metrics
 # 添加层
 def add_layer(inputs, in_size, out_size, activation_function=None, weight_name=None, bias_name=None):
     # add one more layer and return the output of this layer
-    Weights = tf.Variable(tf.random_normal(
-        [in_size, out_size]), name=weight_name)
-    biases = tf.Variable(tf.zeros([1, out_size]) + 0.1, name=bias_name)
+    with tf.name_scope('parameters'):
+        with tf.name_scope(weight_name):
+            Weights = tf.Variable(tf.random_normal([in_size, out_size]), name=weight_name)
+            tf.summary.histogram(weight_name, Weights)
+        with tf.name_scope(bias_name):
+            biases = tf.Variable(tf.zeros([1, out_size]) + 0.1, name=bias_name)
+            tf.summary.histogram(bias_name, biases)
     Wx_plus_b = tf.matmul(inputs, Weights) + biases
     if activation_function is None:
         outputs = Wx_plus_b
