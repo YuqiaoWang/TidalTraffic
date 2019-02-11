@@ -17,10 +17,10 @@ def add_layer(inputs, in_size, out_size, activation_function=None, weight_name=N
     # add one more layer and return the output of this layer
     with tf.name_scope('parameters'):
         with tf.name_scope(weight_name):
-            Weights = tf.Variable(tf.random_normal([in_size, out_size]), name=weight_name)
+            Weights = tf.Variable(initial_value=tf.random_normal([in_size, out_size]), name=weight_name)
             tf.summary.histogram(weight_name, Weights)
         with tf.name_scope(bias_name):
-            biases = tf.Variable(tf.zeros([1, out_size]) + 0.1, name=bias_name)
+            biases = tf.Variable(initial_value=tf.zeros([1, out_size])+0.1, name=bias_name)
             tf.summary.histogram(bias_name, biases)
     Wx_plus_b = tf.matmul(inputs, Weights) + biases
     if activation_function is None:
@@ -88,8 +88,9 @@ y_test_data = np.array(y_test_data_raw)
 
 # 2.定义节点准备接收数据
 # define placeholder for inputs to network
-xs = tf.placeholder(tf.float32, [None, input_num], name='input_x')
-ys = tf.placeholder(tf.float32, [None, output_num], name='input_y')
+with tf.name_scope('input'):
+    xs = tf.placeholder(dtype=tf.float32, shape=[None, input_num], name='input_x')
+    ys = tf.placeholder(dtype=tf.float32, shape=[None, output_num], name='input_y')
 
 # 3.定义神经层：隐藏层和预测层
 layers_params = []
@@ -140,7 +141,7 @@ sess = tf.InteractiveSession()
 
 #merged 用于tensorboard绘图
 merged = tf.summary.merge_all()
-writer = tf.summary.FileWriter("logs/", sess.graph)
+writer = tf.summary.FileWriter(logdir="logs/", graph=sess.graph)
 
 sess.run(init)  # 上面定义的都没有运算，直到sess.run 才会开始运算
 
@@ -153,7 +154,7 @@ for i in range(step):
     # training train_step 和 loss 都是由 placeholder 定义的运算，所以这里要用 feed 传入参数
     sess.run(train_step, feed_dict={xs: x_train_data, ys: y_train_data})
     rs = sess.run(merged)
-    writer.add_summary(rs, i)
+    writer.add_summary(rs, global_step=i)
     if i % 5000 == 0:
         # to see the step improvement
         #print(sess.run(loss, feed_dict={xs: x_train_data, ys: y_train_data}))
@@ -163,6 +164,8 @@ for i in range(step):
         print('epoch:%d, val_loss:%f' % (i, currentLoss))
 
         # saver.save(sess, 'model_save/100erlang/model_area1.ckpt', global_step=i)
+writer.close()
+
 
 # 7.0 & 8.0 路径定义
 model_save_path = os.path.join(parent_path, 'model_save')
