@@ -88,4 +88,22 @@ public class SimpleGraph {
 
         return this.graph;
     }
+
+    /**
+     * 克隆拓扑（深克隆）
+     */
+    public static SimpleWeightedGraph<Vertex, SimpleEdge> cloneGraph(
+            SimpleWeightedGraph<Vertex, SimpleEdge> originGraph) {
+        SimpleWeightedGraph<Vertex, SimpleEdge> clonedGraph = new SimpleWeightedGraph<Vertex, SimpleEdge>(
+                SimpleEdge.class);
+        Set<SimpleEdge> originEdgeSet = originGraph.edgeSet();
+        Set<Vertex> originVertexSet = originGraph.vertexSet();
+        for (Vertex v : originVertexSet) {
+            clonedGraph.addVertex(v);
+        }
+        for (SimpleEdge e : originEdgeSet) {
+            clonedGraph.addEdge(e.srcVertex, e.desVertex, e);
+        }
+        return clonedGraph;
+    }
 }

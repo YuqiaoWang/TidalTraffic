@@ -5,15 +5,16 @@ import Service.Reconfiguration.Trigger;
 import SimulationImpl.ClockUtil;
 import Topology.Area;
 import Topology.SimpleEdge;
+import Topology.SimpleGraph;
 import Topology.Vertex;
 import SimulationImpl.Tools;
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
+import org.jgrapht.alg.interfaces.KShortestPathAlgorithm;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
+import org.jgrapht.alg.shortestpath.KShortestPaths;
 import org.jgrapht.graph.SimpleWeightedGraph;
-
 import DataProcess.FigureGenerate;
-
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.*;
@@ -59,7 +60,8 @@ public class ComputePath extends Thread {
             HashMap<String, Area> areaHashMap, ServiceTransMsg msg, ClockUtil clock) {
         this.serviceBlockingQueue = bq;
         this.graph = graph;
-        this.loadGraph = (SimpleWeightedGraph<Vertex, SimpleEdge>) graph.clone();
+        // this.loadGraph = (SimpleWeightedGraph<Vertex, SimpleEdge>) graph.clone();
+        this.loadGraph = SimpleGraph.cloneGraph(graph);
         this.blockedTimes = 0;
         this.programStartTime = clock.getStartTime();
         this.servicesNumberInTidalMigrationPeriod = 0;
@@ -86,8 +88,10 @@ public class ComputePath extends Thread {
             SimpleWeightedGraph<Vertex, SimpleEdge> graph) {
         Vertex srcNode = service.srcNode;
         Vertex desNode = service.desNode;
+        // TODO: 以后加入KSP算路方法，并通过配置文件灵活变更
         GraphPath<Vertex, SimpleEdge> shortestPath = DijkstraShortestPath.findPathBetween(graph, srcNode, desNode);
-        service.isComputed = true;
+        service.isComputed = true; // 业务标记为已算路
+        service.setGraphPath(shortestPath); // 将业务路径记录
         return shortestPath;
     }
 
@@ -141,7 +145,9 @@ public class ComputePath extends Thread {
      */
     public boolean allocateResource(Service service) {
         try {
-            GraphPath<Vertex, SimpleEdge> servicePath = serviceGraphPathHashMap.get(service);
+            // GraphPath<Vertex, SimpleEdge> servicePath =
+            // serviceGraphPathHashMap.get(service);
+            GraphPath<Vertex, SimpleEdge> servicePath = service.getGraphPath();
             if (servicePath == null) { // 判断是否算路
                 throw new Exception("业务[" + service.serviceId + "]还未算路！");
             }
@@ -149,7 +155,7 @@ public class ComputePath extends Thread {
             int n = service.numberOfWavelenthes;
             /** 分配波长(满足波长一致性) */
             int count = 0; // 记录各边都满足的连续波长数
-            List<Integer> freeWavelenthesNumber = new ArrayList<Integer>(); // 统计空闲波长号用
+            List<Integer> freeWavelengthesNumber = new ArrayList<Integer>(); // 统计空闲波长号用
             // 资源统计
             for (int i = 0; i < Tools.DEFAULTNUMBEROFWAVELENTHES; i++) { // 对于每个波长号，统计各个边的该波长号是否都空闲
                 int edgeCount = 0;
@@ -162,26 +168,13 @@ public class ComputePath extends Thread {
                 }
                 if (edgeCount == edgeList.size()) {
                     count++;
-                    freeWavelenthesNumber.add(Integer.valueOf(i));
+                    freeWavelengthesNumber.add(Integer.valueOf(i));
                 }
             }
             // 分配资源
             if (count >= n) { // 如果[空闲波长]不少于[需要的波长]
-                // System.out.printf("分配的波长资源：");
-                for (int i = 0; i < n; i++) {
-                    int currentWavelenthNumber = freeWavelenthesNumber.get(i).intValue(); // 取出波长号
-                    service.wavelengthesNumber.add(Integer.valueOf(currentWavelenthNumber));// 将波长号放入service对象中
-                    Iterator<SimpleEdge> edgeIterator = edgeList.iterator();
-                    while (edgeIterator.hasNext()) {
-                        SimpleEdge currentEdge = edgeIterator.next();
-                        currentEdge.wavelenthOccupation[currentWavelenthNumber] = true;
-                        currentEdge.serviceOnWavelength[currentWavelenthNumber] = service.serviceId; // 将每个波长跑的什么业务记录下来
-                        currentEdge.numberOfOccupatedWavelength += 1;
-                    }
-                    // System.out.print("[" + currentWavelenthNumber + "]");
-                }
-                // System.out.printf("\n");
-                service.isAllocated = true;
+                //TODO:今后在这里加入配置文件，灵活变更分配策略
+                AllocationStrategy.firstFit(service, freeWavelengthesNumber, edgeList);
             } else { // 若波长资源不够用
                 service.isBlocked = true;
                 service.isOutOfTime = true;
@@ -192,13 +185,10 @@ public class ComputePath extends Thread {
                 if (programRunningTime > Tools.DEFAULTWORKINGTIME && programRunningTime < Tools.DEFAULTTIDALENDTIME) {
                     blockedTimesInTidalMigrationPeriod += 1;
                 }
-                // FileWriter fileWriter = new
-                // FileWriter("src/main/java/Service/blockedNumber.txt");
-                // BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-                // bufferedWriter.write();
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return false; // 如果抛异常则直接返回false
         }
         return service.isAllocated;
     }
@@ -218,17 +208,13 @@ public class ComputePath extends Thread {
         int serviceNum = 0;
         try {
             LoadCountTask loadCountTask = new LoadCountTask(graph, areaHashMap, listenerList, reconfigStatistic, clock); // 新建统计任务
-            // Timer timer = new Timer(); // 定时器
-            // timer.schedule(loadCountTask, Tools.COUNT_DELAY, Tools.COUNT_PERIOD *
-            // Tools.TIMESCALE);
             this.scheduExec.scheduleAtFixedRate(loadCountTask, Tools.COUNT_DELAY, Tools.COUNT_PERIOD * Tools.TIMESCALE,
                     TimeUnit.MILLISECONDS); // 定时器执行统计
         } catch (Exception e) {
             e.printStackTrace();
         }
-        // while (serviceNum < Tools.DEFAULTSERVICENUMBER) { // 在业务发生过程中
         while (System.currentTimeMillis() - programStartTime < Tools.DEFAULTSERVICEENDTIME) { // 当业务未发生完毕时
-            if (this.msg.getStatus()) {
+            if (this.msg.getStatus()) { // 若发生业务状态变为true即完成，则中断
                 break;
             }
             try {
@@ -236,8 +222,8 @@ public class ComputePath extends Thread {
                 Service service = serviceBlockingQueue.take(); // 从阻塞队列拿到业务
                 serviceNum++;
                 long programRunningTime = System.currentTimeMillis() - this.clock.getStartTime(); // 程序运行时间
-                if (programRunningTime > Tools.DEFAULTWORKINGTIME && programRunningTime < Tools.DEFAULTTIDALENDTIME) {
-                    this.servicesNumberInTidalMigrationPeriod += 1;
+                if (programRunningTime > Tools.DEFAULTWORKINGTIME && programRunningTime < Tools.DEFAULTTIDALENDTIME) { // 潮汐时段内
+                    this.servicesNumberInTidalMigrationPeriod += 1; // 统计潮汐迁移时段内的业务个数
                     lastServiceIDInTidalMigrationPeriod = service.serviceId;
                 }
                 /** 算路 */
@@ -245,10 +231,8 @@ public class ComputePath extends Thread {
                 // TODO:如果在对照组分支上，将这部分注释掉
                 // reAllocateWeight();
                 // D算法算路
-                GraphPath<Vertex, SimpleEdge> graphPath = findShortestPath(service, this.graph);
-                serviceGraphPathHashMap.put(service, graphPath);
-                service.isComputed = true;
-                service.setGraphPath(graphPath);
+                GraphPath<Vertex, SimpleEdge> graphPath = findShortestPath(service, this.loadGraph); // 最短路路径(使用loadGraph做计算)
+                serviceGraphPathHashMap.put(service, graphPath); // 将路径放入map中
                 System.out.printf("service No." + service.serviceId + " has been calulated a path: ");
                 List<Vertex> vertexList = graphPath.getVertexList();
                 // 统计跳数
@@ -267,10 +251,7 @@ public class ComputePath extends Thread {
                 boolean allocated = allocateResource(service);
                 /** 业务离去 */
                 if (service.isResourceAllocated() == true) { // 如果分配了资源
-                    // Timer leavingTimer = new Timer();
                     ServiceLeavingTask serviceLeavingTask = new ServiceLeavingTask(service);
-                    // leavingTimer.schedule(serviceLeavingTask, service.serviceTime *
-                    // Tools.TIMESCALE);
                     this.scheduExec.schedule(serviceLeavingTask, service.serviceTime * Tools.TIMESCALE,
                             TimeUnit.MILLISECONDS);// 业务时间结束后离去
                 }

@@ -45,6 +45,7 @@ input_num = config_content['param']['input']  # 输入层神经元个数
 output_num = config_content['param']['output']  # 输出层神经元个数
 hidden_layer = config_content['param']['hidden']['layer']  # 隐藏层层数
 hidden_neurons = config_content['param']['hidden']['neuron']  # 隐藏层各层神经元个数
+step = config_content['param']['step'] # 训练迭代次数
 
 # 1.训练数据的读取处理
 # 1.1 文件读取
@@ -149,7 +150,7 @@ saver = tf.train.Saver(max_to_keep=1)  # 模型保存对象
 
 # 6.训练过程
 # 迭代1000次学习， sess.run optimizer
-step = 100000
+#step = 100000
 for i in range(step):
     # training train_step 和 loss 都是由 placeholder 定义的运算，所以这里要用 feed 传入参数
     sess.run(train_step, feed_dict={xs: x_train_data, ys: y_train_data})

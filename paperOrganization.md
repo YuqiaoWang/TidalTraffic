@@ -45,6 +45,7 @@
 
 2. 仿真
     - loss - step 图（tensorboard）
+      - tensorboard 已内置，实现
     - MSE - 隐藏层神经元 图（模型参数选择过程）
     - 平均绝对误差 - 隐藏层神经元 图
     - R2 - 隐藏层神经元 图

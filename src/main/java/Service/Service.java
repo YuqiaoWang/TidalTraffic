@@ -15,24 +15,23 @@ import java.util.List;
  * 业务
  */
 public class Service {
-    public String serviceId;
-    public Vertex srcNode;                             //源节点
-    public Vertex desNode;                             //宿节点
+    public String serviceId; // 业务编号
+    public Vertex srcNode; // 源节点
+    public Vertex desNode; // 宿节点
     double unitbandwidth = 6.25;
-    double bandwidth;                                  //带宽
-    double wavelenth;                                  //占用的波长
-    public int numberOfWavelenthes;                    //占用的波长数
-    public int serviceTime;                            //请求服务时间
-    public long startTime;                             //开始时刻
-    public int remainTime;                             //剩余时间
-    public GraphPath<Vertex, SimpleEdge> graphPath;    //算出来的路
-    public List<Integer> wavelengthesNumber;           //占用的波长号列表
-    boolean isComputed;                                //是否已算路
-    boolean isAllocated;                               //是否分配资源
-    boolean isBlocked;                                 //是否已阻塞
-    boolean isOutOfTime;                               //是否已离去
-    public boolean reconfiged;                         //是否已重构
-
+    double bandwidth; // 带宽
+    double wavelenth; // 占用的波长
+    public int numberOfWavelenthes; // 占用的波长数
+    public int serviceTime; // 请求服务时间
+    public long startTime; // 开始时刻
+    public int remainTime; // 剩余时间
+    private GraphPath<Vertex, SimpleEdge> graphPath; // 算出来的路
+    public List<Integer> wavelengthesNumber; // 占用的波长号列表
+    boolean isComputed; // 是否已算路
+    boolean isAllocated; // 是否分配资源
+    boolean isBlocked; // 是否已阻塞
+    boolean isOutOfTime; // 是否已离去
+    public boolean reconfiged; // 是否已重构
 
     public Service(Vertex srcNode, Vertex desNode, int numberOfWavelenthes, int serviceTime) {
         this.srcNode = srcNode;
@@ -40,7 +39,7 @@ public class Service {
         this.bandwidth = unitbandwidth * numberOfWavelenthes;
         this.numberOfWavelenthes = numberOfWavelenthes;
         this.serviceTime = serviceTime;
-        this.startTime = System.currentTimeMillis();            //记录起始时间
+        this.startTime = System.currentTimeMillis(); // 记录起始时间
         this.wavelengthesNumber = new ArrayList<Integer>();
         this.isComputed = false;
         this.isAllocated = false;
@@ -49,7 +48,7 @@ public class Service {
         this.reconfiged = false;
     }
 
-    public boolean isPathComputed(){
+    public boolean isPathComputed() {
         return isComputed;
     }
 
@@ -73,19 +72,29 @@ public class Service {
         this.graphPath = graphPath;
     }
 
+    public GraphPath<Vertex, SimpleEdge> getGraphPath() throws Exception {
+        if (this.isComputed) {
+            return this.graphPath;
+        } else {
+            throw new Exception("try to get the shortestPath of service No." + this.serviceId
+                    + ", but it hasn't been calculated yet");
+        }
+
+    }
+
     @Override
     public int hashCode() {
         int x = srcNode.hashCode();
         int y = desNode.hashCode();
-        return (x * y + x + y) * (int)bandwidth;
+        return (x * y + x + y) * (int) bandwidth;
     }
 
     @Override
     public boolean equals(Object obj) {
-        Service x = (Service)obj;
-        if(x.hashCode() == this.hashCode()) {
+        Service x = (Service) obj;
+        if (x.hashCode() == this.hashCode()) {
             return true;
-        }else {
+        } else {
             return false;
         }
     }
