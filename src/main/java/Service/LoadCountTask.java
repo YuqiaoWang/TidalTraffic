@@ -199,7 +199,7 @@ public class LoadCountTask extends TimerTask {
                 int countZero = 0;
                 for (Double d : usedWavelengthCountList) {
                     sumOfUsedWavelengthCount += d;
-                    if (Math.abs(d - 0) < 50) {
+                    if (Math.abs(d - 0) < 20) {
                         countZero++;
                     }
                 }

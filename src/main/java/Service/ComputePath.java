@@ -114,7 +114,6 @@ public class ComputePath extends Thread {
     /**
      * 将边权赋值成[当前负载值]
      */
-    @Deprecated
     public void reAllocateWeight() {
         Iterator<SimpleEdge> edgeIterator = this.graph.edgeSet().iterator();
         while (edgeIterator.hasNext()) {
@@ -237,7 +236,7 @@ public class ComputePath extends Thread {
                 /** 算路 */
                 // 重新赋边权(以负载为边权)
                 // TODO:如果在对照组分支上，将这部分注释掉
-                // reAllocateWeight();
+                reAllocateWeight();
                 // D算法算路
                 long calculateStartTime = System.currentTimeMillis(); // 算路起始时间
                 GraphPath<Vertex, SimpleEdge> graphPath = findShortestPath(service, this.loadGraph); // 最短路路径(使用loadGraph做计算)
