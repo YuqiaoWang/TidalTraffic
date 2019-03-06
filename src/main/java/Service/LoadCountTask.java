@@ -25,6 +25,7 @@ public class LoadCountTask extends TimerTask {
     FileWriter area1LoadCountFileWriter;
     FileWriter area2LoadCountFileWriter;
     FileWriter area3LoadCountFileWriter;
+    double totalUsedWavelength; // 统计资源利用率
     int writeTimes; // 记录写入文件的次数
 
     SimpleWeightedGraph<Vertex, SimpleEdge> graph;
@@ -34,6 +35,7 @@ public class LoadCountTask extends TimerTask {
     Set<SimpleEdge> edgeSet;
     Iterator<SimpleEdge> edgeIterator;
     HashMap<SimpleEdge, FileWriter> edgeLoadCountMap;
+    List<Double> usedWavelengthCountList; // 统计资源利用率用的集合
 
     /** 重构用到的属性 */
     List<Trigger> listenerList; // 监听器列表
@@ -64,6 +66,7 @@ public class LoadCountTask extends TimerTask {
         area2LoadCountFileWriter = new FileWriter("data/load/area2loadCount.txt", true);
         area3LoadCountFileWriter = new FileWriter("data/load/area3loadCount.txt", true);
 
+        this.totalUsedWavelength = 0;
         this.writeTimes = 0;
         this.graph = graph;
         this.area1 = areaHashMap.get("1");
@@ -72,6 +75,7 @@ public class LoadCountTask extends TimerTask {
         this.edgeSet = graph.edgeSet();
         this.edgeIterator = edgeSet.iterator();
         this.edgeLoadCountMap = new HashMap<SimpleEdge, FileWriter>();
+        this.usedWavelengthCountList = new ArrayList<>();
         // 判断目录是否存在，若不存在，则新建目录
         File fileParent = new File("data/load/edgeload/x.txt").getParentFile();
         if (!fileParent.exists()) {
@@ -125,6 +129,10 @@ public class LoadCountTask extends TimerTask {
                 area2LoadCountFileWriter.flush();
                 area3LoadCountFileWriter.write(area3.load / area2.totalCapacity + "\n");
                 area3LoadCountFileWriter.flush();
+                // 统计资源利用率
+                this.totalUsedWavelength = area1.load + area2.load + area3.load;
+                this.usedWavelengthCountList.add(this.totalUsedWavelength);
+
                 Iterator<SimpleEdge> edgeIterator;
 
                 // TODO : 加入重构触发用的流量统计
@@ -185,6 +193,18 @@ public class LoadCountTask extends TimerTask {
                     FileWriter currentEdgeLoadWriter = edgeLoadCountMap.get(currentEdge);
                     currentEdgeLoadWriter.close();
                 }
+                double sumOfUsedWavelengthCount = 0;
+                int countZero = 0;
+                for (Double d : usedWavelengthCountList) {
+                    sumOfUsedWavelengthCount += d;
+                    if (Math.abs(d - 0) < 50) {
+                        countZero++;
+                    }
+                }
+                double averageUsedWavelength = sumOfUsedWavelengthCount / (usedWavelengthCountList.size() - countZero);
+                double totalCapacity = area1.totalCapacity + area2.totalCapacity + area3.totalCapacity;
+                double averageUsedRatio = averageUsedWavelength / (totalCapacity);
+                System.out.println("resource use ratio: " + averageUsedRatio);
             }
         } catch (Exception e) {
             e.printStackTrace();

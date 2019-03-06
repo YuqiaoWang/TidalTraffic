@@ -73,23 +73,28 @@ public class ReconfigExecutor {
             // 从待排序业务集中最前面的业务开始排序
             Service currentService = servicesToReconfig.first();
             servicesToReconfig.remove(currentService); // 从待重构业务集中移除正在重构的业务
-            // TODO：等边预测模型完成后，改为预测负载做边权
+            // TODO: 等边预测模型完成后，改为预测负载做边权
             computePathThread.reAllocatedWeightAsFutureTraffic(); // 重定义各边权重
             // computePathThread.reAllocateWeight(); //暂时使用当前负载做边权
             // TODO:算路（目前暂时用D算法，将来有可能改成K算法）
-            GraphPath<Vertex, SimpleEdge> graphPath = computePathThread.findShortestPath(currentService, computePathThread.graph); // 算路
+            GraphPath<Vertex, SimpleEdge> graphPath = computePathThread.findShortestPath(currentService,
+                    computePathThread.graph); // 算路
             computePathThread.serviceGraphPathHashMap.put(currentService, graphPath);
             List<Integer> originOccupiedWavelengths = currentService.wavelengthesNumber; // 该业务搬移前占用的波长号
-            GraphPath<Vertex, SimpleEdge> originPath = currentService.graphPath; // 该业务搬移前的路由
-            boolean isReAllocated = computePathThread.allocateResource(currentService);
-            if (isReAllocated) {
-                leave(currentService, originPath, originOccupiedWavelengths);
-                System.out.println("[service " + currentService.serviceId + "] 已重构并重新分配资源");
-                currentService.reconfiged = true; // 标记该业务为已搬移
-                reconfigStatistic.numberOfReconfigedServices++; // 重构业务数+1
-            } else {
-                System.out.println("[service " + currentService.serviceId + "] 在新路径上没有找到可用资源，不重构");
-                reconfigStatistic.numberOfFailedServices++;
+            try {
+                GraphPath<Vertex, SimpleEdge> originPath = currentService.getGraphPath(); // 该业务搬移前的路由
+                boolean isReAllocated = computePathThread.allocateResource(currentService);
+                if (isReAllocated) {
+                    leave(currentService, originPath, originOccupiedWavelengths);
+                    System.out.println("[service " + currentService.serviceId + "] 已重构并重新分配资源");
+                    currentService.reconfiged = true; // 标记该业务为已搬移
+                    reconfigStatistic.numberOfReconfigedServices++; // 重构业务数+1
+                } else {
+                    System.out.println("[service " + currentService.serviceId + "] 在新路径上没有找到可用资源，不重构");
+                    reconfigStatistic.numberOfFailedServices++;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
             reconfigStatistic.computeLoadBalanceTarget();
         }

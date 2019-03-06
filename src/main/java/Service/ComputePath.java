@@ -22,6 +22,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.lang.Deprecated;
 
 /**
  * Created by yuqia_000 on 2017/6/17.
@@ -45,6 +46,7 @@ public class ComputePath extends Thread {
     public String lastServiceIDInTidalMigrationPeriod; // 潮汐时段最后一个业务的ID
     public int countHopNumber; // 跳数统计
     public ClockUtil clock; // 计时相关
+    public long totalCalculateTime; // 算路时间统计
 
     /**
      * 重构相关的属性
@@ -68,6 +70,7 @@ public class ComputePath extends Thread {
         this.blockedTimesInTidalMigrationPeriod = 0;
         this.lastServiceIDInTidalMigrationPeriod = "0";
         this.countHopNumber = 0;
+        this.totalCalculateTime = 0;
         this.areaHashMap = areaHashMap;
         this.scheduExec = Executors.newScheduledThreadPool(Tools.CORE_POOL_SIZE);
         this.listenerList = new ArrayList<>();
@@ -111,7 +114,7 @@ public class ComputePath extends Thread {
     /**
      * 将边权赋值成[当前负载值]
      */
-    // TODO：等边预测模型完成后，放弃本方法
+    @Deprecated
     public void reAllocateWeight() {
         Iterator<SimpleEdge> edgeIterator = this.graph.edgeSet().iterator();
         while (edgeIterator.hasNext()) {
@@ -173,8 +176,13 @@ public class ComputePath extends Thread {
             }
             // 分配资源
             if (count >= n) { // 如果[空闲波长]不少于[需要的波长]
-                //TODO:今后在这里加入配置文件，灵活变更分配策略
-                AllocationStrategy.firstFit(service, freeWavelengthesNumber, edgeList);
+                // TODO:今后在这里加入配置文件，灵活变更分配策略
+                if (Tools.RESOURCE_ALLOCATION_STRATEGY == 1) {
+                    AllocationStrategy.firstFit(service, freeWavelengthesNumber, edgeList);
+                } else if (Tools.RESOURCE_ALLOCATION_STRATEGY == 2) {
+                    AllocationStrategy.randomFit(service, freeWavelengthesNumber, edgeList);
+                }
+
             } else { // 若波长资源不够用
                 service.isBlocked = true;
                 service.isOutOfTime = true;
@@ -231,9 +239,11 @@ public class ComputePath extends Thread {
                 // TODO:如果在对照组分支上，将这部分注释掉
                 // reAllocateWeight();
                 // D算法算路
+                long calculateStartTime = System.currentTimeMillis(); // 算路起始时间
                 GraphPath<Vertex, SimpleEdge> graphPath = findShortestPath(service, this.loadGraph); // 最短路路径(使用loadGraph做计算)
                 serviceGraphPathHashMap.put(service, graphPath); // 将路径放入map中
-                System.out.printf("service No." + service.serviceId + " has been calulated a path: ");
+                // System.out.printf("service No." + service.serviceId + " has been calulated a
+                // path: ");
                 List<Vertex> vertexList = graphPath.getVertexList();
                 // 统计跳数
                 long nowTime = System.currentTimeMillis();
@@ -249,6 +259,14 @@ public class ComputePath extends Thread {
                  */
                 /** 资源分配 */
                 boolean allocated = allocateResource(service);
+
+                /** 统计算路时常 */
+                long calculateEndTime = System.currentTimeMillis(); // 分配资源结束时间
+                long calculateCost = calculateEndTime - calculateStartTime;
+                if (allocated) {
+                    this.totalCalculateTime += calculateCost;
+                }
+
                 /** 业务离去 */
                 if (service.isResourceAllocated() == true) { // 如果分配了资源
                     ServiceLeavingTask serviceLeavingTask = new ServiceLeavingTask(service);
@@ -273,6 +291,10 @@ public class ComputePath extends Thread {
         double averageHop = (double) countHopNumber / this.servicesNumberInTidalMigrationPeriod;
         System.out.println("average hop:" + averageHop);
         System.out.println("the last service ID in tidal period:" + lastServiceIDInTidalMigrationPeriod);
+        double averageCalculateTime = (double) this.totalCalculateTime / (serviceNum - this.blockedTimes);
+        System.out.println("average calculate path time: " + averageCalculateTime);
+        System.out.println("mapping the calculate time to reality: " + 1200 * averageCalculateTime);
+
         System.out.println("*****statistic about reconstruction*******");
         System.out.println("times of reconstruction:" + reconfigStatistic.reconfigTimes);
         System.out.println("number of success reconstruction:" + reconfigStatistic.numberOfReconfigedServices);
@@ -287,13 +309,12 @@ public class ComputePath extends Thread {
         }
         this.scheduExec.shutdown();
         System.out.println("Program ending");
-        try {
-            FigureGenerate.generateJson(this.blockedTimes, this.blockedTimesInTidalMigrationPeriod, averageHop);
-            FigureGenerate.generateFigure();
-        } catch (Exception e) {
-            // TODO: handle exception
-            e.printStackTrace();
-        }
+        /*
+         * try { FigureGenerate.generateJson(this.blockedTimes,
+         * this.blockedTimesInTidalMigrationPeriod, averageHop);
+         * FigureGenerate.generateFigure(); } catch (Exception e) { // TODO: handle
+         * exception e.printStackTrace(); }
+         */
 
     }
 }

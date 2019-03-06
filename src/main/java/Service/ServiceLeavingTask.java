@@ -26,16 +26,22 @@ public class ServiceLeavingTask extends TimerTask {
     }
 
     public void run() {
-        System.out.println("--------service No." + service.serviceId + "left, the resource released--------");
+        // System.out.println("--------service No." + service.serviceId + "left, the
+        // resource released--------");
         for (int i = 0; i < service.wavelengthesNumber.size(); i++) { // 对于该业务的每个波长
             int currentWavelenthNumber = service.wavelengthesNumber.get(i); // 拿到波长号
-            Iterator<SimpleEdge> edgeIterator = service.graphPath.getEdgeList().iterator();
-            while (edgeIterator.hasNext()) { // 对于该业务占用路径的每一条link
-                SimpleEdge currentEdge = edgeIterator.next();
-                currentEdge.wavelenthOccupation[currentWavelenthNumber] = false;// 取消资源占用
-                currentEdge.numberOfOccupatedWavelength -= 1; // 该link[已被占用的波长数]-1
-                currentEdge.serviceOnWavelength[currentWavelenthNumber] = null; // 把该link的[该波长号是哪个业务占用的]这个信息清除
+            try {
+                Iterator<SimpleEdge> edgeIterator = service.getGraphPath().getEdgeList().iterator();
+                while (edgeIterator.hasNext()) { // 对于该业务占用路径的每一条link
+                    SimpleEdge currentEdge = edgeIterator.next();
+                    currentEdge.wavelenthOccupation[currentWavelenthNumber] = false;// 取消资源占用
+                    currentEdge.numberOfOccupatedWavelength -= 1; // 该link[已被占用的波长数]-1
+                    currentEdge.serviceOnWavelength[currentWavelenthNumber] = null; // 把该link的[该波长号是哪个业务占用的]这个信息清除
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+
         }
         service.wavelengthesNumber.clear();
         service.isOutOfTime = true;
