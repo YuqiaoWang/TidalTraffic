@@ -290,15 +290,19 @@ public class ComputePath extends Thread {
         System.out.println("number of services in tidal period:" + this.servicesNumberInTidalMigrationPeriod);
         double averageHop = (double) countHopNumber / this.servicesNumberInTidalMigrationPeriod;
         System.out.println("average hop:" + averageHop);
-        System.out.println("the last service ID in tidal period:" + lastServiceIDInTidalMigrationPeriod);
+        // System.out.println("the last service ID in tidal period:" +
+        // lastServiceIDInTidalMigrationPeriod);
         double averageCalculateTime = (double) this.totalCalculateTime / (serviceNum - this.blockedTimes);
-        System.out.println("average calculate path time: " + averageCalculateTime);
+        // System.out.println("average calculate path time: " + averageCalculateTime);
         System.out.println("mapping the calculate time to reality: " + 1200 * averageCalculateTime);
 
-        System.out.println("*****statistic about reconstruction*******");
-        System.out.println("times of reconstruction:" + reconfigStatistic.reconfigTimes);
-        System.out.println("number of success reconstruction:" + reconfigStatistic.numberOfReconfigedServices);
-        System.out.println("number of failure reconstruction:" + reconfigStatistic.numberOfFailedServices);
+        // System.out.println("*****statistic about reconstruction*******");
+        // System.out.println("times of reconstruction:" +
+        // reconfigStatistic.reconfigTimes);
+        // System.out.println("number of success reconstruction:" +
+        // reconfigStatistic.numberOfReconfigedServices);
+        // System.out.println("number of failure reconstruction:" +
+        // reconfigStatistic.numberOfFailedServices);
 
         while (System.currentTimeMillis() - this.programStartTime < Tools.PROGRAM_EXECUTE_TIME + 1000) {
             try {

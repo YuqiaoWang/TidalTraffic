@@ -36,6 +36,7 @@ public class LoadCountTask extends TimerTask {
     Iterator<SimpleEdge> edgeIterator;
     HashMap<SimpleEdge, FileWriter> edgeLoadCountMap;
     List<Double> usedWavelengthCountList; // 统计资源利用率用的集合
+    boolean timeInfoPrinted;
 
     /** 重构用到的属性 */
     List<Trigger> listenerList; // 监听器列表
@@ -76,6 +77,7 @@ public class LoadCountTask extends TimerTask {
         this.edgeIterator = edgeSet.iterator();
         this.edgeLoadCountMap = new HashMap<SimpleEdge, FileWriter>();
         this.usedWavelengthCountList = new ArrayList<>();
+        this.timeInfoPrinted = false;
         // 判断目录是否存在，若不存在，则新建目录
         File fileParent = new File("data/load/edgeload/x.txt").getParentFile();
         if (!fileParent.exists()) {
@@ -201,10 +203,15 @@ public class LoadCountTask extends TimerTask {
                         countZero++;
                     }
                 }
-                double averageUsedWavelength = sumOfUsedWavelengthCount / (usedWavelengthCountList.size() - countZero);
-                double totalCapacity = area1.totalCapacity + area2.totalCapacity + area3.totalCapacity;
-                double averageUsedRatio = averageUsedWavelength / (totalCapacity);
-                System.out.println("resource use ratio: " + averageUsedRatio);
+                if (!timeInfoPrinted) {
+                    double averageUsedWavelength = sumOfUsedWavelengthCount
+                            / (usedWavelengthCountList.size() - countZero);
+                    double totalCapacity = area1.totalCapacity + area2.totalCapacity + area3.totalCapacity;
+                    double averageUsedRatio = averageUsedWavelength / (totalCapacity);
+                    System.out.println("resource use ratio: " + averageUsedRatio);
+                    timeInfoPrinted = true;
+                }
+
             }
         } catch (Exception e) {
             e.printStackTrace();
