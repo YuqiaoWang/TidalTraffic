@@ -8,8 +8,8 @@
         "input": 31,
         "output": 16,
         "hidden": {
-            "layer": 2,
-            "neuron": [20, 15]
+            "layer": 1,
+            "neuron": [8]
         },
         "step": 100000
     }

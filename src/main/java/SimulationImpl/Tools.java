@@ -22,12 +22,12 @@ public class Tools {
     /** 业务发生相关 */
     public static final int DEFAULTSERVICENUMBER = 1000; // 用于设置生成业务个数
 
-    public static final double DEFAULTLAMBDA = 1; // 平均业务到达率
+    public static final double DEFAULTLAMBDA = 2; // 平均业务到达率
 
     // public static final int DEFAULTWORKINGTIME = 1600; //
     // 生成业务时，不同时间段产生的业务源宿点概率不同，用来区分时间, 之前设定为1500
 
-    public static final int DEFAULTAVERAGESERVICETIME = 200; // 业务平均持续时间
+    public static final int DEFAULTAVERAGESERVICETIME = 500; // 业务平均持续时间
 
     public static final int DEFAULTMAXNUMBEROFWAVELENGTH = 1; // 单个业务占用最大带宽数
 
@@ -39,7 +39,7 @@ public class Tools {
     public static final int CORE_POOL_SIZE = 500; // 计时器线程池大小
 
     /** 资源分配相关 */
-    public static final int RESOURCE_ALLOCATION_STRATEGY = 2; // 1. first-fit ; 2. random-fit
+    public static final int RESOURCE_ALLOCATION_STRATEGY = 1; // 1. first-fit ; 2. random-fit
 
     /** 流量统计相关 */
     public static final int COUNT_DELAY = 20; // 定时统计的时延

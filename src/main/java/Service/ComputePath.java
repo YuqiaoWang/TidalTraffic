@@ -307,17 +307,17 @@ public class ComputePath extends Thread {
             try {
                 Thread.sleep(1000);
             } catch (Exception e) {
-                // TODO: handle exception
+                e.printStackTrace();
             }
         }
         this.scheduExec.shutdown();
         System.out.println("Program ending");
-        /*
-         * try { FigureGenerate.generateJson(this.blockedTimes,
-         * this.blockedTimesInTidalMigrationPeriod, averageHop);
-         * FigureGenerate.generateFigure(); } catch (Exception e) { // TODO: handle
-         * exception e.printStackTrace(); }
-         */
+        try {
+            FigureGenerate.generateJson(this.blockedTimes, this.blockedTimesInTidalMigrationPeriod, averageHop);
+            FigureGenerate.generateFigure();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 }
