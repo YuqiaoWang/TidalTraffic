@@ -160,6 +160,7 @@ saver = tf.train.Saver(max_to_keep=1)  # 模型保存对象
 # 6.训练过程
 # 迭代1000次学习， sess.run optimizer
 #step = 100000
+begin_time = datetime.now()
 for i in range(step):
     # training train_step 和 loss 都是由 placeholder 定义的运算，所以这里要用 feed 传入参数
     sess.run(train_step, feed_dict={xs: x_train_data, ys: y_train_data})
@@ -175,7 +176,7 @@ for i in range(step):
 
         # saver.save(sess, 'model_save/100erlang/model_area1.ckpt', global_step=i)
 writer.close()
-
+end_time = datetime.now()
 
 # 7.0 & 8.0 路径定义
 model_save_path = os.path.join(parent_path, 'model_save')
@@ -212,8 +213,8 @@ for i in range(0, test_rols):
     row = origin_sheet.row(i)
     for j in range(0, 31):
         row.write(j, x_test_data_raw[i][j])
-print('y_test_predict')
-print(y_test_predict)
+# print('y_test_predict')
+# print(y_test_predict)
 out_workbook_path = os.path.join(model_save_path, 'test')
 if not os.path.exists(out_workbook_path):
     os.makedirs(r'' + out_workbook_path)
@@ -242,6 +243,9 @@ with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     saver.save(sess, model_file_name, global_step=step)
 print('模型参数已保存')
+
+training_time = end_time - begin_time
+print('训练运行时间:' + str(training_time))
 
 # 9 误差分析
 mean_squared_error = metrics.mean_squared_error(y_test_data, y_test_predict)
