@@ -9,7 +9,7 @@
         "output": 16,
         "hidden": {
             "layer": 1,
-            "neuron": [8]
+            "neuron": [7]
         },
         "step": 100000
     }

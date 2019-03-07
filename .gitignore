@@ -3,7 +3,6 @@
 .project
 *.class
 *.txt
-*.xls
 *.xlsx
 target/*
 *.jar

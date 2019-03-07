@@ -1,14 +1,1 @@
-{
-    "data_type": "training_data",
-    "service": {
-        "lambda": 2.0,
-        "service_time": 500,
-        "threshold": 0.6
-    },
-    "statistic": {
-        "count_times": 360,
-        "block_times": 186,
-        "tidalBlock_times": 36,
-        "average_hop": 2.232307692307692
-    }
-}
+{"data_type":"training_data","service":{"lambda":2.0,"service_time":500,"threshold":0.6},"statistic":{"count_times":360,"block_times":0,"tidalBlock_times":0,"average_hop":2.050578034682081}}
