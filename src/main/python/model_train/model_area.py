@@ -160,7 +160,7 @@ saver = tf.train.Saver(max_to_keep=1)  # 模型保存对象
 # 6.训练过程
 # 迭代1000次学习， sess.run optimizer
 #step = 100000
-begin_time = datetime.now()
+begin_time = datetime.datetime.now()
 for i in range(step):
     # training train_step 和 loss 都是由 placeholder 定义的运算，所以这里要用 feed 传入参数
     sess.run(train_step, feed_dict={xs: x_train_data, ys: y_train_data})
@@ -176,7 +176,7 @@ for i in range(step):
 
         # saver.save(sess, 'model_save/100erlang/model_area1.ckpt', global_step=i)
 writer.close()
-end_time = datetime.now()
+end_time = datetime.datetime.now()
 
 # 7.0 & 8.0 路径定义
 model_save_path = os.path.join(parent_path, 'model_save')
