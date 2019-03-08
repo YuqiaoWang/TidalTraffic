@@ -28,6 +28,7 @@ import java.lang.Deprecated;
  * Created by yuqia_000 on 2017/6/17.
  */
 public class ComputePath extends Thread {
+    private TidalSignal tidalSignal; // 潮汐到达标识
     private ServiceTransMsg msg; // 业务传输完毕标识
     public long programStartTime; // 程序启动时间
     public HashMap<Service, GraphPath<Vertex, SimpleEdge>> serviceGraphPathHashMap = new HashMap<Service, GraphPath<Vertex, SimpleEdge>>(); // 业务-最短路
@@ -76,6 +77,7 @@ public class ComputePath extends Thread {
         this.listenerList = new ArrayList<>();
         this.reconfigStatistic = new ReconfigStatistic(areaHashMap, graph);
         this.clock = clock;
+        this.tidalSignal = TidalSignal.getInstance();
         this.msg = msg;
         this.setName("compute_path_thread");
     }
@@ -214,7 +216,8 @@ public class ComputePath extends Thread {
     public void run() {
         int serviceNum = 0;
         try {
-            LoadCountTask loadCountTask = new LoadCountTask(graph, areaHashMap, listenerList, reconfigStatistic, clock); // 新建统计任务
+            LoadCountTask loadCountTask = new LoadCountTask(graph, areaHashMap, listenerList, reconfigStatistic, clock,
+                    tidalSignal); // 新建统计任务
             this.scheduExec.scheduleAtFixedRate(loadCountTask, Tools.COUNT_DELAY, Tools.COUNT_PERIOD * Tools.TIMESCALE,
                     TimeUnit.MILLISECONDS); // 定时器执行统计
         } catch (Exception e) {
@@ -236,7 +239,13 @@ public class ComputePath extends Thread {
                 /** 算路 */
                 // 重新赋边权(以负载为边权)
                 // TODO:如果在对照组分支上，将这部分注释掉
-                reAllocateWeight();
+
+                if (this.tidalSignal.getStatus()) { // 如果潮汐到达
+                    reAllocatedWeightAsFutureTraffic(); // 使用未来流量负载做边权
+                } else {
+                    reAllocateWeight(); // 否则使用当前负载
+                }
+
                 // D算法算路
                 long calculateStartTime = System.currentTimeMillis(); // 算路起始时间
                 GraphPath<Vertex, SimpleEdge> graphPath = findShortestPath(service, this.loadGraph); // 最短路路径(使用loadGraph做计算)
@@ -312,12 +321,12 @@ public class ComputePath extends Thread {
         }
         this.scheduExec.shutdown();
         System.out.println("Program ending");
-        try {
-            FigureGenerate.generateJson(this.blockedTimes, this.blockedTimesInTidalMigrationPeriod, averageHop);
-            FigureGenerate.generateFigure();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        /*
+         * try { FigureGenerate.generateJson(this.blockedTimes,
+         * this.blockedTimesInTidalMigrationPeriod, averageHop);
+         * FigureGenerate.generateFigure(); } catch (Exception e) { e.printStackTrace();
+         * }
+         */
 
     }
 }

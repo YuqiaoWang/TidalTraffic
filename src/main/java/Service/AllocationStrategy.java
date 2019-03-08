@@ -45,7 +45,7 @@ public class AllocationStrategy {
      */
     public static void randomFit(Service service, List<Integer> freeWavelengthesNumber, List<SimpleEdge> edgeList) {
         int n = service.numberOfWavelenthes; // 记业务需要占用的波长数
-        int numberOfFreeWavelengthes = freeWavelengthesNumber.size(); // 空闲波长数
+        // int numberOfFreeWavelengthes = freeWavelengthesNumber.size(); // 空闲波长数
         Set<Integer> chosenWavelengthesNumber = new TreeSet<>();
         Random randForWavelength = new Random();
         for (int i = 0; i < n; i++) {

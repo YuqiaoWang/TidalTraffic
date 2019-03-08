@@ -35,6 +35,7 @@ public class LoadCountTask extends TimerTask {
     Set<SimpleEdge> edgeSet;
     Iterator<SimpleEdge> edgeIterator;
     HashMap<SimpleEdge, FileWriter> edgeLoadCountMap;
+    TidalSignal tidalSignal;
     List<Double> usedWavelengthCountList; // 统计资源利用率用的集合
     boolean timeInfoPrinted;
 
@@ -52,7 +53,8 @@ public class LoadCountTask extends TimerTask {
     }
 
     public LoadCountTask(SimpleWeightedGraph<Vertex, SimpleEdge> graph, HashMap<String, Area> areaHashMap,
-            List<Trigger> listenerList, ReconfigStatistic reconfigStatistic, ClockUtil clock) throws Exception {
+            List<Trigger> listenerList, ReconfigStatistic reconfigStatistic, ClockUtil clock, TidalSignal tidalSignal)
+            throws Exception {
         FileWriter fw1 = new FileWriter("data/load/area1loadCount.txt");
         fw1.write("");
         fw1.close();
@@ -114,6 +116,7 @@ public class LoadCountTask extends TimerTask {
          * this.nowTrafficForEdges.put(currentEdge.toString(), currentEdgeTraffic); }
          */
         this.clock = clock;
+        this.tidalSignal = tidalSignal;
 
     }
 
@@ -157,20 +160,18 @@ public class LoadCountTask extends TimerTask {
 
                 /** 20181115 摘除重构触发环节，专注生成数据 */
                 /** 为向tensorflow传数据进行包装 */
-                /*
-                 * area1NowIntervalTraffic.nowIntervalTraffic.add(area1.load /
-                 * area1.totalCapacity);
-                 * area3NowIntervalTraffic.nowIntervalTraffic.add(area3.load /
-                 * area3.totalCapacity); if (this.writeTimes % 15 == 14 && this.writeTimes > 28)
-                 * {
-                 * 
-                 * for(Trigger trigger : listenerList) {
-                 * trigger.flushTraffic(nowIntervalTrafficList); } // 域的1h流量包装
-                 * area1NowIntervalTraffic.setTimeOfHour((writeTimes/15)/24.0);
-                 * area1NowIntervalTraffic.removeOneHourTrafficData();
-                 * area3NowIntervalTraffic.setTimeOfHour((writeTimes/15)/24.0);
-                 * area3NowIntervalTraffic.removeOneHourTrafficData(); }
-                 */
+
+                area1NowIntervalTraffic.nowIntervalTraffic.add(area1.load / area1.totalCapacity);
+                area3NowIntervalTraffic.nowIntervalTraffic.add(area3.load / area3.totalCapacity);
+                if (this.writeTimes % 15 == 14 && this.writeTimes > 28) {
+                    for (Trigger trigger : listenerList) {
+                        trigger.flushTraffic(nowIntervalTrafficList, this.tidalSignal);
+                    } // 域的1h流量包装
+                    area1NowIntervalTraffic.setTimeOfHour((writeTimes / 15) / 24.0);
+                    area1NowIntervalTraffic.removeOneHourTrafficData();
+                    area3NowIntervalTraffic.setTimeOfHour((writeTimes / 15) / 24.0);
+                    area3NowIntervalTraffic.removeOneHourTrafficData();
+                }
 
                 // 此处遍历边，为了将前1h的流量清除
                 edgeIterator = edgeSet.iterator();

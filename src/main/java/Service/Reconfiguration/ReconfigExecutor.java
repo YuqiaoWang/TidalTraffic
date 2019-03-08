@@ -12,7 +12,7 @@ import TrafficDescription.TrafficDataService;
 import TrafficDescription.TransClient;
 import org.jgrapht.EdgeFactory;
 import org.jgrapht.GraphPath;
-
+import java.lang.Deprecated;
 import java.util.*;
 
 /**
@@ -32,8 +32,10 @@ public class ReconfigExecutor {
         servicesToReconfig = new TreeSet<Service>(new ServiceComparator());
         reconfigStatistic = computePathThread.reconfigStatistic;
         this.clock = clock;
+        this.transClient = TransClient.getInstance();
     }
 
+    @Deprecated
     public void setTransClient(TransClient transClient) {
         this.transClient = transClient;
     }
