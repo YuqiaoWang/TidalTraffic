@@ -150,8 +150,8 @@ init = tf.global_variables_initializer()
 sess = tf.InteractiveSession()
 
 # merged 用于tensorboard绘图
-merged = tf.summary.merge_all()
-writer = tf.summary.FileWriter(logdir="logs/", graph=sess.graph)
+#merged = tf.summary.merge_all()
+#writer = tf.summary.FileWriter(logdir="logs/", graph=sess.graph)
 
 sess.run(init)  # 上面定义的都没有运算，直到sess.run 才会开始运算
 
@@ -164,8 +164,8 @@ begin_time = datetime.datetime.now()
 for i in range(step):
     # training train_step 和 loss 都是由 placeholder 定义的运算，所以这里要用 feed 传入参数
     sess.run(train_step, feed_dict={xs: x_train_data, ys: y_train_data})
-    rs = sess.run(merged, feed_dict={xs: x_train_data, ys: y_train_data})
-    writer.add_summary(rs, global_step=i)
+    #rs = sess.run(merged, feed_dict={xs: x_train_data, ys: y_train_data})
+    #writer.add_summary(rs, global_step=i)
     if i % 5000 == 0:
         # to see the step improvement
         #print(sess.run(loss, feed_dict={xs: x_train_data, ys: y_train_data}))
@@ -175,7 +175,7 @@ for i in range(step):
         print('epoch:%d, val_loss:%f' % (i, currentLoss))
 
         # saver.save(sess, 'model_save/100erlang/model_area1.ckpt', global_step=i)
-writer.close()
+#writer.close()
 end_time = datetime.datetime.now()
 
 # 7.0 & 8.0 路径定义
