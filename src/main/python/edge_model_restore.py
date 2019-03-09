@@ -41,10 +41,10 @@ class edge_parameter:
                 os.path.join(model_storage_path, 'edge'))
             model_storage_path = os.path.abspath(
                 os.path.join(model_storage_path, 'ratio_' + str(self.service_ratio)))
-
-            modelName = "model_edge.ckpt-100000"
-            modelPath = "model_save/100erlang/" + modelName
-            saver.restore(self.sess, modelPath)
+            model_name = os.path.abspath(os.path.join(model_storage_path, 'edge_20_15-100000'))
+            #modelName = "model_edge.ckpt-100000"
+            #modelPath = "model_save/100erlang/" + modelName
+            saver.restore(self.sess, model_name)
             l1 = restore_layer(xs, self.sess.run(Weights1), self.sess.run(
                 biases1), activation_function=tf.nn.relu)
             l2 = restore_layer(l1, self.sess.run(Weights2), self.sess.run(
