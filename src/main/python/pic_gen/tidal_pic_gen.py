@@ -32,6 +32,8 @@ else:
     file_path1 = new_path + '/' + 'area1loadCount.txt'
     file_path3 = new_path + '/' + 'area3loadCount.txt'
 
+edge_file_path = os.path.join(new_path, 'edgeload')
+edge_num = [12, 13, 18, 23, 24, 35, 46, 56, 59, 67, 78, 79, 410, 514, 812, 912, 1011, 1013, 1112, 1114, 1213, 1314]
 # 2.打开文件，读取数据
 file_area1 = open(file_path1)
 file_area3 = open(file_path3)
@@ -41,6 +43,18 @@ for line in file_area1.readlines():
     dataMat_area1.append(float(line))
 for line in file_area3.readlines():
     dataMat_area3.append(float(line))
+
+#边文件
+edge_data_mat = []
+for i in range(len(edge_num)):
+    edge_file_name = 'edge' + str(edge_num[i]) + '.txt'
+    edge_file_name = os.path.join(edge_file_path, edge_file_name)
+    edge_file = open(edge_file_name)
+    current_mat = []
+    for line in edge_file.readlines():
+        current_mat.append(float(line))
+    edge_data_mat.append(current_mat)
+
 
 # 3.绘图
 x = np.linspace(1, 360, num=360)
@@ -66,6 +80,10 @@ service_ratio = int(service_time / service_lambda)
 # 4.2写入excel(分为 area1.xls 和 area3.xls)
 data_save.save_data(dataMat_area1, 'area1', new_path, service_ratio)
 data_save.save_data(dataMat_area3, 'area3', new_path, service_ratio)
+
+#写入边数据
+data_save.save_edge_data(edge_data_mat, new_path, service_ratio)
+
 # todo:先判断workbook是否存在
 # sheet_name = 'ratio' + str(service_ratio)    # 要写入的sheet名称
 # excel_area1_name = os.path.join(
