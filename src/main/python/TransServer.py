@@ -1,3 +1,13 @@
+import thrift
+import numpy as np
+import tensorflow as tf
+import datetime
+import socket
+import platform
+import json
+import os
+from TrafficDataTrans import TrafficDataService
+from TrafficDataTrans.ttypes import *
 import xlwt
 import edge_model_restore as emr
 import model_restore as mr
@@ -6,14 +16,10 @@ from thrift.protocol import TBinaryProtocol
 from thrift.transport import TTransport
 from thrift.transport import TSocket
 from thrift import Thrift
-from TrafficDataTrans.ttypes import *
-from TrafficDataTrans import TrafficDataService
-import socket
 import sys
-import tensorflow as tf
-import numpy as np
-import thrift
+import importlib
 sys.path.append('gen-py')
+importlib.reload(sys)
 
 
 class TrafficDataServiceHandler:
@@ -96,15 +102,37 @@ class TrafficDataServiceHandler:
         return listTraffic
 
 
+# 0. 获取系统和配置信息
+now_time = datetime.datetime.now()
+date_form = now_time.strftime('%Y%m%d')
+system_name = platform.system()
+# 模型配置的json文件（model_train路径下）
+json_file_path = os.path.abspath(os.path.join(sys.path[0], 'model_train'))
+json_file_name = os.path.abspath(
+    os.path.join(json_file_path, 'model_config.json'))
+json_file = open(json_file_name, encoding='utf-8')
+config_content = json.load(json_file)
+# 用与区别模型是area还是link
+model_type = config_content['model']['type']
+area_name = config_content['model']['area_name']                # 区域名称
+service_ratio = config_content['model']['service_ratio']        # 业务量
+input_num = config_content['param']['input']                    # 输入层神经元个数
+output_num = config_content['param']['output']                  # 输出层神经元个数
+hidden_layer = config_content['param']['hidden']['layer']       # 隐藏层层数
+hidden_neurons = config_content['param']['hidden']['neuron']    # 隐藏层各层神经元个数
+step = config_content['param']['step']  # 训练迭代次数
+
+
 # 1.重建模型
-# TODO:针对不同area要加载不同的模型（TOTODO：需要对每个area数据进行训练）
-model_param_area1 = mr.parameter("1")
-model_param_area3 = mr.parameter("3")
+# TODO:针对不同area要加载不同的模型（TODO：需要对每个area数据进行训练）
+model_param_area1 = mr.parameter(areaId="1", hidden_layer=hidden_layer,
+                                 hidden_neuron=hidden_neurons, service_ratio=service_ratio)
+#model_param_area3 = mr.parameter("3", hidden_layer)
 model_area1 = model_param_area1.restore()
-model_area3 = model_param_area3.restore()
+#model_area3 = model_param_area3.restore()
 models = []
 models.append(model_area1)
-models.append(model_area3)
+# models.append(model_area3)
 # 应该是个list
 # models = []
 # models.append(model_param_area1)
