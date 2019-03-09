@@ -139,7 +139,20 @@ models.append(model_area1)
 # TODO： Handler构造器入参将来应该改为models
 print('重建area模型成功')
 
-edge_model_param = emr.edge_parameter()
+edge_json_name = os.path.abspath(
+    os.path.join(json_file_path, 'edge_model_config.json'))
+edge_json_file = open(edge_json_name, encoding='utf-8')
+edge_config_content = json.load(edge_json_file)
+#model_type = config_content['model']['type']
+#service_ratio = config_content['model']['service_ratio']        # 业务量
+#edge = config_content['edge']                                   # 边集
+#input_num = config_content['param']['input']                    # 输入层神经元个数
+#output_num = config_content['param']['output']                  # 输出层神经元个数
+edge_hidden_layer = config_content['param']['hidden']['layer']       # 隐藏层层数
+edge_hidden_neurons = config_content['param']['hidden']['neuron']    # 隐藏层各层神经元个数
+#step = config_content['param']['step']                          # 训练迭代次数
+
+edge_model_param = emr.edge_parameter(hidden_layer=edge_hidden_layer, hidden_neuron=edge_hidden_neurons, service_ratio = service_ratio)
 model_edge = edge_model_param.restore()
 print('重建edge模型成功')
 
