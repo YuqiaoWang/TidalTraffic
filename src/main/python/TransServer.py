@@ -77,7 +77,7 @@ class TrafficDataServiceHandler:
             for i in range(0, data_lenth):
                 row.write(i, listTraffic[i])
             self.row_3 += 1
-        self.workbook_area.save('data/100erlang/area_predict_data.xls')
+        #self.workbook_area.save('data/100erlang/area_predict_data.xls')
         #data = PredictedIntervalTrafficData(migration=migration, predictedIntervalTraffic=listTraffic)
         data = PredictedAreaTrafficData(
             migration=migration, predictedAreaTraffic=listTraffic)
