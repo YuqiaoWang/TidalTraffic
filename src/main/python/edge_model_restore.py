@@ -49,7 +49,7 @@ class edge_parameter:
                 biases1), activation_function=tf.nn.relu)
             l2 = restore_layer(l1, self.sess.run(Weights2), self.sess.run(
                 biases2), activation_function=tf.nn.sigmoid)
-            prediction = restore_layer(l1, self.sess.run(
+            prediction = restore_layer(l2, self.sess.run(
                 Weights3), self.sess.run(biases3), activation_function=None)
             model_param = [self.sess, prediction, xs]
             # print("从模型中恢复的biases1:")
