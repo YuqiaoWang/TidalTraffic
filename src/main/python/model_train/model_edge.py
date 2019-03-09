@@ -111,7 +111,7 @@ for i in range(0, hidden_layer):
             xs, input_num, hidden_neurons[0], activation_function=tf.nn.relu, weight_name='weight_edge_' + str(i), bias_name='bias_edge_' + str(i))
     else:
         current_layer_param = add_layer(current_layer_param[0], hidden_neurons[i-1], hidden_neurons[i],
-                                        activation_function=tf.nn.sigmoid, weight_name='weight_edge_' + str(i), bias_name='bia_edge_' + str(i))
+                                        activation_function=tf.nn.sigmoid, weight_name='weight_edge_' + str(i), bias_name='bias_edge_' + str(i))
     layers_params.append(current_layer_param)
 
 output_layer = add_layer(layers_params[-1][0], hidden_neurons[-1], output_num, activation_function=None,
