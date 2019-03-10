@@ -162,15 +162,16 @@ public class LoadCountTask extends TimerTask {
                 /** 为向tensorflow传数据进行包装 */
 
                 area1NowIntervalTraffic.nowIntervalTraffic.add(area1.load / area1.totalCapacity);
-                area3NowIntervalTraffic.nowIntervalTraffic.add(area3.load / area3.totalCapacity);
+                // area3NowIntervalTraffic.nowIntervalTraffic.add(area3.load /
+                // area3.totalCapacity);
                 if (this.writeTimes % 15 == 14 && this.writeTimes > 28) {
                     for (Trigger trigger : listenerList) {
                         trigger.flushTraffic(nowIntervalTrafficList, this.tidalSignal);
                     } // 域的1h流量包装
                     area1NowIntervalTraffic.setTimeOfHour((writeTimes / 15) / 24.0);
                     area1NowIntervalTraffic.removeOneHourTrafficData();
-                    area3NowIntervalTraffic.setTimeOfHour((writeTimes / 15) / 24.0);
-                    area3NowIntervalTraffic.removeOneHourTrafficData();
+                    // area3NowIntervalTraffic.setTimeOfHour((writeTimes / 15) / 24.0);
+                    // area3NowIntervalTraffic.removeOneHourTrafficData();
                 }
 
                 // 此处遍历边，为了将前1h的流量清除
