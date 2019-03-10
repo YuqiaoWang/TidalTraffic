@@ -1,6 +1,7 @@
 package SimulationImpl;
 
 import Service.*;
+import Service.Provision.ProvisionExecutor;
 import Service.Reconfiguration.ReconfigExecutor;
 import Service.Reconfiguration.Trigger;
 import Topology.*;
@@ -27,7 +28,8 @@ public class Implement {
         /** 201805015 注释为了统计数据 */
         ReconfigExecutor reconfigExecutor = new ReconfigExecutor(computePathThread, poissionStreamThread.servicesMap,
                 clock);
-        Trigger trigger = new Trigger(computePathThread, reconfigExecutor);
+        ProvisionExecutor provisionExecutor = new ProvisionExecutor(computePathThread, clock);
+        Trigger trigger = new Trigger(computePathThread, reconfigExecutor, provisionExecutor);
         poissionStreamThread.start();
         computePathThread.start();
     }

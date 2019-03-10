@@ -1,15 +1,15 @@
+from thrift.protocol import TBinaryProtocol
+from thrift.transport import TTransport
+from thrift.transport import TSocket
+from thrift import Thrift
+from TrafficDataTrans.ttypes import *
+from TrafficDataTrans import TrafficDataService
 import sys
 import thrift
 sys.path.append('gen-py')
 
-from TrafficDataTrans import TrafficDataService
-from TrafficDataTrans.ttypes import *
 #from TrafficDataTrans.ttypes import *
 
-from thrift import Thrift
-from thrift.transport import TSocket
-from thrift.transport import TTransport
-from thrift.protocol import TBinaryProtocol
 
 try:
     transport = TSocket.TSocket('localhost', 9095)
@@ -27,15 +27,18 @@ try:
     #nowtraffic3 = [0.53125,	0.533333333,	0.535416667,	0.547916667,	0.522916667,	0.510416667, 0.533333333, 0.560416667, 0.5875, 0.591666667, 0.604166667, 0.597916667, 0.570833333, 0.595833333, 0.575, 0.585416667, 0.58125, 0.570833333, 0.566666667, 0.59375, 0.575, 0.564583333, 0.572916667, 0.558333333, 0.525, 0.49375, 0.502083333, 0.508333333, 0.5125, 0.495833333]
     #nowtraffic4 = [0.585416667, 0.58125, 0.570833333, 0.566666667, 0.59375, 0.575, 0.564583333, 0.572916667, 0.558333333, 0.525, 0.49375, 0.502083333, 0.508333333, 0.5125, 0.495833333, 0.477083333, 0.447916667, 0.447916667, 0.416666667, 0.422916667, 0.40625, 0.360416667, 0.364583333, 0.358333333, 0.329166667, 0.308333333, 0.272916667, 0.245833333, 0.254166667, 0.23125]
     #nowtraffic5 = [0.522916667, 0.5125, 0.51875, 0.522916667, 0.525, 0.508333333, 0.5125, 0.45625, 0.447916667, 0.44375, 0.44375, 0.4625, 0.477083333, 0.472916667, 0.485416667, 0.4875, 0.491666667, 0.447916667, 0.460416667, 0.46875, 0.45625, 0.425, 0.435416667, 0.429166667, 0.414583333, 0.425, 0.420833333, 0.420833333, 0.416666667, 0.441666667]
+    nowtraffic5 = [0.55625, 0.545833333,	0.533333333, 0.554166667, 0.533333333, 0.54375, 0.529166667, 0.525, 0.520833333, 0.522916667, 0.535416667, 0.514583333, 0.516666667, 0.497916667,
+                   0.4875, 0.520833333, 0.5125, 0.50625, 0.489583333, 0.483333333, 0.48125, 0.4875, 0.49375, 0.49375, 0.510416667, 0.491666667, 0.497916667, 0.483333333, 0.46875, 0.466666667]
     #data = NowAreaTrafficData(areaId ="1", timeOfHour=time, nowAreaTraffic=nowtraffic)
     nowedegetraffic = []
-    nodeSequence = [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    #nodeSequence = [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     #now_edge_traffic = [0, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.066666667, 0.083333333, 0.083333333, 0.083333333, 0.083333333, 0.116666667, 0.116666667, 0.15, 0.15, 0.15, 0.133333333, 0.133333333, 0.166666667, 0.166666667, 0.166666667]
-    now_edge_traffic2 = [0, 0, 0, 0, 0, 0, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.116666667, 0.133333333, 0.133333333, 0.133333333, 0.133333333, 0.133333333, 0.166666667, 0.166666667, 0.166666667, 0.216666667, 0.216666667, 0.216666667, 0.216666667, 0.216666667, 0.216666667, 0.25, 0.25, 0.25]
-    #data = NowAreaTrafficData(areaId="1", timeOfHour=0.45833, nowAreaTraffic=nowtraffic5)
-    data = NowEdgeTrafficData(nodeSequence=nodeSequence, timeOfHour=time, nowEdgeTraffic=now_edge_traffic2)
-    predictedData = client.getEdgePredictedData(nowEdgeTrafficData = data)
-    #predictedData = client.getPredictedData(nowAreaTrafficData=data)
+    #now_edge_traffic2 = [0, 0, 0, 0, 0, 0, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.116666667, 0.133333333, 0.133333333, 0.133333333, 0.133333333, 0.133333333, 0.166666667, 0.166666667, 0.166666667, 0.216666667, 0.216666667, 0.216666667, 0.216666667, 0.216666667, 0.216666667, 0.25, 0.25, 0.25]
+    data = NowAreaTrafficData(
+        areaId="1", timeOfHour=0.45833, nowAreaTraffic=nowtraffic5)
+    #data = NowEdgeTrafficData(nodeSequence=nodeSequence, timeOfHour=time, nowEdgeTraffic=now_edge_traffic2)
+    #predictedData = client.getEdgePredictedData(nowEdgeTrafficData = data)
+    predictedData = client.getPredictedData(nowAreaTrafficData=data)
     print(predictedData)
 
 except Thrift.TException as ex:

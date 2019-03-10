@@ -26,6 +26,8 @@ public class ProvisionExecutor {
 
     public void flushEdgeFutureLoad() {
         Set<SimpleEdge> edgeSet = this.computePathThread.graph.edgeSet();
+        // System.out.println("edgeset 中包含元素的个数:" + edgeSet.size());
+
         for (SimpleEdge currentEdge : edgeSet) {
             try {
                 currentEdge.predictedEdgeTraffic = transClient.client

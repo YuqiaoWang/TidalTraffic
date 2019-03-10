@@ -33,11 +33,13 @@ public class Trigger {
 
     }
 
-    public Trigger(ComputePath computePathThread, ReconfigExecutor reconfigExecutor) {
+    public Trigger(ComputePath computePathThread, ReconfigExecutor reconfigExecutor,
+            ProvisionExecutor provisionExecutor) {
         computePathThread.regist(this);
         transClient = TransClient.getInstance();
         areaHashMap = computePathThread.areaHashMap;
         this.reconfigExecutor = reconfigExecutor;
+        this.provisionExecutor = provisionExecutor;
         // this.reconfigExecutor.setTransClient(transClient);
         this.reconfigStatistic = computePathThread.reconfigStatistic;
     }

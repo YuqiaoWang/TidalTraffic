@@ -9,7 +9,8 @@ class parameter:
     def __init__(self, areaId, hidden_layer, hidden_neuron, service_ratio):
         self.areaId = areaId
         self.graph = tf.Graph()
-        self.sess = tf.Session(graph=self.graph)
+        #self.sess = tf.Session(graph=self.graph)
+        self.sess = tf.Session()
         self.hidden_layer = hidden_layer
         self.hidden_neuron = hidden_neuron
         self.service_ratio = service_ratio
@@ -76,6 +77,7 @@ class parameter:
                     biases = tf.Variable(tf.truncated_normal(
                         1, down_neuron), name='biases' + str(i) + 'area' + self.areaId)
             '''
+            '''
             Weights1 = tf.Variable(tf.truncated_normal(
                 shape=(31, 20)), name='weight_0')
             biases1 = tf.Variable(tf.truncated_normal(
@@ -89,11 +91,13 @@ class parameter:
                 shape=(15, 16)), name='weight_2')
             biases3 = tf.Variable(tf.truncated_normal(
                 shape=(1, 16)), name='bias_2')
+            '''
             xs = tf.placeholder(tf.float32, [None, 31])
+
             # 2.恢复
-            saver = tf.train.Saver()
+            #saver = tf.train.Saver()
             # with tf.Session() as sess:
-            #sess = tf.Session()
+            sess = tf.Session()
             model_storage_path = os.path.abspath(
                 os.path.join(sys.path[0], 'model_save'))
             model_storage_path = os.path.abspath(
@@ -105,7 +109,18 @@ class parameter:
             #modelName = "model_area" + self.areaId + ".ckpt-95000"
             #modelPath = "model_save/100erlang/" + modelName
             #saver.restore(sess, "model_save/tidal-model.ckpt-95000")
-            saver.restore(self.sess, model_name)
+            saver = tf.train.import_meta_graph(model_name+'.meta')
+            #saver.restore(self.sess, model_name)
+            saver.restore(
+                sess, tf.train.latest_checkpoint(model_storage_path))
+            graph = tf.get_default_graph()
+            w1 = graph.get_tensor_by_name('weight_0:0')
+            b1 = graph.get_tensor_by_name('bias_0:0')
+            w2 = graph.get_tensor_by_name('weight_1:0')
+            b2 = graph.get_tensor_by_name('bias_1:0')
+            w3 = graph.get_tensor_by_name('weight_2:0')
+            b3 = graph.get_tensor_by_name('bias_2:0')
+
             '''
             print('w1:')
             print(sess.run(Weights1))
@@ -116,13 +131,13 @@ class parameter:
             print('b2:')
             print(sess.run(biases2))
             '''
-            l1 = restore_layer(xs, self.sess.run(Weights1), self.sess.run(
-                biases1), activation_function=tf.nn.relu)
-            l2 = restore_layer(l1, self.sess.run(Weights2), self.sess.run(
-                biases2), activation_function=tf.nn.sigmoid)
-            prediction = restore_layer(l2, self.sess.run(
-                Weights3), self.sess.run(biases3), activation_function=None)
-            model_param = [self.sess, prediction, xs]
+            l1 = restore_layer(xs, sess.run(w1), sess.run(
+                b1), activation_function=tf.nn.relu)
+            l2 = restore_layer(l1, sess.run(w2), sess.run(
+                b2), activation_function=tf.nn.sigmoid)
+            prediction = restore_layer(l2, sess.run(
+                w3), sess.run(b3), activation_function=None)
+            model_param = [sess, prediction, xs]
         return model_param
 
 
@@ -158,15 +173,11 @@ def predict(model_param, input_data):
     prediction = model_param[1]
     xs = model_param[2]
     print('输入流量数据')
-    # print(input_data)
     x_test_raw = input_data
     x_feed_pre = np.array(x_test_raw)
-    # print('x_feed_pre:')
-    # print(x_feed_pre)
     x_feed = x_feed_pre.reshape((1, 31))
-    # print('x_feed:')
     print(x_feed)
     out_data = sess.run(prediction, feed_dict={xs: x_feed})
-    print('输出流量数据')
-    print(out_data)
+    # print('输出流量数据')
+    # print(out_data)
     return out_data

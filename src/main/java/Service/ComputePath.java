@@ -136,7 +136,7 @@ public class ComputePath extends Thread {
             SimpleEdge currentEdge = edgeIterator.next();
             if (this.graph.containsEdge(currentEdge)) {
                 // TODO:将来改成预测的边负载
-                this.graph.setEdgeWeight(currentEdge, currentEdge.getFutureLoad());
+                this.graph.setEdgeWeight(currentEdge, currentEdge.getFutureLoad() + 5); // 防止预测出负的边权
             }
         }
     }

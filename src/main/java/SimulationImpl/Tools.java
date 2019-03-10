@@ -95,10 +95,10 @@ public class Tools {
     /** 面向边 */
     public static NowEdgeTrafficData inputEdgeDataFormatTrans(NowIntervalEdgeTraffic inputdata) throws Exception {
         // check格式
-        // int sizeOfTrafficData = inputdata.getNowIntervalTraffic().size();
-        // if(sizeOfTrafficData != 45) {
-        // throw new Exception("发送link数据格式错误！");
-        // }
+        int sizeOfTrafficData = inputdata.getNowIntervalTraffic().size();
+        if (sizeOfTrafficData != 30) {
+            throw new Exception("发送link数据格式错误！");
+        }
         NowEdgeTrafficData outputData = new NowEdgeTrafficData(inputdata.nodeList, inputdata.timeOfHour,
                 inputdata.nowIntervalTraffic);
         return outputData;

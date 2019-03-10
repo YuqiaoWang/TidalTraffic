@@ -108,13 +108,13 @@ public class LoadCountTask extends TimerTask {
         this.nowTrafficForEdges = new HashMap<>();
         this.edgeIterator = edgeSet.iterator();
         // 初始化这个map
-        /*
-         * while(edgeIterator.hasNext()) { SimpleEdge currentEdge = edgeIterator.next();
-         * NowIntervalEdgeTraffic currentEdgeTraffic = new
-         * NowIntervalEdgeTraffic(currentEdge.srcVertex.nodeId,
-         * currentEdge.desVertex.nodeId);
-         * this.nowTrafficForEdges.put(currentEdge.toString(), currentEdgeTraffic); }
-         */
+        while (edgeIterator.hasNext()) {
+            SimpleEdge currentEdge = edgeIterator.next();
+            NowIntervalEdgeTraffic currentEdgeTraffic = new NowIntervalEdgeTraffic(currentEdge.srcVertex.nodeId,
+                    currentEdge.desVertex.nodeId);
+            this.nowTrafficForEdges.put(currentEdge.toString(), currentEdgeTraffic);
+        }
+
         this.clock = clock;
         this.tidalSignal = tidalSignal;
 
@@ -147,23 +147,31 @@ public class LoadCountTask extends TimerTask {
                 edgeIterator = edgeSet.iterator();
                 while (edgeIterator.hasNext()) {
                     SimpleEdge currentEdge = edgeIterator.next();
-                    FileWriter currentEdgeLoadWriter = edgeLoadCountMap.get(currentEdge);
-                    currentEdgeLoadWriter.write(
-                            (double) currentEdge.numberOfOccupatedWavelength / currentEdge.numberOfWavelenth + "\n");
-                    currentEdgeLoadWriter.flush();
+                    // 20190310 为光路提供策略，将下部分边流量统计文件写入去除
+                    /*
+                     * FileWriter currentEdgeLoadWriter = edgeLoadCountMap.get(currentEdge);
+                     * currentEdgeLoadWriter.write( (double) currentEdge.numberOfOccupatedWavelength
+                     * / currentEdge.numberOfWavelenth + "\n"); currentEdgeLoadWriter.flush();
+                     */
                     /** 201805015 注释为了统计数据 */
                     // 重构用到的每条边的1h流量数据
                     NowIntervalEdgeTraffic currentEdgeTraffic = currentEdge.nowIntervalEdgeTraffic;
-                    currentEdgeTraffic.nowIntervalTraffic
-                            .add((double) currentEdge.numberOfOccupatedWavelength / currentEdge.numberOfWavelenth);
+                    if (currentEdgeTraffic.nowIntervalTraffic.size() < 30) {
+                        currentEdgeTraffic.nowIntervalTraffic
+                                .add((double) currentEdge.numberOfOccupatedWavelength / currentEdge.numberOfWavelenth);
+                    }
+
                 }
 
                 /** 20181115 摘除重构触发环节，专注生成数据 */
                 /** 为向tensorflow传数据进行包装 */
-
-                area1NowIntervalTraffic.nowIntervalTraffic.add(area1.load / area1.totalCapacity);
+                if (area1NowIntervalTraffic.nowIntervalTraffic.size() < 30) {
+                    area1NowIntervalTraffic.nowIntervalTraffic.add(area1.load / area1.totalCapacity);
+                }
                 // area3NowIntervalTraffic.nowIntervalTraffic.add(area3.load /
                 // area3.totalCapacity);
+
+                // 将前1h的流量清除
                 if (this.writeTimes % 15 == 14 && this.writeTimes > 28) {
                     for (Trigger trigger : listenerList) {
                         trigger.flushTraffic(nowIntervalTrafficList, this.tidalSignal);

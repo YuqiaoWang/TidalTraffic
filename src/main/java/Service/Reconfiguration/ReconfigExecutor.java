@@ -121,4 +121,5 @@ public class ReconfigExecutor {
         service.wavelengthesNumber.clear();
         System.out.println("[service " + service.serviceId + "] has released the resource");
     }
+
 }

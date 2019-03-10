@@ -161,7 +161,7 @@ saver = tf.train.Saver(max_to_keep=1)  # 模型保存对象
 # 迭代1000次学习， sess.run optimizer
 #step = 100000
 begin_time = datetime.datetime.now()
-for i in range(step):
+for i in range(step+1):
     # training train_step 和 loss 都是由 placeholder 定义的运算，所以这里要用 feed 传入参数
     sess.run(train_step, feed_dict={xs: x_train_data, ys: y_train_data})
     #rs = sess.run(merged, feed_dict={xs: x_train_data, ys: y_train_data})
@@ -238,10 +238,9 @@ for i in range(0, hidden_layer):
     else:
         model_file_name = model_file_name + '_' + str(hidden_neurons[i])
 model_file_name = os.path.join(model_save_path, model_file_name)
-saver = tf.train.Saver()
-with tf.Session() as sess:
-    sess.run(tf.global_variables_initializer())
-    saver.save(sess, model_file_name, global_step=step)
+saver = tf.train.Saver(max_to_keep=1)
+#sess.run(tf.global_variables_initializer())
+saver.save(sess, model_file_name, global_step=step)
 print('模型参数已保存')
 
 training_time = end_time - begin_time

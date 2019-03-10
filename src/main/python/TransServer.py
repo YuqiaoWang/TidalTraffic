@@ -50,6 +50,8 @@ class TrafficDataServiceHandler:
         now_traffic = nowAreaTrafficData.nowAreaTraffic
         input_data = []
         input_data.append(time)
+        print('now_traffic 数据长度：')
+        print(len(now_traffic))
         for i in range(len(now_traffic)):
             input_data.append(now_traffic[i])
         # TODO : 将来要针对不同area调用不同的模型
@@ -62,9 +64,11 @@ class TrafficDataServiceHandler:
         out_data = predicted_data[0]
         # print(out_data)
         # print(type(out_data[0]))
+        print('out_data ：')
+        print(out_data)
         migration = out_data[0]
 
-        listTraffic = predicted_data[1:]
+        listTraffic = out_data[1:]
         '''
         if areaId is '1':
             row = self.sheet_area1.row(self.row_1)
@@ -81,8 +85,6 @@ class TrafficDataServiceHandler:
         '''
         #self.workbook_area.save('data/100erlang/area_predict_data.xls')
         #data = PredictedIntervalTrafficData(migration=migration, predictedIntervalTraffic=listTraffic)
-        print('到此为止正常,listTraffic如下：')
-        print(listTraffic)
         data = PredictedAreaTrafficData(
             migration=migration, predictedAreaTraffic=listTraffic)
         return data
