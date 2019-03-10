@@ -111,7 +111,7 @@ for i in range(0, hidden_layer):
             xs, input_num, hidden_neurons[0], activation_function=tf.nn.relu, weight_name='weight_edge_' + str(i), bias_name='bias_edge_' + str(i))
     else:
         current_layer_param = add_layer(current_layer_param[0], hidden_neurons[i-1], hidden_neurons[i],
-                                        activation_function=tf.nn.sigmoid, weight_name='weight_edge_' + str(i), bias_name='bia_edge_' + str(i))
+                                        activation_function=tf.nn.sigmoid, weight_name='weight_edge_' + str(i), bias_name='bias_edge_' + str(i))
     layers_params.append(current_layer_param)
 
 output_layer = add_layer(layers_params[-1][0], hidden_neurons[-1], output_num, activation_function=None,
@@ -143,7 +143,7 @@ saver = tf.train.Saver(max_to_keep=1)  # 模型保存对象
 
 # 6.训练过程
 begin_time = datetime.datetime.now()
-for i in range(step):
+for i in range(step+1):
     # training train_step 和 loss 都是由 placeholder 定义的运算，所以这里要用 feed 传入参数
     sess.run(train_step, feed_dict={xs: x_train_data, ys: y_train_data})
     if i % 5000 == 0:
@@ -207,9 +207,7 @@ for i in range(0, hidden_layer):
         model_file_name = model_file_name + '_' + str(hidden_neurons[i])
 model_file_name = os.path.join(model_save_path, model_file_name)
 saver = tf.train.Saver()
-with tf.Session() as sess:
-    sess.run(tf.global_variables_initializer())
-    saver.save(sess, model_file_name, global_step=step)
+saver.save(sess, model_file_name, global_step=step)
 print('模型参数已保存')
 
 training_time = end_time - begin_time

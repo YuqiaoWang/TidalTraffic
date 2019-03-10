@@ -15,15 +15,15 @@ import sklearn.metrics as metrics
 # 添加层
 def add_layer(inputs, in_size, out_size, activation_function=None, weight_name=None, bias_name=None):
     # add one more layer and return the output of this layer
-    with tf.name_scope('parameters'):
-        with tf.name_scope(weight_name):
-            Weights = tf.Variable(initial_value=tf.random_normal(
-                [in_size, out_size]), name=weight_name)
-            tf.summary.histogram(weight_name, Weights)
-        with tf.name_scope(bias_name):
-            biases = tf.Variable(initial_value=tf.zeros(
-                [1, out_size])+0.1, name=bias_name)
-            tf.summary.histogram(bias_name, biases)
+    #with tf.name_scope('parameters'):
+    #    with tf.name_scope(weight_name):
+    Weights = tf.Variable(initial_value=tf.random_normal(
+        [in_size, out_size]), name=weight_name)
+            #tf.summary.histogram(weight_name, Weights)
+        #with tf.name_scope(bias_name):
+    biases = tf.Variable(initial_value=tf.zeros(
+        [1, out_size])+0.1, name=bias_name)
+            #tf.summary.histogram(bias_name, biases)
     Wx_plus_b = tf.matmul(inputs, Weights) + biases
     if activation_function is None:
         outputs = Wx_plus_b
@@ -111,7 +111,7 @@ for i in range(0, hidden_layer):
             xs, input_num, hidden_neurons[0], activation_function=tf.nn.relu, weight_name='weight_' + str(i), bias_name='bias_' + str(i))
     else:
         current_layer_param = add_layer(current_layer_param[0], hidden_neurons[i-1], hidden_neurons[i],
-                                        activation_function=tf.nn.sigmoid, weight_name='weight_' + str(i), bias_name='bia_' + str(i))
+                                        activation_function=tf.nn.sigmoid, weight_name='weight_' + str(i), bias_name='bias_' + str(i))
     layers_params.append(current_layer_param)
 
 output_layer = add_layer(layers_params[-1][0], hidden_neurons[-1], output_num, activation_function=None,
@@ -161,7 +161,7 @@ saver = tf.train.Saver(max_to_keep=1)  # 模型保存对象
 # 迭代1000次学习， sess.run optimizer
 #step = 100000
 begin_time = datetime.datetime.now()
-for i in range(step):
+for i in range(step+1):
     # training train_step 和 loss 都是由 placeholder 定义的运算，所以这里要用 feed 传入参数
     sess.run(train_step, feed_dict={xs: x_train_data, ys: y_train_data})
     #rs = sess.run(merged, feed_dict={xs: x_train_data, ys: y_train_data})
@@ -175,7 +175,7 @@ for i in range(step):
         print('epoch:%d, val_loss:%f' % (i, currentLoss))
 
         # saver.save(sess, 'model_save/100erlang/model_area1.ckpt', global_step=i)
-#writer.close()
+# writer.close()
 end_time = datetime.datetime.now()
 
 # 7.0 & 8.0 路径定义
@@ -238,10 +238,9 @@ for i in range(0, hidden_layer):
     else:
         model_file_name = model_file_name + '_' + str(hidden_neurons[i])
 model_file_name = os.path.join(model_save_path, model_file_name)
-saver = tf.train.Saver()
-with tf.Session() as sess:
-    sess.run(tf.global_variables_initializer())
-    saver.save(sess, model_file_name, global_step=step)
+saver = tf.train.Saver(max_to_keep=1)
+#sess.run(tf.global_variables_initializer())
+saver.save(sess, model_file_name, global_step=step)
 print('模型参数已保存')
 
 training_time = end_time - begin_time

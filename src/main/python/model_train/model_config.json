@@ -2,14 +2,14 @@
     "model": {
         "type": "area",
         "area_name": "area1",
-        "service_ratio": 250
+        "service_ratio": 500
     },
     "param": {
         "input": 31,
         "output": 16,
         "hidden": {
-            "layer": 1,
-            "neuron": [7]
+            "layer": 2,
+            "neuron": [20,15]
         },
         "step": 100000
     }
