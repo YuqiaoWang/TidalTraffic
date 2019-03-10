@@ -1,7 +1,7 @@
 {
     "model": {
         "type": "edge",
-        "service_ratio": 250
+        "service_ratio": 450
     },
     "param": {
         "input": 45,
