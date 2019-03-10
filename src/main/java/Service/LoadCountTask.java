@@ -102,9 +102,9 @@ public class LoadCountTask extends TimerTask {
         this.reconfigStatistic = reconfigStatistic;
         this.nowIntervalTrafficList = new ArrayList<NowIntervalTraffic>();
         this.area1NowIntervalTraffic = new NowIntervalTraffic(area1.areaId);
-        this.area3NowIntervalTraffic = new NowIntervalTraffic(area3.areaId);
+        // this.area3NowIntervalTraffic = new NowIntervalTraffic(area3.areaId);
         this.nowIntervalTrafficList.add(area1NowIntervalTraffic);
-        this.nowIntervalTrafficList.add(area3NowIntervalTraffic);
+        // this.nowIntervalTrafficList.add(area3NowIntervalTraffic);
         this.nowTrafficForEdges = new HashMap<>();
         this.edgeIterator = edgeSet.iterator();
         // 初始化这个map
